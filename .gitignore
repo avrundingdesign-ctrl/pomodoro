@@ -1,0 +1,23 @@
+# macOS
+.DS_Store
+
+# Xcode
+build/
+DerivedData/
+*.xcuserstate
+*.xcuserdatad/
+xcuserdata/
+*.moved-aside
+*.hmap
+*.ipa
+*.dSYM.zip
+*.dSYM
+
+# Swift Package Manager
+.swiftpm/
+.build/
+
+# Downloaded Public-Domain paintings (fetch with Scripts/fetch_artworks.sh)
+FocusPiece/Resources/Artworks/*.jpg
+FocusPiece/Resources/Artworks/*.jpeg
+FocusPiece/Resources/Artworks/*.png
