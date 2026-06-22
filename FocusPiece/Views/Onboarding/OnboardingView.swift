@@ -85,13 +85,13 @@ private struct HowItWorksPage: View {
             VStack(alignment: .leading, spacing: 18) {
                 StepRow(icon: "clock",
                         title: "Setze deine Zeit",
-                        body: "Wähle 15 bis 60 Minuten ungestörter Konzentration.")
+                        text: "Wähle 15 bis 60 Minuten ungestörter Konzentration.")
                 StepRow(icon: "eye",
                         title: "Bleib im Bild",
-                        body: "Verlässt du die App, hält die Enthüllung sanft inne.")
+                        text: "Verlässt du die App, hält die Enthüllung sanft inne.")
                 StepRow(icon: "photo.on.rectangle",
                         title: "Sammle Meisterwerke",
-                        body: "Jede vollendete Session schaltet ein Werk frei.")
+                        text: "Jede vollendete Session schaltet ein Werk frei.")
             }
 
             Spacer()
@@ -106,7 +106,7 @@ private struct HowItWorksPage: View {
 private struct StepRow: View {
     let icon: String
     let title: String
-    let body: String
+    let text: String
 
     var body: some View {
         HStack(alignment: .top, spacing: 16) {
@@ -120,7 +120,7 @@ private struct StepRow: View {
                 Text(title)
                     .font(Theme.Font.serif(19, weight: .medium))
                     .foregroundStyle(Theme.Palette.ink)
-                Text(body)
+                Text(text)
                     .font(Theme.Font.sans(15))
                     .lineSpacing(4)
                     .foregroundStyle(Theme.Palette.muted)
