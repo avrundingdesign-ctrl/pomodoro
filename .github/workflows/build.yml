@@ -25,13 +25,21 @@ jobs:
       - name: Xcode version
         run: xcodebuild -version
 
-      - name: Build
+      - name: Pick a simulator
+        id: sim
+        run: |
+          DEVICE=$(xcrun simctl list devices available \
+            | grep -oE 'iPhone [0-9]+( Pro( Max)?| Plus)?' | head -1)
+          echo "Using simulator: $DEVICE"
+          echo "device=$DEVICE" >> "$GITHUB_OUTPUT"
+
+      - name: Build & test
         run: |
           set -o pipefail
-          xcodebuild build \
+          xcodebuild test \
             -project FocusPiece.xcodeproj \
             -scheme FocusPiece \
             -configuration Debug \
-            -destination 'generic/platform=iOS Simulator' \
+            -destination "platform=iOS Simulator,name=${{ steps.sim.outputs.device }}" \
             CODE_SIGNING_ALLOWED=NO \
             | tee build.log

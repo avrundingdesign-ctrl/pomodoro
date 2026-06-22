@@ -38,10 +38,20 @@ final class SessionModel: ObservableObject {
         guard totalSeconds > 0 else { return 0 }
         return Double(totalSeconds - remainingSeconds) / Double(totalSeconds)
     }
-    /// How many tiles should currently be sharp: floor(progress * 20), full at completion.
+    /// How many tiles should currently be sharp: floor(progress · 20), full at completion.
     var revealedCount: Int {
-        if state == .complete { return Self.tileCount }
-        return min(Self.tileCount, Int(floor(progress * Double(Self.tileCount))))
+        Self.revealedCount(progress: progress, isComplete: state == .complete)
+    }
+
+    /// Pure mapping from progress → revealed tile count. Shared by the view and tests.
+    static func revealedCount(progress: Double, isComplete: Bool) -> Int {
+        if isComplete { return tileCount }
+        return min(tileCount, max(0, Int(floor(progress * Double(tileCount)))))
+    }
+
+    /// The set of tile indices (0…19, row-major) that are sharp at a given count.
+    static func revealedTiles(count: Int) -> Set<Int> {
+        Set(revealOrder.prefix(count))
     }
     /// "9 VON 20 TEILEN"
     var revealedLabel: String { "\(revealedCount) VON \(Self.tileCount) TEILEN" }
@@ -68,7 +78,9 @@ final class SessionModel: ObservableObject {
 
     func toggle() { state == .running ? pause() : start() }
 
-    private func tick() {
+    /// Advances the countdown by one second. Driven by the timer; exposed at
+    /// internal access so the test suite can step the session deterministically.
+    func tick() {
         // Gentle start: let the first beats settle before the clock moves.
         if gentleSettleTicks > 0 { gentleSettleTicks -= 1; return }
         guard remainingSeconds > 0 else { complete(); return }

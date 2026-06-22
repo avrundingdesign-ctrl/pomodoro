@@ -30,18 +30,19 @@ final class AppModel: ObservableObject {
     }
     @Published var selectedTab: Tab = .focus
 
-    private let defaults = UserDefaults.standard
+    private let defaults: UserDefaults
     private enum Keys {
         static let onboarding = "fp.onboardingComplete"
         static let settings   = "fp.settings"
         static let collection = "fp.collection"
     }
 
-    init() {
-        let d = UserDefaults.standard
-        onboardingComplete = d.bool(forKey: Keys.onboarding)
-        settings = Self.load(Settings.self, key: Keys.settings, from: d) ?? Settings()
-        collection = Self.load([Artwork].self, key: Keys.collection, from: d) ?? Artwork.seedCollection
+    /// `defaults` is injectable so tests can use an isolated, ephemeral store.
+    init(defaults: UserDefaults = .standard) {
+        self.defaults = defaults
+        onboardingComplete = defaults.bool(forKey: Keys.onboarding)
+        settings = Self.load(Settings.self, key: Keys.settings, from: defaults) ?? Settings()
+        collection = Self.load([Artwork].self, key: Keys.collection, from: defaults) ?? Artwork.seedCollection
     }
 
     // MARK: Derived

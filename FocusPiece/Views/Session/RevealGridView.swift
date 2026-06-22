@@ -16,7 +16,7 @@ struct RevealGridView: View {
 
     /// The set of tile indices (0…19, row-major) that are currently sharp.
     private var revealedTiles: Set<Int> {
-        Set(SessionModel.revealOrder.prefix(revealedCount))
+        SessionModel.revealedTiles(count: revealedCount)
     }
 
     var body: some View {
