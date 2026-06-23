@@ -15,6 +15,7 @@ struct SettingsView: View {
                     .font(Theme.Font.serif(32))
                     .tracking(-0.3)
                     .foregroundStyle(Theme.Palette.ink)
+                    .accessibilityIdentifier("settings.title")
                 Spacer()
             }
             .padding(.horizontal, 28)
@@ -25,31 +26,38 @@ struct SettingsView: View {
                     SettingsGroup(title: "Session") {
                         PickerRow(label: "Standarddauer",
                                   value: "\(app.settings.selectedDuration) Min",
-                                  options: durations.map { "\($0) Min" }) { picked in
+                                  options: durations.map { "\($0) Min" },
+                                  identifier: "settings.duration") { picked in
                             if let m = Int(picked.replacingOccurrences(of: " Min", with: "")) {
                                 app.settings.selectedDuration = m
                             }
                         }
                         Divider().overlay(Theme.Palette.hairline3)
-                        ToggleRow(label: "Sanfter Start", isOn: $app.settings.gentleStart)
+                        ToggleRow(label: "Sanfter Start", isOn: $app.settings.gentleStart,
+                                  identifier: "settings.toggle.gentleStart")
                     }
 
                     SettingsGroup(title: "Klang & Haptik") {
                         PickerRow(label: "Umgebungsklang",
                                   value: app.settings.ambientSound,
-                                  options: sounds) { app.settings.ambientSound = $0 }
+                                  options: sounds,
+                                  identifier: "settings.sound") { app.settings.ambientSound = $0 }
                         Divider().overlay(Theme.Palette.hairline3)
-                        ToggleRow(label: "Abschluss-Ton", isOn: $app.settings.completionTone)
+                        ToggleRow(label: "Abschluss-Ton", isOn: $app.settings.completionTone,
+                                  identifier: "settings.toggle.completionTone")
                         Divider().overlay(Theme.Palette.hairline3)
-                        ToggleRow(label: "Haptisches Feedback", isOn: $app.settings.haptics)
+                        ToggleRow(label: "Haptisches Feedback", isOn: $app.settings.haptics,
+                                  identifier: "settings.toggle.haptics")
                     }
 
                     SettingsGroup(title: "Darstellung") {
                         PickerRow(label: "Thema",
                                   value: app.settings.theme,
-                                  options: themes) { app.settings.theme = $0 }
+                                  options: themes,
+                                  identifier: "settings.theme") { app.settings.theme = $0 }
                         Divider().overlay(Theme.Palette.hairline3)
-                        ToggleRow(label: "Benachrichtigungen", isOn: $app.settings.notifications)
+                        ToggleRow(label: "Benachrichtigungen", isOn: $app.settings.notifications,
+                                  identifier: "settings.toggle.notifications")
                     }
 
                     Text("FocusPiece · Version 1.0")
@@ -57,6 +65,7 @@ struct SettingsView: View {
                         .foregroundStyle(Theme.Palette.muted3Soft)
                         .frame(maxWidth: .infinity)
                         .padding(.top, 4)
+                        .accessibilityIdentifier("settings.version")
                 }
                 .padding(.horizontal, 24)
                 .padding(.bottom, 24)
@@ -94,6 +103,7 @@ private struct SettingsGroup<Content: View>: View {
 private struct ToggleRow: View {
     let label: String
     @Binding var isOn: Bool
+    var identifier: String? = nil
 
     var body: some View {
         HStack {
@@ -102,6 +112,7 @@ private struct ToggleRow: View {
                 .foregroundStyle(Theme.Palette.ink)
             Spacer()
             AppToggle(isOn: $isOn)
+                .accessibilityIdentifier(identifier ?? "")
         }
         .padding(.vertical, 14)
     }
@@ -111,6 +122,7 @@ private struct PickerRow: View {
     let label: String
     let value: String
     let options: [String]
+    var identifier: String? = nil
     let onSelect: (String) -> Void
 
     var body: some View {
@@ -135,5 +147,6 @@ private struct PickerRow: View {
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
+        .accessibilityIdentifier(identifier ?? "")
     }
 }

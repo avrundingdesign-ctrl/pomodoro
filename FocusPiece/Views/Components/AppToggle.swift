@@ -21,5 +21,7 @@ struct AppToggle: View {
                 }
         }
         .buttonStyle(.plain)
+        .accessibilityAddTraits(.isButton)
+        .accessibilityValue(isOn ? "on" : "off")
     }
 }

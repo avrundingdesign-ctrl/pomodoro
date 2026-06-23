@@ -15,8 +15,14 @@ struct GalleryView: View {
             ScrollView {
                 LazyVGrid(columns: columns, spacing: 14) {
                     ForEach(app.collection) { art in
-                        GalleryTile(artwork: art)
-                            .onTapGesture { if art.unlocked { selected = art } }
+                        if art.unlocked {
+                            Button { selected = art } label: { GalleryTile(artwork: art) }
+                                .buttonStyle(.plain)
+                                .accessibilityIdentifier("gallery.tile.unlocked.\(art.id)")
+                        } else {
+                            GalleryTile(artwork: art)
+                                .accessibilityIdentifier("gallery.tile.locked.\(art.id)")
+                        }
                     }
                 }
                 .padding(.horizontal, 28)
@@ -39,11 +45,13 @@ struct GalleryView: View {
                 Text("\(app.unlockedCount) von \(app.totalCount) Werken enthüllt")
                     .font(Theme.Font.sans(14))
                     .foregroundStyle(Theme.Palette.muted2)
+                    .accessibilityIdentifier("gallery.count")
             }
             Spacer()
             Text("\(app.totalFocusHours) Std Fokus")
                 .font(Theme.Font.sans(13, weight: .medium))
                 .foregroundStyle(Theme.Palette.accent)
+                .accessibilityIdentifier("gallery.hours")
         }
         .padding(.horizontal, 28)
         .padding(.top, 8)

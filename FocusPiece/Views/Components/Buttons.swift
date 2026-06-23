@@ -53,6 +53,7 @@ struct CircleIconButton: View {
     var background: Color = Theme.Palette.circleButton
     var iconColor: Color = Theme.Palette.ink
     var iconSize: CGFloat = 16
+    var identifier: String? = nil
     let action: () -> Void
 
     var body: some View {
@@ -65,6 +66,7 @@ struct CircleIconButton: View {
                 .clipShape(Circle())
         }
         .buttonStyle(.plain)
+        .accessibilityIdentifier(identifier ?? "")
     }
 }
 

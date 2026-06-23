@@ -29,6 +29,10 @@ struct SessionFlowView: View {
         .onChange(of: scenePhase) { _, phase in
             if phase != .active, session.state == .running { session.pause() }
         }
+        // A session reaching 00:00 counts toward the focus stats once.
+        .onChange(of: session.state) { _, state in
+            if state == .complete { app.recordCompletedSession(minutes: session.durationMinutes) }
+        }
     }
 
     private func saveAndCollect() {
@@ -36,9 +40,14 @@ struct SessionFlowView: View {
         leave()
     }
 
-    /// Close the session and return to the gallery. Re-entering the Fokus tab
-    /// builds a fresh ready session with a new hidden work.
-    private func leave() { app.selectedTab = .gallery }
+    /// Close the session and return to the gallery. Closing a session that was
+    /// under way (but not finished) counts as an aborted session.
+    private func leave() {
+        if session.state == .running || session.state == .paused {
+            app.recordAbortedSession()
+        }
+        app.selectedTab = .gallery
+    }
 }
 
 // MARK: - Ready / Running / Paused
@@ -79,13 +88,13 @@ private struct ActiveSessionView: View {
     // Header: round back · "Neue Session" · round close
     private var header: some View {
         HStack {
-            CircleIconButton(systemName: "chevron.left") { onClose() }
+            CircleIconButton(systemName: "chevron.left", identifier: "session.back") { onClose() }
             Spacer()
             Text("Neue Session")
                 .font(Theme.Font.sans(15))
                 .foregroundStyle(Theme.Palette.muted)
             Spacer()
-            CircleIconButton(systemName: "xmark") { onClose() }
+            CircleIconButton(systemName: "xmark", identifier: "session.close") { onClose() }
         }
         .padding(.top, 6)
         .padding(.bottom, 12)
@@ -98,6 +107,7 @@ private struct ActiveSessionView: View {
             .tracking(0.7)
             .foregroundStyle(Theme.Palette.ink)
             .monospacedDigit()
+            .accessibilityIdentifier("session.timer")
     }
 
     private var statusLine: some View {
@@ -107,6 +117,7 @@ private struct ActiveSessionView: View {
                 .font(Theme.Font.sans(13, weight: .medium))
                 .tracking(0.5)
                 .foregroundStyle(Theme.Palette.muted2)
+                .accessibilityIdentifier("session.status")
         }
     }
 
@@ -149,6 +160,7 @@ private struct ActiveSessionView: View {
                 .tracking(0.7)
                 .foregroundStyle(Theme.Palette.ink)
                 .monospacedDigit()
+                .accessibilityIdentifier("session.timer")
             Text("Minuten ungestörter Fokus")
                 .font(Theme.Font.sans(14))
                 .foregroundStyle(Theme.Palette.muted2)
@@ -172,6 +184,7 @@ private struct ActiveSessionView: View {
     @ViewBuilder private var controls: some View {
         if isReady {
             PrimaryButton(title: "Fokus beginnen", height: 60) { session.start() }
+                .accessibilityIdentifier("session.begin")
         } else {
             VStack(spacing: 12) {
                 CircleIconButton(
@@ -179,7 +192,8 @@ private struct ActiveSessionView: View {
                     diameter: 66,
                     background: Theme.Palette.circleButton,
                     iconColor: Theme.Palette.bodySoft,
-                    iconSize: 22) { session.toggle() }
+                    iconSize: 22,
+                    identifier: "session.toggle") { session.toggle() }
                 Text(session.state == .paused ? "Fortsetzen" : "Pausieren")
                     .font(Theme.Font.sans(14, weight: .medium))
                     .foregroundStyle(Theme.Palette.muted2)

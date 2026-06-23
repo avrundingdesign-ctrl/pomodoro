@@ -43,12 +43,14 @@ struct CompletionView: View {
                 .background(Theme.Palette.surface2)
                 .clipShape(Capsule())
                 .padding(.bottom, 18)
+                .accessibilityIdentifier("completion.badge")
 
                 Text(session.artwork.title)
                     .font(Theme.Font.serif(36))
                     .tracking(-0.3)
                     .foregroundStyle(Theme.Palette.ink)
                     .padding(.bottom, 6)
+                    .accessibilityIdentifier("completion.title")
                 Text(session.artwork.attribution)
                     .font(Theme.Font.serifItalic(16))
                     .foregroundStyle(Theme.Palette.artistInk)
@@ -67,6 +69,7 @@ struct CompletionView: View {
 
                 VStack(spacing: 12) {
                     PrimaryButton(title: "In Galerie speichern", action: onSave)
+                        .accessibilityIdentifier("completion.save")
                     ShareLink(item: shareText) {
                         Text("Teilen")
                             .font(Theme.Font.sans(15, weight: .semibold))

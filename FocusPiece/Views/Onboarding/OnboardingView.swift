@@ -60,6 +60,7 @@ private struct WelcomePage: View {
                         .padding(.bottom, 30)
                     PageDots(count: 3, index: 0).padding(.bottom, 24)
                     PrimaryButton(title: "Weiter") { index = 1 }
+                        .accessibilityIdentifier("onboarding.next")
                 }
                 .padding(.horizontal, 34)
                 .padding(.bottom, 24)
@@ -97,6 +98,7 @@ private struct HowItWorksPage: View {
             Spacer()
             PageDots(count: 3, index: 1).padding(.bottom, 24)
             PrimaryButton(title: "Weiter") { index = 2 }
+                .accessibilityIdentifier("onboarding.next")
         }
         .padding(.horizontal, 24)
         .padding(.bottom, 24)
@@ -156,6 +158,7 @@ private struct FirstSessionPage: View {
                                  isActive: app.settings.selectedDuration == minutes) {
                         app.settings.selectedDuration = minutes
                     }
+                    .accessibilityIdentifier("duration.\(minutes)")
                 }
             }
             .padding(.bottom, 24)
@@ -165,6 +168,7 @@ private struct FirstSessionPage: View {
             Spacer()
             PageDots(count: 3, index: 2).padding(.bottom, 24)
             PrimaryButton(title: "Session beginnen", height: 60, action: onStart)
+                .accessibilityIdentifier("onboarding.start")
         }
         .padding(.horizontal, 28)
         .padding(.bottom, 24)

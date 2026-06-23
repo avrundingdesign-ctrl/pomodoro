@@ -26,8 +26,10 @@ final class SessionModel: ObservableObject {
 
     init(durationMinutes: Int, artwork: Artwork, gentleStart: Bool) {
         self.durationMinutes = durationMinutes
-        self.totalSeconds = durationMinutes * 60
-        self.remainingSeconds = durationMinutes * 60
+        // UI tests can shorten the session so completion is reachable quickly.
+        let seconds = LaunchConfig.sessionSeconds ?? durationMinutes * 60
+        self.totalSeconds = seconds
+        self.remainingSeconds = seconds
         self.artwork = artwork
         self.gentleSettleTicks = gentleStart ? 2 : 0
     }
@@ -65,7 +67,8 @@ final class SessionModel: ObservableObject {
     func start() {
         guard state == .ready || state == .paused else { return }
         state = .running
-        timer = Timer.publish(every: 1, on: .main, in: .common)
+        let interval = LaunchConfig.tickInterval ?? 1
+        timer = Timer.publish(every: interval, on: .main, in: .common)
             .autoconnect()
             .sink { [weak self] _ in self?.tick() }
     }

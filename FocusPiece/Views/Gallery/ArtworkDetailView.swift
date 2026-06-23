@@ -42,6 +42,7 @@ struct ArtworkDetailView: View {
                                 .clipShape(Circle())
                         }
                         .buttonStyle(.plain)
+                        .accessibilityIdentifier("detail.back")
                         .padding(.leading, 24).padding(.top, 8)
                     }
                     .ignoresSafeArea(edges: .top)
@@ -52,6 +53,7 @@ struct ArtworkDetailView: View {
                         .tracking(-0.3)
                         .foregroundStyle(Theme.Palette.ink)
                         .padding(.bottom, 6)
+                        .accessibilityIdentifier("detail.title")
                     Text(artwork.attribution)
                         .font(Theme.Font.serifItalic(16))
                         .foregroundStyle(Theme.Palette.artistInk)

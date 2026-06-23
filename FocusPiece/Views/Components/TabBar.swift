@@ -38,5 +38,14 @@ struct TabBar: View {
             .frame(maxWidth: .infinity)
         }
         .buttonStyle(.plain)
+        .accessibilityIdentifier("tab.\(identifier(tab))")
+    }
+
+    private func identifier(_ tab: Tab) -> String {
+        switch tab {
+        case .focus: return "focus"
+        case .gallery: return "gallery"
+        case .settings: return "settings"
+        }
     }
 }

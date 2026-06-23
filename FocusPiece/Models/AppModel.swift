@@ -15,6 +15,15 @@ struct Settings: Codable, Equatable {
 /// Top-level tabs.
 enum Tab: Hashable { case focus, gallery, settings }
 
+/// Lightweight, cache-only usage stats. (Single implicit profile for now.)
+struct Stats: Codable, Equatable {
+    var sessionsCompleted: Int = 0      // every session that reached 00:00
+    var totalFocusMinutes: Int = 0      // summed across all completed sessions
+    var sessionsAborted: Int = 0        // started then closed before completion
+
+    var totalFocusHours: Int { totalFocusMinutes / 60 }
+}
+
 /// Global, persistent application state.
 @MainActor
 final class AppModel: ObservableObject {
@@ -28,6 +37,9 @@ final class AppModel: ObservableObject {
     @Published var collection: [Artwork] {
         didSet { persist(collection, key: Keys.collection) }
     }
+    @Published var stats: Stats {
+        didSet { persist(stats, key: Keys.stats) }
+    }
     @Published var selectedTab: Tab = .focus
 
     private let defaults: UserDefaults
@@ -35,20 +47,36 @@ final class AppModel: ObservableObject {
         static let onboarding = "fp.onboardingComplete"
         static let settings   = "fp.settings"
         static let collection = "fp.collection"
+        static let stats      = "fp.stats"
     }
 
     /// `defaults` is injectable so tests can use an isolated, ephemeral store.
     init(defaults: UserDefaults = .standard) {
         self.defaults = defaults
-        onboardingComplete = defaults.bool(forKey: Keys.onboarding)
+
+        // UI-test launch hooks (no effect in normal runs).
+        if LaunchConfig.reset {
+            [Keys.onboarding, Keys.settings, Keys.collection, Keys.stats].forEach {
+                defaults.removeObject(forKey: $0)
+            }
+        }
+
+        onboardingComplete = LaunchConfig.startOnboarded || defaults.bool(forKey: Keys.onboarding)
         settings = Self.load(Settings.self, key: Keys.settings, from: defaults) ?? Settings()
         collection = Self.load([Artwork].self, key: Keys.collection, from: defaults) ?? Artwork.seedCollection
+        stats = Self.load(Stats.self, key: Keys.stats, from: defaults) ?? Stats()
+
+        if LaunchConfig.unlockOne, let idx = collection.firstIndex(where: { !$0.unlocked }) {
+            collection[idx].unlocked = true
+            collection[idx].unlockedDate = Date()
+            collection[idx].sessionMinutes = settings.selectedDuration
+        }
     }
 
     // MARK: Derived
     var unlockedCount: Int { collection.filter(\.unlocked).count }
     var totalCount: Int { collection.count }
-    /// Total focused minutes across the whole collection.
+    /// Total focused minutes across collected works (drives the gallery stat).
     var totalFocusMinutes: Int { collection.compactMap(\.sessionMinutes).reduce(0, +) }
     var totalFocusHours: Int { totalFocusMinutes / 60 }
 
@@ -63,6 +91,17 @@ final class AppModel: ObservableObject {
         collection[idx].unlocked = true
         collection[idx].unlockedDate = Date()
         collection[idx].sessionMinutes = minutes
+    }
+
+    /// Record a fully completed focus session in the stats cache.
+    func recordCompletedSession(minutes: Int) {
+        stats.sessionsCompleted += 1
+        stats.totalFocusMinutes += minutes
+    }
+
+    /// Record a session that was started and then abandoned before completion.
+    func recordAbortedSession() {
+        stats.sessionsAborted += 1
     }
 
     func finishOnboarding() { onboardingComplete = true }

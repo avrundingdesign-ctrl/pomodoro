@@ -38,6 +38,16 @@
                ReferencedContainer = "container:FocusPiece.xcodeproj">
             </BuildableReference>
          </TestableReference>
+         <TestableReference
+            skipped = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "FC000000000000000000001C"
+               BuildableName = "FocusPieceUITests.xctest"
+               BlueprintName = "FocusPieceUITests"
+               ReferencedContainer = "container:FocusPiece.xcodeproj">
+            </BuildableReference>
+         </TestableReference>
       </Testables>
    </TestAction>
    <LaunchAction

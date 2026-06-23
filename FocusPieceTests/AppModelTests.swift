@@ -93,6 +93,38 @@ final class AppModelTests: XCTestCase {
         XCTAssertEqual(reloaded.unlockedCount, 1)
     }
 
+    // MARK: Stats
+    func test_recordCompletedSession_incrementsStats() {
+        let (app, _) = makeModel()
+        XCTAssertEqual(app.stats.sessionsCompleted, 0)
+        app.recordCompletedSession(minutes: 25)
+        app.recordCompletedSession(minutes: 45)
+        XCTAssertEqual(app.stats.sessionsCompleted, 2)
+        XCTAssertEqual(app.stats.totalFocusMinutes, 70)
+        XCTAssertEqual(app.stats.totalFocusHours, 1)
+    }
+
+    func test_recordAbortedSession_incrementsAbortCount() {
+        let (app, _) = makeModel()
+        app.recordAbortedSession()
+        app.recordAbortedSession()
+        XCTAssertEqual(app.stats.sessionsAborted, 2)
+        XCTAssertEqual(app.stats.sessionsCompleted, 0)
+    }
+
+    func test_stats_persistAcrossInstances() {
+        let suite = "test.\(UUID().uuidString)"
+        let defaults = UserDefaults(suiteName: suite)!
+        defaults.removePersistentDomain(forName: suite)
+        do {
+            let app = AppModel(defaults: defaults)
+            app.recordCompletedSession(minutes: 60)
+        }
+        let reloaded = AppModel(defaults: defaults)
+        XCTAssertEqual(reloaded.stats.sessionsCompleted, 1)
+        XCTAssertEqual(reloaded.stats.totalFocusMinutes, 60)
+    }
+
     func test_settings_codableRoundTrip() throws {
         var s = Settings()
         s.selectedDuration = 60
