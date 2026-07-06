@@ -32,8 +32,12 @@ private struct MainTabs: View {
                 SessionFlowView(app: app)
             case .gallery:
                 tabbed { GalleryView() }
-            case .settings:
-                tabbed { SettingsView() }
+            case .community:
+                tabbed { CommunityView() }
+            case .store:
+                tabbed { StoreView() }
+            case .profile:
+                tabbed { ProfileView() }
             }
         }
     }

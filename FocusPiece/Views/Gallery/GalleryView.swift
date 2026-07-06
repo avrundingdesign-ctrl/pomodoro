@@ -41,9 +41,16 @@ struct GalleryView: View {
                     .foregroundStyle(Theme.Palette.muted2)
             }
             Spacer()
-            Text("\(app.totalFocusHours) Std Fokus")
-                .font(Theme.Font.sans(13, weight: .medium))
-                .foregroundStyle(Theme.Palette.accent)
+            VStack(alignment: .trailing, spacing: 4) {
+                Text(app.focusTimeLabel)
+                    .font(Theme.Font.sans(13, weight: .medium))
+                    .foregroundStyle(Theme.Palette.accent)
+                if app.streakDays >= 2 {
+                    Text("\(app.streakDays) Tage in Folge")
+                        .font(Theme.Font.sans(12))
+                        .foregroundStyle(Theme.Palette.muted2)
+                }
+            }
         }
         .padding(.horizontal, 28)
         .padding(.top, 8)
@@ -55,8 +62,20 @@ private struct GalleryTile: View {
     let artwork: Artwork
 
     var body: some View {
+        // Overlay pattern: the tile's size comes from the grid column + aspect
+        // ratio alone — the fill image must not drive the layout width.
+        Color.clear
+            .aspectRatio(3.0/4.0, contentMode: .fit)
+            .overlay(tileContent)
+            .background(Theme.Palette.hairline)
+            .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.galleryTile, style: .continuous))
+    }
+
+    private var tileContent: some View {
         ZStack {
-            ArtworkImage(assetName: artwork.assetName, contentMode: .fill)
+            // Same trick one level down: the image must not inflate the ZStack.
+            Color.clear
+                .overlay(ArtworkImage(assetName: artwork.assetName, contentMode: .fill))
 
             if artwork.unlocked {
                 // Title overlay at the bottom.
@@ -96,8 +115,5 @@ private struct GalleryTile: View {
                 }
             }
         }
-        .aspectRatio(3.0/4.0, contentMode: .fill)
-        .background(Theme.Palette.hairline)
-        .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.galleryTile, style: .continuous))
     }
 }

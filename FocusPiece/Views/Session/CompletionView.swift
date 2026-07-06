@@ -4,17 +4,24 @@ import SwiftUI
 struct CompletionView: View {
     @EnvironmentObject var app: AppModel
     @ObservedObject var session: SessionModel
-    let onSave: () -> Void
+    let onDone: () -> Void
 
-    /// Ordinal this work will take in the collection ("7. Werk gesammelt").
-    private var collectedOrdinal: Int { app.unlockedCount + 1 }
+    @State private var shareImage: UIImage?
+
+    /// Ordinal this work takes in the collection ("7. Werk gesammelt") —
+    /// the unlock already happened when the last round completed.
+    private var collectedOrdinal: Int { max(1, app.unlockedCount) }
+    /// Free session over an already collected work (everything unlocked).
+    private var isFreeSession: Bool { session.isFreeSession }
 
     var body: some View {
         VStack(spacing: 0) {
             // Sharp full painting with a wash to paper at the bottom.
-            ArtworkImage(assetName: session.artwork.assetName, contentMode: .fill)
+            // (Overlay pattern: the fill image must not drive the layout width.)
+            Color.clear
                 .frame(height: 486)
                 .frame(maxWidth: .infinity)
+                .overlay(ArtworkImage(assetName: session.artwork.assetName, contentMode: .fill))
                 .clipped()
                 .overlay(
                     LinearGradient(
@@ -56,8 +63,15 @@ struct CompletionView: View {
 
                 // Stat row with hairline top/bottom.
                 HStack(spacing: 0) {
-                    stat(value: "\(session.durationMinutes)", caption: "Minuten Fokus")
-                    stat(value: "\(collectedOrdinal).", caption: "Werk gesammelt", leadingDivider: true)
+                    stat(value: "\(session.cycleFocusMinutes)",
+                         caption: session.totalRounds > 1
+                            ? "Minuten · \(session.totalRounds) Runden"
+                            : "Minuten Fokus")
+                    if isFreeSession {
+                        stat(value: "Frei", caption: "Alle Werke enthüllt", leadingDivider: true)
+                    } else {
+                        stat(value: "\(collectedOrdinal).", caption: "Werk gesammelt", leadingDivider: true)
+                    }
                 }
                 .overlay(Rectangle().fill(Theme.Palette.hairline).frame(height: 1), alignment: .top)
                 .overlay(Rectangle().fill(Theme.Palette.hairline).frame(height: 1), alignment: .bottom)
@@ -66,17 +80,18 @@ struct CompletionView: View {
                 Spacer(minLength: 0)
 
                 VStack(spacing: 12) {
-                    PrimaryButton(title: "In Galerie speichern", action: onSave)
-                    ShareLink(item: shareText) {
-                        Text("Teilen")
-                            .font(Theme.Font.sans(15, weight: .semibold))
-                            .foregroundStyle(Theme.Palette.bodySoft)
-                            .frame(maxWidth: .infinity)
-                            .frame(height: 52)
-                            .overlay(
-                                RoundedRectangle(cornerRadius: Theme.Radius.primaryButton, style: .continuous)
-                                    .stroke(Color(hex: 0xDDD5C7), lineWidth: 1)
-                            )
+                    PrimaryButton(title: isFreeSession ? "Zurück zur Galerie" : "In Galerie speichern",
+                                  action: onDone)
+                    HStack(spacing: 12) {
+                        // The classic long break after a full cycle — optional.
+                        Button {
+                            Feedback.tap(app.settings.haptics)
+                            session.startLongBreak()
+                        } label: {
+                            secondaryLabel("\(session.longBreakMinutes) Min Pause")
+                        }
+                        .buttonStyle(.plain)
+                        shareLink
                     }
                 }
                 .padding(.bottom, 30)
@@ -84,10 +99,49 @@ struct CompletionView: View {
             .padding(.horizontal, 34)
             .padding(.top, 6)
         }
+        .onAppear(perform: renderShareCard)
+    }
+
+    // MARK: Share
+    /// Shares a rendered picture card; falls back to text while rendering.
+    @ViewBuilder private var shareLink: some View {
+        if let ui = shareImage {
+            ShareLink(item: Image(uiImage: ui),
+                      preview: SharePreview(session.artwork.title, image: Image(uiImage: ui))) {
+                shareLabel
+            }
+        } else {
+            ShareLink(item: shareText) { shareLabel }
+        }
+    }
+
+    private var shareLabel: some View { secondaryLabel("Teilen") }
+
+    /// Bordered secondary button label (share / long break).
+    private func secondaryLabel(_ title: String) -> some View {
+        Text(title)
+            .font(Theme.Font.sans(15, weight: .semibold))
+            .foregroundStyle(Theme.Palette.bodySoft)
+            .lineLimit(1)
+            .minimumScaleFactor(0.8)
+            .frame(maxWidth: .infinity)
+            .frame(height: 52)
+            .overlay(
+                RoundedRectangle(cornerRadius: Theme.Radius.primaryButton, style: .continuous)
+                    .stroke(Color(hex: 0xDDD5C7), lineWidth: 1)
+            )
     }
 
     private var shareText: String {
-        "Ich habe gerade „\(session.artwork.title)“ von \(session.artwork.attribution) in FocusPiece enthüllt — nach \(session.durationMinutes) Minuten Fokus."
+        "Ich habe gerade „\(session.artwork.title)“ von \(session.artwork.attribution) in FocusPiece enthüllt — nach \(session.cycleFocusMinutes) Minuten Fokus."
+    }
+
+    private func renderShareCard() {
+        let renderer = ImageRenderer(content: ShareCardView(
+            artwork: session.artwork, minutes: session.cycleFocusMinutes))
+        renderer.scale = 3
+        renderer.proposedSize = .init(width: 360, height: 480)
+        shareImage = renderer.uiImage
     }
 
     private func stat(value: String, caption: String, leadingDivider: Bool = false) -> some View {
@@ -107,5 +161,48 @@ struct CompletionView: View {
                 Rectangle().fill(Theme.Palette.hairline).frame(width: 1)
             }
         }
+    }
+}
+
+// MARK: - Share card
+/// The picture card rendered for the share sheet (360×480 @3x). Uses fixed
+/// light-palette values so the card looks identical regardless of theme.
+private struct ShareCardView: View {
+    let artwork: Artwork
+    let minutes: Int
+
+    var body: some View {
+        VStack(spacing: 0) {
+            ArtworkImage(assetName: artwork.assetName, contentMode: .fill)
+                .frame(width: 360, height: 330)
+                .clipped()
+
+            VStack(alignment: .leading, spacing: 6) {
+                Text(artwork.title)
+                    .font(Theme.Font.serif(26))
+                    .foregroundStyle(Color(hex: 0x2A251F))
+                Text(artwork.attribution)
+                    .font(Theme.Font.serifItalic(14))
+                    .foregroundStyle(Color(hex: 0x7D7468))
+
+                Spacer(minLength: 0)
+
+                HStack {
+                    Text("\(minutes) MINUTEN FOKUS")
+                        .font(Theme.Font.sans(11, weight: .semibold))
+                        .tracking(1.4)
+                        .foregroundStyle(Color(hex: 0xC25A35))
+                    Spacer()
+                    Text("FOCUSPIECE")
+                        .font(Theme.Font.sans(11, weight: .semibold))
+                        .tracking(2.2)
+                        .foregroundStyle(Color(hex: 0xA39A8C))
+                }
+            }
+            .padding(24)
+            .frame(width: 360, height: 150, alignment: .topLeading)
+            .background(Color(hex: 0xF3EFE7))
+        }
+        .frame(width: 360, height: 480)
     }
 }

@@ -1,18 +1,29 @@
 import SwiftUI
 
-/// Hosts a focus session inside the Fokus tab: ready → running/paused → complete.
+/// Hosts one Pomodoro cycle inside the Fokus tab: focus rounds with short
+/// breaks between them → completion (→ optional long break).
 struct SessionFlowView: View {
     @EnvironmentObject var app: AppModel
     @Environment(\.scenePhase) private var scenePhase
     @StateObject private var session: SessionModel
+    @State private var confirmAbort = false
+    /// Beginn der laufenden Session — für die Live-Anzeige anderer Nutzer.
+    @State private var presenceStart: Date?
 
     init(app: AppModel) {
-        let minutes = app.settings.selectedDuration
-        let artwork = app.nextLockedArtwork() ?? Artwork.seedCollection[0]
+        let s = app.settings
+        // All works unlocked → free session over a random collected work.
+        let artwork = app.nextLockedArtwork()
+            ?? app.collection.randomElement()
+            ?? Artwork.seedCollection[0]
         _session = StateObject(wrappedValue: SessionModel(
-            durationMinutes: minutes,
+            focusMinutes: s.selectedDuration,
+            shortBreakMinutes: s.shortBreakMinutes,
+            longBreakMinutes: s.longBreakMinutes,
+            rounds: s.roundsPerCycle,
             artwork: artwork,
-            gentleStart: app.settings.gentleStart))
+            gentleStart: s.gentleStart,
+            notifyOnCompletion: s.notifications))
     }
 
     var body: some View {
@@ -20,33 +31,114 @@ struct SessionFlowView: View {
             Theme.Palette.paper.ignoresSafeArea()
             switch session.state {
             case .complete:
-                CompletionView(session: session, onSave: saveAndCollect)
+                CompletionView(session: session, onDone: leave)
             default:
-                ActiveSessionView(session: session, onClose: leave)
+                ActiveSessionView(session: session, haptics: app.settings.haptics, onClose: requestClose)
             }
         }
-        // Leaving the app pauses the timer and the reveal.
+        // The countdown is wall-clock based and keeps running while the app is
+        // locked or in background — returning just catches the display up.
         .onChange(of: scenePhase) { _, phase in
-            if phase != .active, session.state == .running { session.pause() }
+            if phase == .active { session.sync() }
+        }
+        // Every finished focus round counts toward history & streak, even if
+        // the cycle is later abandoned before the artwork is revealed.
+        .onChange(of: session.completedRounds) { _, rounds in
+            guard rounds > 0 else { return }
+            app.recordFocusRound(minutes: session.focusMinutes, artworkID: session.artwork.id)
+            if session.state != .complete {
+                Feedback.roundCompleted(haptics: app.settings.haptics)
+            }
+            syncPresence()
+        }
+        .onChange(of: session.state) { _, state in
+            switch state {
+            case .complete:
+                // Secure the artwork right away — leaving from the completion
+                // screen (or a killed app) can't lose it anymore.
+                app.unlock(session.artwork, minutes: session.cycleFocusMinutes)
+                Feedback.sessionCompleted(tone: app.settings.completionTone,
+                                          haptics: app.settings.haptics)
+                app.online.cycleCompleted(minutes: session.cycleFocusMinutes,
+                                          artworkTitle: session.artwork.title)
+            case .finished:   // the long break ran out
+                Feedback.tap(app.settings.haptics)
+                leave()
+            default:
+                break
+            }
+            syncPresence()
+        }
+        .onDisappear {
+            // Tab verlassen oder Session beendet → für andere wieder "online".
+            app.online.reportPresence(.online)
+        }
+        .confirmationDialog("Session beenden?", isPresented: $confirmAbort, titleVisibility: .visible) {
+            Button("Session beenden", role: .destructive) {
+                session.cancel()
+                leave()
+            }
+            Button("Weiter fokussieren", role: .cancel) {}
+        } message: {
+            Text("Dein Werk bleibt verborgen — die Enthüllung geht verloren.")
         }
     }
 
-    private func saveAndCollect() {
-        app.unlock(session.artwork, minutes: session.durationMinutes)
-        leave()
+    /// Close only asks when reveal progress is at stake: an untouched session
+    /// and the long break (work already secured) leave directly.
+    private func requestClose() {
+        let untouched = session.state == .ready && session.phase == .focus && session.completedRounds == 0
+        if untouched || session.phase == .longBreak {
+            session.cancel()
+            leave()
+        } else {
+            confirmAbort = true
+        }
     }
 
     /// Close the session and return to the gallery. Re-entering the Fokus tab
     /// builds a fresh ready session with a new hidden work.
     private func leave() { app.selectedTab = .gallery }
+
+    /// Eigenen Live-Status an die Community melden. Der Titel des noch
+    /// verborgenen Werks wird nicht verraten — auch nicht dem eigenen
+    /// Live-Eintrag, sonst wäre die Enthüllung gespoilert.
+    private func syncPresence() {
+        let status = FocusStatus(
+            artworkTitle: session.isFreeSession ? session.artwork.title : "Verborgenes Werk",
+            round: session.round,
+            totalRounds: session.totalRounds,
+            progress: session.progress,
+            startedAt: presenceStart ?? Date())
+        switch session.state {
+        case .running:
+            if presenceStart == nil { presenceStart = Date() }
+            app.online.reportPresence(session.phase == .focus ? .focusing(status) : .onBreak(status))
+        case .paused:
+            app.online.reportPresence(.paused(status))
+        case .complete, .finished:
+            app.online.reportPresence(.online)
+        case .ready:
+            break
+        }
+    }
 }
 
-// MARK: - Ready / Running / Paused
+// MARK: - Ready / Running / Paused / Break
 private struct ActiveSessionView: View {
     @ObservedObject var session: SessionModel
+    let haptics: Bool
     let onClose: () -> Void
 
-    private var isReady: Bool { session.state == .ready }
+    /// The four screens this view hosts.
+    private enum Screen { case initialReady, roundReady, breakReady, active }
+    private var screen: Screen {
+        guard session.state == .ready else { return .active }
+        if session.phase == .shortBreak { return .breakReady }
+        return session.completedRounds == 0 ? .initialReady : .roundReady
+    }
+    /// The picked work was already unlocked — every work is collected.
+    private var isFreeSession: Bool { session.isFreeSession }
 
     var body: some View {
         VStack(spacing: 0) {
@@ -54,18 +146,27 @@ private struct ActiveSessionView: View {
 
             Spacer(minLength: 0)
 
-            if !isReady {
+            if screen == .active {
                 timerBlock.padding(.bottom, 22)
                 statusLine.padding(.bottom, 24)
+            } else if screen == .breakReady {
+                breakHeadline.padding(.bottom, 26)
             }
 
             artCard
 
-            if isReady {
+            switch screen {
+            case .initialReady:
                 Spacer().frame(height: 30)
-                readyTimerBlock
-            } else {
+                readyTimerBlock(caption: initialCaption)
+            case .roundReady:
+                Spacer().frame(height: 30)
+                readyTimerBlock(caption: "Die Pause ist vorbei — weiter geht's.")
+            default:
                 progressBar.padding(.top, 26)
+                if session.totalRounds > 1 {
+                    RoundDots(session: session).padding(.top, 14)
+                }
             }
 
             Spacer(minLength: 0)
@@ -76,12 +177,12 @@ private struct ActiveSessionView: View {
         .padding(.bottom, 12)
     }
 
-    // Header: round back · "Neue Session" · round close
+    // Header: round back · title · round close
     private var header: some View {
         HStack {
             CircleIconButton(systemName: "chevron.left") { onClose() }
             Spacer()
-            Text("Neue Session")
+            Text(headerTitle)
                 .font(Theme.Font.sans(15))
                 .foregroundStyle(Theme.Palette.muted)
             Spacer()
@@ -89,6 +190,23 @@ private struct ActiveSessionView: View {
         }
         .padding(.top, 6)
         .padding(.bottom, 12)
+    }
+
+    private var headerTitle: String {
+        switch screen {
+        case .initialReady:
+            return "Neue Session"
+        case .breakReady:
+            return "Pause"
+        case .roundReady:
+            return session.roundLabel
+        case .active:
+            switch session.phase {
+            case .focus:      return session.totalRounds > 1 ? session.roundLabel : "Fokus"
+            case .shortBreak: return "Pause"
+            case .longBreak:  return "Lange Pause"
+            }
+        }
     }
 
     // Big serif timer used while running.
@@ -112,11 +230,29 @@ private struct ActiveSessionView: View {
 
     private var statusText: String {
         let prefix: String
-        switch session.state {
-        case .paused:  prefix = "PAUSIERT"
-        default:       prefix = session.progress >= 0.7 ? "FAST GESCHAFFT" : "FOKUS LÄUFT"
+        if session.state == .paused {
+            prefix = "PAUSIERT"
+        } else {
+            switch session.phase {
+            case .focus:      prefix = session.progress >= 0.7 ? "FAST GESCHAFFT" : "FOKUS LÄUFT"
+            case .shortBreak: prefix = "KURZE PAUSE"
+            case .longBreak:  prefix = "LANGE PAUSE"
+            }
         }
         return "\(prefix) · \(session.revealedLabel)"
+    }
+
+    // Intermission headline after a finished round, before the break starts.
+    private var breakHeadline: some View {
+        VStack(spacing: 8) {
+            Text("Runde \(session.completedRounds) geschafft")
+                .font(Theme.Font.serif(34, weight: .light))
+                .foregroundStyle(Theme.Palette.ink)
+            Text("Gönn dir \(session.shortBreakMinutes) Minuten Pause — dein Werk wächst.")
+                .font(Theme.Font.sans(14))
+                .foregroundStyle(Theme.Palette.muted2)
+                .multilineTextAlignment(.center)
+        }
     }
 
     // The art card with the reveal grid (300 × 356, radius 26).
@@ -124,14 +260,19 @@ private struct ActiveSessionView: View {
         ZStack {
             RevealGridView(assetName: session.artwork.assetName,
                            revealedCount: session.revealedCount)
-            if isReady {
+            if screen == .initialReady {
                 VStack(spacing: 12) {
-                    Image(systemName: "lock.fill")
+                    Image(systemName: isFreeSession ? "checkmark.seal.fill" : "lock.fill")
                         .font(.system(size: 24, weight: .semibold))
                         .foregroundStyle(.white)
-                    Text("Verborgenes Werk")
+                    Text(isFreeSession ? "Freie Session" : "Verborgenes Werk")
                         .font(Theme.Font.sans(14, weight: .semibold))
                         .foregroundStyle(.white)
+                    if isFreeSession {
+                        Text("Alle Werke enthüllt")
+                            .font(Theme.Font.sans(12))
+                            .foregroundStyle(.white.opacity(0.75))
+                    }
                 }
             }
         }
@@ -141,17 +282,26 @@ private struct ActiveSessionView: View {
         .frame(maxWidth: .infinity)
     }
 
-    // Ready state shows the timer under the card.
-    private var readyTimerBlock: some View {
+    private var initialCaption: String {
+        session.totalRounds > 1
+            ? "Minuten Fokus · \(session.totalRounds) Runden"
+            : "Minuten ungestörter Fokus"
+    }
+
+    // Ready states show the timer under the card.
+    private func readyTimerBlock(caption: String) -> some View {
         VStack(spacing: 8) {
             Text(session.timeString)
                 .font(Theme.Font.serif(66, weight: .light))
                 .tracking(0.7)
                 .foregroundStyle(Theme.Palette.ink)
                 .monospacedDigit()
-            Text("Minuten ungestörter Fokus")
+            Text(caption)
                 .font(Theme.Font.sans(14))
                 .foregroundStyle(Theme.Palette.muted2)
+            if session.totalRounds > 1 {
+                RoundDots(session: session).padding(.top, 10)
+            }
         }
     }
 
@@ -170,20 +320,83 @@ private struct ActiveSessionView: View {
     }
 
     @ViewBuilder private var controls: some View {
-        if isReady {
-            PrimaryButton(title: "Fokus beginnen", height: 60) { session.start() }
-        } else {
+        switch screen {
+        case .initialReady:
+            PrimaryButton(title: "Fokus beginnen", height: 60) {
+                Feedback.tap(haptics)
+                session.start()
+            }
+        case .roundReady:
+            PrimaryButton(title: "Runde \(session.round) beginnen", height: 60) {
+                Feedback.tap(haptics)
+                session.start()
+            }
+        case .breakReady:
+            VStack(spacing: 14) {
+                PrimaryButton(title: "Pause starten · \(session.shortBreakMinutes) Min", height: 60) {
+                    Feedback.tap(haptics)
+                    session.start()
+                }
+                Button {
+                    Feedback.tap(haptics)
+                    session.skipBreak()
+                } label: {
+                    Text("Überspringen & weiter fokussieren")
+                        .font(Theme.Font.sans(14, weight: .medium))
+                        .foregroundStyle(Theme.Palette.muted2)
+                }
+                .buttonStyle(.plain)
+            }
+        case .active:
             VStack(spacing: 12) {
                 CircleIconButton(
                     systemName: session.state == .paused ? "play.fill" : "pause.fill",
                     diameter: 66,
                     background: Theme.Palette.circleButton,
                     iconColor: Theme.Palette.bodySoft,
-                    iconSize: 22) { session.toggle() }
+                    iconSize: 22) {
+                        Feedback.tap(haptics)
+                        session.toggle()
+                    }
                 Text(session.state == .paused ? "Fortsetzen" : "Pausieren")
                     .font(Theme.Font.sans(14, weight: .medium))
                     .foregroundStyle(Theme.Palette.muted2)
+                if session.phase == .shortBreak {
+                    Button {
+                        Feedback.tap(haptics)
+                        session.skipBreak()
+                    } label: {
+                        Text("Pause überspringen")
+                            .font(Theme.Font.sans(13, weight: .medium))
+                            .foregroundStyle(Theme.Palette.muted2)
+                            .underline()
+                    }
+                    .buttonStyle(.plain)
+                    .padding(.top, 2)
+                }
             }
         }
+    }
+}
+
+// MARK: - Round dots
+/// One dot per focus round: filled = done, half = in progress, faint = ahead.
+private struct RoundDots: View {
+    @ObservedObject var session: SessionModel
+
+    var body: some View {
+        HStack(spacing: 7) {
+            ForEach(1...session.totalRounds, id: \.self) { r in
+                Circle()
+                    .fill(fill(for: r))
+                    .frame(width: 7, height: 7)
+            }
+        }
+    }
+
+    private func fill(for r: Int) -> Color {
+        if r <= session.completedRounds { return Theme.Palette.accent }
+        let isCurrent = r == session.round && session.phase == .focus && session.state != .ready
+        return isCurrent ? Theme.Palette.accent.opacity(0.4) : Theme.Palette.progressTrack
     }
 }

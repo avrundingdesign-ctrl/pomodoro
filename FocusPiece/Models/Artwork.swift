@@ -23,7 +23,9 @@ struct Artwork: Identifiable, Codable, Equatable {
 }
 
 extension Artwork {
-    /// The eight Public-Domain works from the handoff (Wikimedia Commons).
+    /// Public-Domain works (Wikimedia Commons) — the eight from the handoff
+    /// plus later additions. New entries are merged into stored collections
+    /// on launch (see AppModel), so the museum can grow with updates.
     static let seedCollection: [Artwork] = [
         Artwork(id: "almond_blossom",
                 title: "Mandelblüte", artist: "Vincent van Gogh", year: "1890",
@@ -65,5 +67,25 @@ extension Artwork {
                 assetName: "Pieter_Bruegel_the_Elder-_The_Harvesters_-_Google_Art_Project",
                 collectionTag: "Niederländische Renaissance",
                 blurb: "Ein goldenes Erntefeld an einem schweren Sommertag. Eine der frühesten Landschaften, in der der Mensch Teil der Natur wird."),
+        Artwork(id: "pearl_earring",
+                title: "Das Mädchen mit dem Perlenohrring", artist: "Johannes Vermeer", year: "1665",
+                assetName: "Meisje_met_de_parel",
+                collectionTag: "Goldenes Zeitalter",
+                blurb: "Ein Blick über die Schulter, ein Lichtpunkt auf einer Perle — Vermeers rätselhaftes Porträt wird oft die „Mona Lisa des Nordens“ genannt."),
+        Artwork(id: "the_scream",
+                title: "Der Schrei", artist: "Edvard Munch", year: "1893",
+                assetName: "Edvard_Munch,_1893,_The_Scream,_oil,_tempera_and_pastel_on_cardboard,_91_x_73_cm,_National_Gallery_of_Norway",
+                collectionTag: "Expressionismus",
+                blurb: "Ein glühender Himmel, eine Gestalt, die sich die Ohren zuhält — das wohl eindringlichste Bild moderner Angst, geboren aus einem Spaziergang bei Sonnenuntergang."),
+        Artwork(id: "wheat_field_cypresses",
+                title: "Weizenfeld mit Zypressen", artist: "Vincent van Gogh", year: "1889",
+                assetName: "Vincent_van_Gogh_-_Wheat_Field_with_Cypresses_-_Google_Art_Project",
+                collectionTag: "Post-Impressionismus",
+                blurb: "Wogendes Korn, wirbelnde Wolken und dunkle Zypressen unter der Sommersonne der Provence — gemalt im selben Jahr wie die Sternennacht."),
+        Artwork(id: "water_lilies",
+                title: "Seerosen", artist: "Claude Monet", year: "1906",
+                assetName: "Claude_Monet_-_Water_Lilies_-_Google_Art_Project_(462013)",
+                collectionTag: "Impressionismus",
+                blurb: "Kein Ufer, kein Horizont — nur Wasser, Licht und Blüten. Monets Garten in Giverny, verwandelt in reine Betrachtung."),
     ]
 }

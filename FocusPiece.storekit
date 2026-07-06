@@ -1,0 +1,79 @@
+{
+  "identifier" : "F0C05B1E-6F1A-4B0C-9E2D-3A5C7D9E1F2B",
+  "nonRenewingSubscriptions" : [
+
+  ],
+  "products" : [
+    {
+      "displayPrice" : "2.99",
+      "familyShareable" : false,
+      "internalID" : "FP0001",
+      "localizations" : [
+        {
+          "description" : "300 Münzen für neue Bilder-Pakete",
+          "displayName" : "Handvoll Münzen",
+          "locale" : "de_DE"
+        },
+        {
+          "description" : "300 coins for new art packs",
+          "displayName" : "Handful of Coins",
+          "locale" : "en_US"
+        }
+      ],
+      "productID" : "com.focuspiece.coins.small",
+      "referenceName" : "Coins Small (300)",
+      "type" : "Consumable"
+    },
+    {
+      "displayPrice" : "5.99",
+      "familyShareable" : false,
+      "internalID" : "FP0002",
+      "localizations" : [
+        {
+          "description" : "800 Münzen für neue Bilder-Pakete",
+          "displayName" : "Beutel Münzen",
+          "locale" : "de_DE"
+        },
+        {
+          "description" : "800 coins for new art packs",
+          "displayName" : "Bag of Coins",
+          "locale" : "en_US"
+        }
+      ],
+      "productID" : "com.focuspiece.coins.medium",
+      "referenceName" : "Coins Medium (800)",
+      "type" : "Consumable"
+    },
+    {
+      "displayPrice" : "11.99",
+      "familyShareable" : false,
+      "internalID" : "FP0003",
+      "localizations" : [
+        {
+          "description" : "2000 Münzen für neue Bilder-Pakete",
+          "displayName" : "Truhe voller Münzen",
+          "locale" : "de_DE"
+        },
+        {
+          "description" : "2000 coins for new art packs",
+          "displayName" : "Chest of Coins",
+          "locale" : "en_US"
+        }
+      ],
+      "productID" : "com.focuspiece.coins.large",
+      "referenceName" : "Coins Large (2000)",
+      "type" : "Consumable"
+    }
+  ],
+  "settings" : {
+    "_locale" : "de_DE",
+    "_storefront" : "DEU"
+  },
+  "subscriptionGroups" : [
+
+  ],
+  "version" : {
+    "major" : 3,
+    "minor" : 0
+  }
+}

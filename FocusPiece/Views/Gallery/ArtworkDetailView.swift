@@ -1,9 +1,13 @@
 import SwiftUI
+import Photos
 
 /// Screen 9 — full-bleed work detail with metadata.
 struct ArtworkDetailView: View {
     @Environment(\.dismiss) private var dismiss
     let artwork: Artwork
+
+    private enum SaveState { case idle, saved, denied, failed }
+    @State private var saveState: SaveState = .idle
 
     private static let dateFormatter: DateFormatter = {
         let f = DateFormatter()
@@ -16,9 +20,11 @@ struct ArtworkDetailView: View {
         ScrollView {
             VStack(spacing: 0) {
                 // Full image header with back button.
-                ArtworkImage(assetName: artwork.assetName, contentMode: .fill)
+                // (Overlay pattern: the fill image must not drive the layout width.)
+                Color.clear
                     .frame(height: 470)
                     .frame(maxWidth: .infinity)
+                    .overlay(ArtworkImage(assetName: artwork.assetName, contentMode: .fill))
                     .clipped()
                     .overlay(
                         LinearGradient(
@@ -70,14 +76,58 @@ struct ArtworkDetailView: View {
                     }
                     .overlay(Rectangle().fill(Theme.Palette.hairline).frame(height: 1), alignment: .top)
 
-                    GhostButton(title: "Als Sperrbildschirm setzen") { }
-                        .padding(.top, 22).padding(.bottom, 30)
+                    GhostButton(title: saveButtonTitle,
+                                icon: saveState == .saved ? "checkmark" : "photo.badge.arrow.down") {
+                        saveToPhotos()
+                    }
+                    .padding(.top, 22)
+
+                    if saveState == .saved {
+                        Text("Fotos öffnen → Teilen → „Als Hintergrundbild“ wählen.")
+                            .font(Theme.Font.sans(12))
+                            .foregroundStyle(Theme.Palette.muted2)
+                            .frame(maxWidth: .infinity)
+                            .padding(.top, 10)
+                    }
+                    Spacer().frame(height: 30)
                 }
                 .padding(.horizontal, 34)
                 .padding(.top, 4)
             }
         }
         .background(Theme.Palette.paper)
+        .alert("Kein Zugriff auf Fotos", isPresented: .init(
+            get: { saveState == .denied },
+            set: { if !$0 { saveState = .idle } })) {
+            Button("OK", role: .cancel) {}
+        } message: {
+            Text("Erlaube FocusPiece in den iOS-Einstellungen, Bilder zu deiner Mediathek hinzuzufügen.")
+        }
+    }
+
+    private var saveButtonTitle: String {
+        switch saveState {
+        case .saved:  return "In Fotos gespeichert"
+        case .failed: return "Speichern fehlgeschlagen"
+        default:      return "Als Sperrbildschirm sichern"
+        }
+    }
+
+    /// Saves the painting to the photo library (add-only access), from where
+    /// iOS lets the user set it as wallpaper.
+    private func saveToPhotos() {
+        guard saveState != .saved, let image = ArtworkImage.load(artwork.assetName) else { return }
+        PHPhotoLibrary.requestAuthorization(for: .addOnly) { status in
+            guard status == .authorized || status == .limited else {
+                DispatchQueue.main.async { saveState = .denied }
+                return
+            }
+            PHPhotoLibrary.shared().performChanges {
+                PHAssetChangeRequest.creationRequestForAsset(from: image)
+            } completionHandler: { success, _ in
+                DispatchQueue.main.async { saveState = success ? .saved : .failed }
+            }
+        }
     }
 
     private var unlockedDateText: String {
@@ -86,7 +136,7 @@ struct ArtworkDetailView: View {
     }
     private var sessionText: String {
         guard let m = artwork.sessionMinutes else { return "—" }
-        return "\(m) Minuten"
+        return m == 1 ? "1 Minute" : "\(m) Minuten"
     }
 
     private func metaRow(_ label: String, _ value: String) -> some View {

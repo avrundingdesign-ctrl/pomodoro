@@ -1,0 +1,17 @@
+{
+  "permissions": {
+    "allow": [
+      "mcp__XcodeBuildMCP__*",
+      "Read",
+      "Edit",
+      "Write",
+      "Glob",
+      "Grep",
+      "Bash(xcodebuild:*)",
+      "Bash(swift:*)",
+      "Bash(git:*)",
+      "Bash(ls:*)",
+      "Bash(mkdir:*)"
+    ]
+  }
+}

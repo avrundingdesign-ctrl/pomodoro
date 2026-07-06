@@ -85,13 +85,13 @@ private struct HowItWorksPage: View {
             VStack(alignment: .leading, spacing: 18) {
                 StepRow(icon: "clock",
                         title: "Setze deine Zeit",
-                        text: "Wähle 15 bis 60 Minuten ungestörter Konzentration.")
-                StepRow(icon: "eye",
-                        title: "Bleib im Bild",
-                        text: "Verlässt du die App, hält die Enthüllung sanft inne.")
+                        text: "Wähle die Länge deiner Fokusrunden — eine Session sind mehrere Runden mit kurzen Pausen dazwischen.")
+                StepRow(icon: "iphone.slash",
+                        title: "Leg das iPhone beiseite",
+                        text: "Sperre das Gerät — der Timer läuft weiter und meldet sich am Ende jeder Runde.")
                 StepRow(icon: "photo.on.rectangle",
                         title: "Sammle Meisterwerke",
-                        text: "Jede vollendete Session schaltet ein Werk frei.")
+                        text: "Runde für Runde wird mehr enthüllt — nach der letzten ist das Werk dein.")
             }
 
             Spacer()
@@ -158,7 +158,13 @@ private struct FirstSessionPage: View {
                     }
                 }
             }
-            .padding(.bottom, 24)
+            .padding(.bottom, 12)
+
+            Text("Dauer je Fokusrunde · \(app.settings.roundsPerCycle) Runden mit kurzen Pausen ergeben eine Session")
+                .font(Theme.Font.sans(13))
+                .lineSpacing(3)
+                .foregroundStyle(Theme.Palette.muted2)
+                .padding(.bottom, 20)
 
             HiddenWorkCard()
 

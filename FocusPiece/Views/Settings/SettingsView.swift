@@ -5,7 +5,9 @@ struct SettingsView: View {
     @EnvironmentObject var app: AppModel
 
     private let durations = [15, 25, 45, 60]
-    private let sounds = ["Regen", "Wald", "Ozean", "Stille"]
+    private let shortBreaks = [3, 5, 10]
+    private let longBreaks = [10, 15, 20, 30]
+    private let roundCounts = [1, 2, 3, 4, 5, 6]
     private let themes = ["Hell", "Dunkel", "System"]
 
     var body: some View {
@@ -23,22 +25,34 @@ struct SettingsView: View {
             ScrollView {
                 VStack(alignment: .leading, spacing: 22) {
                     SettingsGroup(title: "Session") {
-                        PickerRow(label: "Standarddauer",
+                        PickerRow(label: "Fokusdauer",
                                   value: "\(app.settings.selectedDuration) Min",
                                   options: durations.map { "\($0) Min" }) { picked in
-                            if let m = Int(picked.replacingOccurrences(of: " Min", with: "")) {
-                                app.settings.selectedDuration = m
-                            }
+                            if let m = leadingNumber(in: picked) { app.settings.selectedDuration = m }
+                        }
+                        Divider().overlay(Theme.Palette.hairline3)
+                        PickerRow(label: "Runden",
+                                  value: roundsLabel(app.settings.roundsPerCycle),
+                                  options: roundCounts.map(roundsLabel)) { picked in
+                            if let n = leadingNumber(in: picked) { app.settings.roundsPerCycle = n }
+                        }
+                        Divider().overlay(Theme.Palette.hairline3)
+                        PickerRow(label: "Kurze Pause",
+                                  value: "\(app.settings.shortBreakMinutes) Min",
+                                  options: shortBreaks.map { "\($0) Min" }) { picked in
+                            if let m = leadingNumber(in: picked) { app.settings.shortBreakMinutes = m }
+                        }
+                        Divider().overlay(Theme.Palette.hairline3)
+                        PickerRow(label: "Lange Pause",
+                                  value: "\(app.settings.longBreakMinutes) Min",
+                                  options: longBreaks.map { "\($0) Min" }) { picked in
+                            if let m = leadingNumber(in: picked) { app.settings.longBreakMinutes = m }
                         }
                         Divider().overlay(Theme.Palette.hairline3)
                         ToggleRow(label: "Sanfter Start", isOn: $app.settings.gentleStart)
                     }
 
                     SettingsGroup(title: "Klang & Haptik") {
-                        PickerRow(label: "Umgebungsklang",
-                                  value: app.settings.ambientSound,
-                                  options: sounds) { app.settings.ambientSound = $0 }
-                        Divider().overlay(Theme.Palette.hairline3)
                         ToggleRow(label: "Abschluss-Ton", isOn: $app.settings.completionTone)
                         Divider().overlay(Theme.Palette.hairline3)
                         ToggleRow(label: "Haptisches Feedback", isOn: $app.settings.haptics)
@@ -50,6 +64,9 @@ struct SettingsView: View {
                                   options: themes) { app.settings.theme = $0 }
                         Divider().overlay(Theme.Palette.hairline3)
                         ToggleRow(label: "Benachrichtigungen", isOn: $app.settings.notifications)
+                            .onChange(of: app.settings.notifications) { _, isOn in
+                                if isOn { NotificationManager.shared.requestPermissionIfNeeded() }
+                            }
                     }
 
                     Text("FocusPiece · Version 1.0")
@@ -64,6 +81,11 @@ struct SettingsView: View {
         }
         .background(Theme.Palette.paper)
     }
+
+    /// "4 Runden" / "1 Runde" — the picker option labels.
+    private func roundsLabel(_ n: Int) -> String { n == 1 ? "1 Runde" : "\(n) Runden" }
+    /// Parse the leading integer out of a picked option like "15 Min".
+    private func leadingNumber(in text: String) -> Int? { Int(text.prefix(while: \.isNumber)) }
 }
 
 // MARK: - Building blocks
