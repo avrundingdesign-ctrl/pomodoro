@@ -25,6 +25,8 @@
 		<string>UIInterfaceOrientationPortrait</string>
 		<string>UIInterfaceOrientationPortraitUpsideDown</string>
 	</array>
+	<key>UIRequiresFullScreen</key>
+	<true/>
 	<key>UIAppFonts</key>
 	<array>
 		<string>HankenGrotesk-Regular.ttf</string>
