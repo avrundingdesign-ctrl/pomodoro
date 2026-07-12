@@ -9,6 +9,7 @@ struct FocusPieceApp: App {
             RootView()
                 .environmentObject(app)
                 .tint(Theme.Palette.accent)
+                .onOpenURL { app.handleDeepLink($0) }
         }
     }
 }

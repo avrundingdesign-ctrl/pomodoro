@@ -16,6 +16,7 @@ Built in **SwiftUI** from the `design_handoff_focuspiece` hi-fi spec.
 | Session | Bereit · Fokus läuft · Fast enthüllt · Vollendet |
 | Galerie | Sammlung · Werk-Detail |
 | Einstellungen | Einstellungen |
+| Widget | Home-Screen (klein/mittel) · Sperrbildschirm (rechteckig) |
 
 ## The reveal mechanic
 
@@ -70,8 +71,29 @@ FocusPiece/
     Components/                Buttons, toggle, tab bar, image loader
   Resources/Fonts/             Bundled OFL fonts
   Assets.xcassets/             AccentColor, AppIcon, LaunchBackground
+FocusPieceWidget/              WidgetKit extension (home & lock screen)
+  FocusPieceWidget.swift       Timeline provider + widget views
+  FocusPieceWidgetBundle.swift Widget bundle entry point
 Scripts/fetch_artworks.sh      Download the Public-Domain paintings
 ```
+
+## Widget
+
+A WidgetKit extension mirrors the session in the app's museum style — paper
+background, terracotta eyebrow, serif countdown:
+
+- **Home screen (small & medium):** next session ("FOKUS · 25:00"), the stats
+  row (vollendete Sessions · gesammelte Werke · Fokuszeit) and a terracotta
+  **Start** pill. While a session runs the label flips to "FOKUS LÄUFT" with a
+  live countdown; paused sessions show "PAUSIERT" and a **Weiter** pill.
+- **Lock screen (rectangular):** the same state, rendered vibrant by iOS.
+
+The app publishes a `WidgetSnapshot` (`Models/WidgetState.swift`) into the
+app-group container `group.com.focuspiece.app` on every relevant change; the
+widget only reads. The Start/Weiter pill deep-links via `focuspiece://start`,
+which switches to the Fokus tab and begins the session. On a real device,
+enable the App Group capability for both targets under Signing & Capabilities
+(the simulator needs no provisioning).
 
 ## Notes
 
