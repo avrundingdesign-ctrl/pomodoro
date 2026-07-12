@@ -29,10 +29,35 @@ struct SessionFlowView: View {
         .onChange(of: scenePhase) { _, phase in
             if phase != .active, session.state == .running { session.pause() }
         }
-        // A session reaching 00:00 counts toward the focus stats once.
+        // A session reaching 00:00 counts toward the focus stats once; every
+        // state change is mirrored into the widget snapshot.
         .onChange(of: session.state) { _, state in
-            if state == .complete { app.recordCompletedSession(minutes: session.durationMinutes) }
+            switch state {
+            case .running:
+                app.publishWidgetSnapshot(
+                    phase: .running,
+                    remainingSeconds: session.remainingSeconds,
+                    endDate: Date().addingTimeInterval(TimeInterval(session.remainingSeconds)))
+            case .paused:
+                app.publishWidgetSnapshot(phase: .paused,
+                                          remainingSeconds: session.remainingSeconds)
+            case .complete:
+                app.recordCompletedSession(minutes: session.durationMinutes)
+            case .ready:
+                break
+            }
         }
+        // Widget deep link: begin (or resume) as soon as the Fokus tab is up.
+        .onAppear(perform: consumeAutoStart)
+        .onChange(of: app.pendingAutoStart) { _, pending in
+            if pending { consumeAutoStart() }
+        }
+    }
+
+    private func consumeAutoStart() {
+        guard app.pendingAutoStart else { return }
+        app.pendingAutoStart = false
+        if session.state == .ready || session.state == .paused { session.start() }
     }
 
     private func saveAndCollect() {

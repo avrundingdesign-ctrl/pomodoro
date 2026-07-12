@@ -32,15 +32,22 @@ final class AppModel: ObservableObject {
         didSet { defaults.set(onboardingComplete, forKey: Keys.onboarding) }
     }
     @Published var settings: Settings {
-        didSet { persist(settings, key: Keys.settings) }
+        didSet { persist(settings, key: Keys.settings); publishWidgetSnapshot() }
     }
     @Published var collection: [Artwork] {
-        didSet { persist(collection, key: Keys.collection) }
+        didSet { persist(collection, key: Keys.collection); publishWidgetSnapshot() }
     }
     @Published var stats: Stats {
-        didSet { persist(stats, key: Keys.stats) }
+        didSet { persist(stats, key: Keys.stats); publishWidgetSnapshot() }
     }
     @Published var selectedTab: Tab = .focus
+    /// Set by the widget deep link; the Fokus tab consumes it and starts the session.
+    @Published var pendingAutoStart = false
+    /// Packs whose works belong to the collection. Always contains the free
+    /// pack; paid packs join via StoreKit entitlements (cached for offline).
+    @Published private(set) var ownedPackIDs: Set<String> {
+        didSet { defaults.set(Array(ownedPackIDs).sorted(), forKey: Keys.ownedPacks) }
+    }
 
     private let defaults: UserDefaults
     private enum Keys {
@@ -48,6 +55,7 @@ final class AppModel: ObservableObject {
         static let settings   = "fp.settings"
         static let collection = "fp.collection"
         static let stats      = "fp.stats"
+        static let ownedPacks = "fp.ownedPacks"
     }
 
     /// `defaults` is injectable so tests can use an isolated, ephemeral store.
@@ -56,7 +64,7 @@ final class AppModel: ObservableObject {
 
         // UI-test launch hooks (no effect in normal runs).
         if LaunchConfig.reset {
-            [Keys.onboarding, Keys.settings, Keys.collection, Keys.stats].forEach {
+            [Keys.onboarding, Keys.settings, Keys.collection, Keys.stats, Keys.ownedPacks].forEach {
                 defaults.removeObject(forKey: $0)
             }
         }
@@ -65,12 +73,20 @@ final class AppModel: ObservableObject {
         settings = Self.load(Settings.self, key: Keys.settings, from: defaults) ?? Settings()
         collection = Self.load([Artwork].self, key: Keys.collection, from: defaults) ?? Artwork.seedCollection
         stats = Self.load(Stats.self, key: Keys.stats, from: defaults) ?? Stats()
+        ownedPackIDs = Set(defaults.stringArray(forKey: Keys.ownedPacks) ?? [])
+            .union([ArtworkCatalog.freePackID])
 
         if LaunchConfig.unlockOne, let idx = collection.firstIndex(where: { !$0.unlocked }) {
             collection[idx].unlocked = true
             collection[idx].unlockedDate = Date()
             collection[idx].sessionMinutes = settings.selectedDuration
         }
+
+        // Older stored collections may miss works of packs owned meanwhile.
+        syncCollectionWithOwnedPacks()
+
+        // Sessions don't survive a relaunch, so the widget starts out "bereit".
+        publishWidgetSnapshot()
     }
 
     // MARK: Derived
@@ -105,6 +121,59 @@ final class AppModel: ObservableObject {
     }
 
     func finishOnboarding() { onboardingComplete = true }
+
+    // MARK: Packs & purchases
+    /// Paid packs that are not part of the collection yet — the shop teasers.
+    var purchasablePacks: [ArtworkPack] {
+        ArtworkCatalog.paidPacks.filter { !ownedPackIDs.contains($0.id) }
+    }
+
+    /// Sync from StoreKit entitlements: `productIDs` is the set of verified,
+    /// unrevoked non-consumable purchases. Unknown ids are ignored.
+    func applyPurchasedProducts(_ productIDs: Set<String>) {
+        let owned = ArtworkCatalog.packIDs(forProducts: productIDs)
+            .union([ArtworkCatalog.freePackID])
+        guard owned != ownedPackIDs else { return }
+        ownedPackIDs = owned
+        syncCollectionWithOwnedPacks()
+    }
+
+    /// Make the collection mirror the owned packs: append missing works of
+    /// owned packs (locked — sessions reveal them), drop still-locked works of
+    /// packs no longer owned (refunds). Works already revealed stay forever.
+    private func syncCollectionWithOwnedPacks() {
+        var result = collection.filter { $0.unlocked || ownedPackIDs.contains($0.packID) }
+        for pack in ArtworkCatalog.packs where ownedPackIDs.contains(pack.id) {
+            for work in pack.works where !result.contains(where: { $0.id == work.id }) {
+                result.append(work)
+            }
+        }
+        if result != collection { collection = result }
+    }
+
+    // MARK: Widget
+    /// Push the current state into the shared app-group container so the
+    /// home/lock screen widget can mirror it.
+    func publishWidgetSnapshot(phase: WidgetSnapshot.Phase = .ready,
+                               remainingSeconds: Int? = nil,
+                               endDate: Date? = nil) {
+        WidgetStore.publish(WidgetSnapshot(
+            phase: phase,
+            selectedMinutes: settings.selectedDuration,
+            remainingSeconds: remainingSeconds,
+            endDate: endDate,
+            sessionsCompleted: stats.sessionsCompleted,
+            worksUnlocked: unlockedCount,
+            totalFocusMinutes: stats.totalFocusMinutes))
+    }
+
+    /// Handle `focuspiece://start` from the widget's Start button: switch to the
+    /// Fokus tab and begin the session once the tab is up (after onboarding).
+    func handleDeepLink(_ url: URL) {
+        guard url.scheme == "focuspiece", url.host == "start" else { return }
+        selectedTab = .focus
+        pendingAutoStart = onboardingComplete
+    }
 
     // MARK: Persistence helpers
     private func persist<T: Encodable>(_ value: T, key: String) {

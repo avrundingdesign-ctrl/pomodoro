@@ -12,6 +12,9 @@ struct Artwork: Identifiable, Codable, Equatable {
     let assetName: String        // e.g. "Almond_blossom" (bundled <assetName>.jpg)
     let collectionTag: String    // museal "Sammlung" tag, shown in detail
     let blurb: String            // short description for the detail screen
+    /// The set this work belongs to (see ArtworkCatalog); the original eight
+    /// works form the free "klassiker" pack.
+    var packID: String = "klassiker"
 
     // Mutable progress state
     var unlocked: Bool = false
@@ -20,6 +23,25 @@ struct Artwork: Identifiable, Codable, Equatable {
 
     /// "Vincent van Gogh · 1890"
     var attribution: String { "\(artist) · \(year)" }
+}
+
+extension Artwork {
+    /// Collections persisted before packs existed have no `packID`; decode
+    /// those as members of the free pack instead of failing.
+    init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        id = try c.decode(String.self, forKey: .id)
+        title = try c.decode(String.self, forKey: .title)
+        artist = try c.decode(String.self, forKey: .artist)
+        year = try c.decode(String.self, forKey: .year)
+        assetName = try c.decode(String.self, forKey: .assetName)
+        collectionTag = try c.decode(String.self, forKey: .collectionTag)
+        blurb = try c.decode(String.self, forKey: .blurb)
+        packID = try c.decodeIfPresent(String.self, forKey: .packID) ?? ArtworkCatalog.freePackID
+        unlocked = try c.decodeIfPresent(Bool.self, forKey: .unlocked) ?? false
+        unlockedDate = try c.decodeIfPresent(Date.self, forKey: .unlockedDate)
+        sessionMinutes = try c.decodeIfPresent(Int.self, forKey: .sessionMinutes)
+    }
 }
 
 extension Artwork {

@@ -3,6 +3,10 @@ import SwiftUI
 /// Screen 10 — grouped settings.
 struct SettingsView: View {
     @EnvironmentObject var app: AppModel
+    @EnvironmentObject var store: StoreModel
+    @State private var showPaywall = false
+    @State private var restoring = false
+    @State private var restoreDone = false
 
     private let durations = [15, 25, 45, 60]
     private let sounds = ["Regen", "Wald", "Ozean", "Stille"]
@@ -60,6 +64,31 @@ struct SettingsView: View {
                                   identifier: "settings.toggle.notifications")
                     }
 
+                    SettingsGroup(title: "Sammlung") {
+                        ActionRow(label: "Neue Werke entdecken",
+                                  icon: "plus.square.on.square",
+                                  identifier: "settings.shop") { showPaywall = true }
+                        Divider().overlay(Theme.Palette.hairline3)
+                        ActionRow(label: restoring ? "Wird wiederhergestellt…" : "Käufe wiederherstellen",
+                                  icon: restoreDone ? "checkmark" : "arrow.counterclockwise",
+                                  identifier: "settings.restore") {
+                            guard !restoring else { return }
+                            restoring = true
+                            Task {
+                                await store.restorePurchases()
+                                app.applyPurchasedProducts(store.purchasedProductIDs)
+                                restoring = false
+                                restoreDone = true
+                            }
+                        }
+                    }
+
+                    SettingsGroup(title: "Rechtliches") {
+                        LinkRow(label: "Datenschutz", url: LegalLinks.privacy)
+                        Divider().overlay(Theme.Palette.hairline3)
+                        LinkRow(label: "Nutzungsbedingungen", url: LegalLinks.terms)
+                    }
+
                     Text("FocusPiece · Version 1.0")
                         .font(Theme.Font.sans(13))
                         .foregroundStyle(Theme.Palette.muted3Soft)
@@ -72,6 +101,9 @@ struct SettingsView: View {
             }
         }
         .background(Theme.Palette.paper)
+        .sheet(isPresented: $showPaywall) {
+            PaywallView()
+        }
     }
 }
 
@@ -115,6 +147,55 @@ private struct ToggleRow: View {
                 .accessibilityIdentifier(identifier ?? "")
         }
         .padding(.vertical, 14)
+    }
+}
+
+/// Tappable row with a trailing SF-symbol affordance (shop, restore).
+private struct ActionRow: View {
+    let label: String
+    let icon: String
+    var identifier: String? = nil
+    let action: () -> Void
+
+    var body: some View {
+        Button(action: action) {
+            HStack {
+                Text(label)
+                    .font(Theme.Font.sans(15))
+                    .foregroundStyle(Theme.Palette.ink)
+                Spacer()
+                Image(systemName: icon)
+                    .font(.system(size: 13, weight: .semibold))
+                    .foregroundStyle(Theme.Palette.accent)
+            }
+            .padding(.vertical, 14)
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .accessibilityIdentifier(identifier ?? "")
+    }
+}
+
+/// External link row (legal pages) — opens in the browser.
+private struct LinkRow: View {
+    let label: String
+    let url: URL
+
+    var body: some View {
+        Link(destination: url) {
+            HStack {
+                Text(label)
+                    .font(Theme.Font.sans(15))
+                    .foregroundStyle(Theme.Palette.ink)
+                Spacer()
+                Image(systemName: "arrow.up.right")
+                    .font(.system(size: 12, weight: .semibold))
+                    .foregroundStyle(Color(hex: 0xBCB3A5))
+            }
+            .padding(.vertical, 14)
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
     }
 }
 
