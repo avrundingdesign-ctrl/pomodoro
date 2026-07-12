@@ -96,6 +96,21 @@
 			);
 			target = FC0000000000000000000032 /* FocusPieceWidgetExtension */;
 		};
+		FC000000000000000000003E /* Exceptions for "FocusPieceWidget" folder in "FocusPieceWidgetExtension" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				FocusPieceWidget.entitlements,
+				Info.plist,
+			);
+			target = FC0000000000000000000032 /* FocusPieceWidgetExtension */;
+		};
+		FC000000000000000000003F /* Exceptions for "FocusPiece" folder in "FocusPiece" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				FocusPiece.entitlements,
+			);
+			target = FC0000000000000000000005 /* FocusPiece */;
+		};
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -103,12 +118,16 @@
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
 				FC0000000000000000000031 /* Exceptions for "FocusPiece" folder in "FocusPieceWidgetExtension" target */,
+				FC000000000000000000003F /* Exceptions for "FocusPiece" folder in "FocusPiece" target */,
 			);
 			path = FocusPiece;
 			sourceTree = "<group>";
 		};
 		FC0000000000000000000030 /* FocusPieceWidget */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				FC000000000000000000003E /* Exceptions for "FocusPieceWidget" folder in "FocusPieceWidgetExtension" target */,
+			);
 			path = FocusPieceWidget;
 			sourceTree = "<group>";
 		};
