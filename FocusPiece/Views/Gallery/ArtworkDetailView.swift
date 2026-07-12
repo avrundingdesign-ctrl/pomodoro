@@ -4,6 +4,7 @@ import SwiftUI
 struct ArtworkDetailView: View {
     @Environment(\.dismiss) private var dismiss
     let artwork: Artwork
+    @State private var showInfo = false
 
     private static let dateFormatter: DateFormatter = {
         let f = DateFormatter()
@@ -45,6 +46,21 @@ struct ArtworkDetailView: View {
                         .accessibilityIdentifier("detail.back")
                         .padding(.leading, 24).padding(.top, 8)
                     }
+                    .overlay(alignment: .topTrailing) {
+                        Button { showInfo = true } label: {
+                            Image(systemName: "info")
+                                .font(.system(size: 15, weight: .semibold))
+                                .foregroundStyle(.white)
+                                .frame(width: 42, height: 42)
+                                .background(Color(hex: 0x14110D).opacity(0.4))
+                                .background(.ultraThinMaterial, in: Circle())
+                                .clipShape(Circle())
+                        }
+                        .buttonStyle(.plain)
+                        .accessibilityIdentifier("detail.info")
+                        .accessibilityLabel("Werkinfo")
+                        .padding(.trailing, 24).padding(.top, 8)
+                    }
                     .ignoresSafeArea(edges: .top)
 
                 VStack(alignment: .leading, spacing: 0) {
@@ -80,6 +96,9 @@ struct ArtworkDetailView: View {
             }
         }
         .background(Theme.Palette.paper)
+        .sheet(isPresented: $showInfo) {
+            ArtworkInfoSheet(artwork: artwork)
+        }
     }
 
     private var unlockedDateText: String {

@@ -77,6 +77,12 @@
 			path = FocusPieceWidgetExtension.appex;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
+		FC0000000000000000000040 /* Products.storekit */ = {
+			isa = PBXFileReference;
+			lastKnownFileType = text;
+			path = Products.storekit;
+			sourceTree = "<group>";
+		};
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -182,6 +188,7 @@
 				FC0000000000000000000030 /* FocusPieceWidget */,
 				FC0000000000000000000010 /* FocusPieceTests */,
 				FC000000000000000000001B /* FocusPieceUITests */,
+				FC0000000000000000000040 /* Products.storekit */,
 				FC0000000000000000000003 /* Products */,
 			);
 			sourceTree = "<group>";

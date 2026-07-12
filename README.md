@@ -14,8 +14,9 @@ Built in **SwiftUI** from the `design_handoff_focuspiece` hi-fi spec.
 |---|---|
 | Onboarding | Willkommen · So funktioniert es · Erste Session |
 | Session | Bereit · Fokus läuft · Fast enthüllt · Vollendet |
-| Galerie | Sammlung · Werk-Detail |
-| Einstellungen | Einstellungen |
+| Galerie | Sammlung · Werk-Detail · Werkinfo (ⓘ) · Shop-Regal |
+| Shop | Paywall (Sets kaufen · Käufe wiederherstellen) |
+| Einstellungen | Einstellungen · Sammlung · Rechtliches |
 | Widget | Home-Screen (klein/mittel) · Sperrbildschirm (rechteckig) |
 
 ## The reveal mechanic
@@ -74,8 +75,50 @@ FocusPiece/
 FocusPieceWidget/              WidgetKit extension (home & lock screen)
   FocusPieceWidget.swift       Timeline provider + widget views
   FocusPieceWidgetBundle.swift Widget bundle entry point
+Products.storekit              StoreKit test configuration (local purchases)
 Scripts/fetch_artworks.sh      Download the Public-Domain paintings
 ```
+
+## In-App-Käufe: Bilder-Sets
+
+Die acht ursprünglichen Werke bleiben frei. Drei kuratierte Sets sind einmalige
+Käufe (non-consumable, StoreKit 2); gekaufte Werke kommen **gesperrt** in die
+Sammlung und werden wie immer durch Fokus-Sessions enthüllt.
+
+| Set | Product-ID | Werke |
+|---|---|---|
+| Impressionen | `com.focuspiece.app.pack.impressionen` | Monet ×2, Renoir, Caillebotte |
+| Goldenes Zeitalter | `com.focuspiece.app.pack.goldenes_zeitalter` | Vermeer ×3, Rembrandt |
+| Nachtstücke | `com.focuspiece.app.pack.nachtstuecke` | van Gogh ×2, Friedrich, Whistler |
+
+Was Apple für kostenpflichtige Inhalte erwartet — und wo es umgesetzt ist:
+
+- **Lokalisierte Preise** vor dem Kauf: `Product.displayPrice` auf jedem Kauf-Button.
+- **Käufe wiederherstellen** (Pflicht bei non-consumables): Button in der
+  Paywall *und* unter Einstellungen → Sammlung (`AppStore.sync()`).
+- **Ask to Buy / aufgeschobene Käufe**: `.pending` wird erklärt; die Freischaltung
+  kommt automatisch über den `Transaction.updates`-Listener.
+- **Rückerstattungen**: widerrufene Transaktionen fallen aus
+  `Transaction.currentEntitlements`; noch verhüllte Werke des Sets verschwinden,
+  bereits enthüllte bleiben.
+- **Rechtliches**: EULA- und Datenschutz-Links in Paywall und Einstellungen,
+  Kennzeichnung „Einmaliger Kauf — kein Abonnement".
+
+### Vor dem App-Store-Release
+
+1. In **App Store Connect** die drei In-App-Käufe (Typ *Non-Consumable*) mit
+   exakt den obigen Product-IDs anlegen, bepreisen und zur Prüfung einreichen.
+2. Die Datenschutz-URL in `PaywallView.swift` (`LegalLinks.privacy`) durch die
+   echte Adresse ersetzen und dieselbe URL in App Store Connect hinterlegen.
+3. Die Set-Bilder mit `./Scripts/fetch_artworks.sh` laden und mitbauen.
+
+### Käufe lokal testen
+
+`Products.storekit` liegt im Projekt: *Edit Scheme → Run → Options → StoreKit
+Configuration → Products.storekit* wählen, dann lassen sich alle Käufe im
+Simulator durchspielen (inkl. Wiederherstellen und Refund über den
+Transactions-Manager in Xcode). Die Datei ist bewusst nicht im geteilten
+Schema verdrahtet, damit CI ohne StoreKit-Umgebung baut.
 
 ## Widget
 
