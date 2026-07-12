@@ -111,6 +111,7 @@
 			children = (
 				FC0000000000000000000004 /* FocusPiece */,
 				FC0000000000000000000030 /* FocusPieceWidget */,
+				FC0000000000000000000040 /* Products.storekit */,
 				FC0000000000000000000003 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -225,6 +226,12 @@
 			includeInIndex = 0;
 			path = FocusPieceWidgetExtension.appex;
 			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		FC0000000000000000000040 /* Products.storekit */ = {
+			isa = PBXFileReference;
+			lastKnownFileType = text;
+			path = Products.storekit;
+			sourceTree = "<group>";
 		};
 /* End PBXFileReference section */
 

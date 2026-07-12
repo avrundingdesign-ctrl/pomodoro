@@ -1,11 +1,28 @@
 import SwiftUI
 
-/// Screen 8 — the collection grid. Unlocked tiles show the work; locked tiles
-/// are blurred behind a lock.
+/// Screen 8 — the collection grid plus the shop shelf. Unlocked tiles show the
+/// work; locked tiles are blurred behind a lock. Every tile — locked or not —
+/// carries an ⓘ that opens the work's info sheet. Below the collection, the
+/// purchasable sets appear as quiet teasers leading into the paywall.
 struct GalleryView: View {
     @EnvironmentObject var app: AppModel
+    @EnvironmentObject var store: StoreModel
     @Environment(\.horizontalSizeClass) private var hSize
-    @State private var selected: Artwork?
+    @State private var activeSheet: ActiveSheet?
+
+    private enum ActiveSheet: Identifiable {
+        case detail(Artwork)
+        case info(Artwork)
+        case paywall
+
+        var id: String {
+            switch self {
+            case .detail(let a): return "detail.\(a.id)"
+            case .info(let a):   return "info.\(a.id)"
+            case .paywall:       return "paywall"
+            }
+        }
+    }
 
     // Two columns on iPhone, three in the wider iPad column.
     private var columns: [GridItem] {
@@ -19,18 +36,46 @@ struct GalleryView: View {
             ScrollView {
                 LazyVGrid(columns: columns, spacing: 14) {
                     ForEach(app.collection) { art in
-                        GalleryTile(artwork: art)
-                            .onTapGesture { if art.unlocked { selected = art } }
+                        tile(for: art)
+                            .overlay(alignment: .topTrailing) {
+                                TileInfoButton(identifier: "gallery.info.\(art.id)") {
+                                    activeSheet = .info(art)
+                                }
+                            }
                     }
                 }
                 .padding(.horizontal, 28)
-                .padding(.bottom, 24)
+                .padding(.bottom, 8)
                 .contentColumn(Theme.Layout.galleryMaxWidth)
+
+                if !app.purchasablePacks.isEmpty {
+                    shopShelf
+                        .padding(.horizontal, 28)
+                        .padding(.top, 20)
+                        .contentColumn(Theme.Layout.galleryMaxWidth)
+                }
+
+                Spacer().frame(height: 24)
             }
         }
         .background(Theme.Palette.paper)
-        .sheet(item: $selected) { art in
-            ArtworkDetailView(artwork: art)
+        .sheet(item: $activeSheet) { sheet in
+            switch sheet {
+            case .detail(let art):  ArtworkDetailView(artwork: art)
+            case .info(let art):    ArtworkInfoSheet(artwork: art)
+            case .paywall:          PaywallView()
+            }
+        }
+    }
+
+    @ViewBuilder private func tile(for art: Artwork) -> some View {
+        if art.unlocked {
+            Button { activeSheet = .detail(art) } label: { GalleryTile(artwork: art) }
+                .buttonStyle(.plain)
+                .accessibilityIdentifier("gallery.tile.unlocked.\(art.id)")
+        } else {
+            GalleryTile(artwork: art)
+                .accessibilityIdentifier("gallery.tile.locked.\(art.id)")
         }
     }
 
@@ -54,6 +99,129 @@ struct GalleryView: View {
         .padding(.top, 8)
         .padding(.bottom, 18)
         .contentColumn(Theme.Layout.galleryMaxWidth)
+    }
+
+    // MARK: Shop shelf — the purchasable sets
+
+    private var shopShelf: some View {
+        VStack(alignment: .leading, spacing: 14) {
+            VStack(alignment: .leading, spacing: 4) {
+                Text("NEUE WERKE").eyebrow()
+                Text("Sammlung erweitern")
+                    .font(Theme.Font.serif(22))
+                    .foregroundStyle(Theme.Palette.ink)
+            }
+
+            ForEach(app.purchasablePacks) { pack in
+                packTeaser(pack)
+            }
+        }
+    }
+
+    private func packTeaser(_ pack: ArtworkPack) -> some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack(alignment: .firstTextBaseline) {
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(pack.title)
+                        .font(Theme.Font.serif(19))
+                        .foregroundStyle(Theme.Palette.ink)
+                    Text(pack.tagline)
+                        .font(Theme.Font.serifItalic(13))
+                        .foregroundStyle(Theme.Palette.artistInk)
+                }
+                Spacer()
+                Text(store.product(for: pack)?.displayPrice ?? "…")
+                    .font(Theme.Font.sans(13, weight: .semibold))
+                    .foregroundStyle(Theme.Palette.accent)
+                    .padding(.horizontal, 12).padding(.vertical, 6)
+                    .background(Theme.Palette.surface2)
+                    .clipShape(Capsule())
+            }
+
+            // Veiled previews — ⓘ tells the story, the image stays a promise.
+            HStack(spacing: 10) {
+                ForEach(pack.works) { work in
+                    ShopThumb(artwork: work) {
+                        activeSheet = .info(work)
+                    }
+                }
+            }
+
+            Button { activeSheet = .paywall } label: {
+                Text("Set entdecken")
+                    .font(Theme.Font.sans(14, weight: .semibold))
+                    .foregroundStyle(Theme.Palette.ink)
+                    .frame(maxWidth: .infinity)
+                    .frame(height: 44)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: Theme.Radius.primaryButton, style: .continuous)
+                            .stroke(Color(hex: 0xDDD5C7), lineWidth: 1)
+                    )
+            }
+            .buttonStyle(.plain)
+            .accessibilityIdentifier("gallery.shop.\(pack.id)")
+        }
+        .padding(16)
+        .background(Theme.Palette.surface)
+        .overlay(
+            RoundedRectangle(cornerRadius: Theme.Radius.settingCard, style: .continuous)
+                .stroke(Theme.Palette.cardBorder, lineWidth: 1)
+        )
+        .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.settingCard, style: .continuous))
+    }
+}
+
+// MARK: - Tiles
+
+/// Small ⓘ affordance layered over a tile or thumbnail.
+private struct TileInfoButton: View {
+    var identifier: String
+    var action: () -> Void
+
+    var body: some View {
+        Button(action: action) {
+            Image(systemName: "info")
+                .font(.system(size: 11, weight: .semibold))
+                .foregroundStyle(Theme.Palette.ink)
+                .frame(width: 27, height: 27)
+                .background(.ultraThinMaterial, in: Circle())
+                .overlay(Circle().stroke(Color.white.opacity(0.35), lineWidth: 0.5))
+        }
+        .buttonStyle(.plain)
+        .padding(8)
+        .accessibilityIdentifier(identifier)
+        .accessibilityLabel("Werkinfo")
+    }
+}
+
+/// Veiled shop preview with its own ⓘ.
+private struct ShopThumb: View {
+    let artwork: Artwork
+    let onInfo: () -> Void
+
+    var body: some View {
+        ZStack {
+            ArtworkImage(assetName: artwork.assetName, contentMode: .fill)
+            Rectangle().fill(.ultraThinMaterial)
+            Theme.Palette.paper.opacity(0.35)
+            Button(action: onInfo) {
+                Image(systemName: "info")
+                    .font(.system(size: 10, weight: .semibold))
+                    .foregroundStyle(Theme.Palette.ink)
+                    .frame(width: 23, height: 23)
+                    .background(.ultraThinMaterial, in: Circle())
+            }
+            .buttonStyle(.plain)
+            .accessibilityIdentifier("gallery.shopinfo.\(artwork.id)")
+            .accessibilityLabel("Werkinfo")
+        }
+        .aspectRatio(3.0/4.0, contentMode: .fit)
+        .frame(maxWidth: .infinity)
+        .clipShape(RoundedRectangle(cornerRadius: 11, style: .continuous))
+        .overlay(
+            RoundedRectangle(cornerRadius: 11, style: .continuous)
+                .stroke(Theme.Palette.hairline, lineWidth: 1)
+        )
     }
 }
 
