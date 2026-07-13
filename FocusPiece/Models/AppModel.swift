@@ -23,12 +23,14 @@ final class AppModel: ObservableObject {
         didSet { defaults.set(onboardingComplete, forKey: Keys.onboarding) }
     }
     @Published var settings: Settings {
-        didSet { persist(settings, key: Keys.settings) }
+        didSet { persist(settings, key: Keys.settings); publishWidgetSnapshot() }
     }
     @Published var collection: [Artwork] {
-        didSet { persist(collection, key: Keys.collection) }
+        didSet { persist(collection, key: Keys.collection); publishWidgetSnapshot() }
     }
     @Published var selectedTab: Tab = .focus
+    /// Set by the widget deep link; the Fokus tab consumes it and starts the session.
+    @Published var pendingAutoStart = false
 
     private let defaults = UserDefaults.standard
     private enum Keys {
@@ -42,6 +44,9 @@ final class AppModel: ObservableObject {
         onboardingComplete = d.bool(forKey: Keys.onboarding)
         settings = Self.load(Settings.self, key: Keys.settings, from: d) ?? Settings()
         collection = Self.load([Artwork].self, key: Keys.collection, from: d) ?? Artwork.seedCollection
+
+        // Sessions don't survive a relaunch, so the widget starts out "bereit".
+        publishWidgetSnapshot()
     }
 
     // MARK: Derived
@@ -65,6 +70,30 @@ final class AppModel: ObservableObject {
     }
 
     func finishOnboarding() { onboardingComplete = true }
+
+    // MARK: Widget
+    /// Push the current state into the shared app-group container so the
+    /// home/lock screen widget can mirror it.
+    func publishWidgetSnapshot(phase: WidgetSnapshot.Phase = .ready,
+                               remainingSeconds: Int? = nil,
+                               endDate: Date? = nil) {
+        WidgetStore.publish(WidgetSnapshot(
+            phase: phase,
+            selectedMinutes: settings.selectedDuration,
+            remainingSeconds: remainingSeconds,
+            endDate: endDate,
+            worksUnlocked: unlockedCount,
+            worksTotal: totalCount,
+            totalFocusMinutes: totalFocusMinutes))
+    }
+
+    /// Handle `focuspiece://start` from the widget's Start button: switch to the
+    /// Fokus tab and begin the session once the tab is up (after onboarding).
+    func handleDeepLink(_ url: URL) {
+        guard url.scheme == "focuspiece", url.host == "start" else { return }
+        selectedTab = .focus
+        pendingAutoStart = onboardingComplete
+    }
 
     // MARK: Persistence helpers
     private func persist<T: Encodable>(_ value: T, key: String) {

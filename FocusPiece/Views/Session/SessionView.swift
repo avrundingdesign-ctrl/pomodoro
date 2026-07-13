@@ -29,6 +29,36 @@ struct SessionFlowView: View {
         .onChange(of: scenePhase) { _, phase in
             if phase != .active, session.state == .running { session.pause() }
         }
+        // Mirror every session state change into the widget snapshot.
+        .onChange(of: session.state) { _, state in
+            switch state {
+            case .running:
+                app.publishWidgetSnapshot(
+                    phase: .running,
+                    remainingSeconds: session.remainingSeconds,
+                    endDate: Date().addingTimeInterval(TimeInterval(session.remainingSeconds)))
+            case .paused:
+                app.publishWidgetSnapshot(phase: .paused,
+                                          remainingSeconds: session.remainingSeconds)
+            case .complete:
+                // Saving the work updates the counts via the collection didSet;
+                // the next session is "bereit" either way.
+                app.publishWidgetSnapshot()
+            case .ready:
+                break
+            }
+        }
+        // Widget deep link: begin (or resume) as soon as the Fokus tab is up.
+        .onAppear(perform: consumeAutoStart)
+        .onChange(of: app.pendingAutoStart) { _, pending in
+            if pending { consumeAutoStart() }
+        }
+    }
+
+    private func consumeAutoStart() {
+        guard app.pendingAutoStart else { return }
+        app.pendingAutoStart = false
+        if session.state == .ready || session.state == .paused { session.start() }
     }
 
     private func saveAndCollect() {
