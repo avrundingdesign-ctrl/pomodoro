@@ -27,6 +27,17 @@
 	</array>
 	<key>UIRequiresFullScreen</key>
 	<true/>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleURLName</key>
+			<string>com.focuspiece.app</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>focuspiece</string>
+			</array>
+		</dict>
+	</array>
 	<key>UIAppFonts</key>
 	<array>
 		<string>HankenGrotesk-Regular.ttf</string>

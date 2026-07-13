@@ -11,6 +11,7 @@ struct FocusPieceApp: App {
                 .tint(Theme.Palette.accent)
                 // "Thema": Hell / Dunkel erzwingen, System folgt dem Gerät.
                 .preferredColorScheme(app.settings.colorScheme)
+                .onOpenURL { app.handleDeepLink($0) }
         }
     }
 }
