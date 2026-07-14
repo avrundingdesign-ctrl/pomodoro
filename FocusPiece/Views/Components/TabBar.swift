@@ -11,6 +11,9 @@ struct TabBar: View {
             item(.gallery,  icon: "photo.on.rectangle", label: "Galerie")
             item(.settings, icon: "slider.horizontal.3", label: "Einstellungen")
         }
+        // Keep the three items together on iPad instead of spreading them
+        // across the full width; the bar background still spans the screen.
+        .contentColumn()
         .padding(.top, 12)
         .frame(maxWidth: .infinity)
         .frame(height: 90, alignment: .top)

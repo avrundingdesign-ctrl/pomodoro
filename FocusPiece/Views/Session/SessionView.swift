@@ -44,9 +44,17 @@ struct SessionFlowView: View {
 // MARK: - Ready / Running / Paused
 private struct ActiveSessionView: View {
     @ObservedObject var session: SessionModel
+    @Environment(\.horizontalSizeClass) private var hSize
     let onClose: () -> Void
 
     private var isReady: Bool { session.state == .ready }
+    private var isRegular: Bool { hSize == .regular }
+
+    /// Art card keeps the 300:356 proportion; on iPad it grows so it doesn't
+    /// float lost in the middle of the large canvas.
+    private var cardSize: CGSize {
+        isRegular ? CGSize(width: 430, height: 510) : CGSize(width: 300, height: 356)
+    }
 
     var body: some View {
         VStack(spacing: 0) {
@@ -74,6 +82,7 @@ private struct ActiveSessionView: View {
         }
         .padding(.horizontal, Theme.Pad.screenH)
         .padding(.bottom, 12)
+        .contentColumn()
     }
 
     // Header: round back · "Neue Session" · round close
@@ -94,7 +103,7 @@ private struct ActiveSessionView: View {
     // Big serif timer used while running.
     private var timerBlock: some View {
         Text(session.timeString)
-            .font(Theme.Font.serif(70, weight: .light))
+            .font(Theme.Font.serif(isRegular ? 84 : 70, weight: .light))
             .tracking(0.7)
             .foregroundStyle(Theme.Palette.ink)
             .monospacedDigit()
@@ -135,7 +144,7 @@ private struct ActiveSessionView: View {
                 }
             }
         }
-        .frame(width: 300, height: 356)
+        .frame(width: cardSize.width, height: cardSize.height)
         .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.artCard, style: .continuous))
         .shadow(color: Color(hex: 0x28221C).opacity(0.45), radius: 22, x: 0, y: 22)
         .frame(maxWidth: .infinity)
@@ -145,7 +154,7 @@ private struct ActiveSessionView: View {
     private var readyTimerBlock: some View {
         VStack(spacing: 8) {
             Text(session.timeString)
-                .font(Theme.Font.serif(66, weight: .light))
+                .font(Theme.Font.serif(isRegular ? 78 : 66, weight: .light))
                 .tracking(0.7)
                 .foregroundStyle(Theme.Palette.ink)
                 .monospacedDigit()
@@ -165,7 +174,7 @@ private struct ActiveSessionView: View {
             }
         }
         .frame(height: 5)
-        .frame(maxWidth: 300)
+        .frame(maxWidth: cardSize.width)
         .frame(maxWidth: .infinity)
     }
 

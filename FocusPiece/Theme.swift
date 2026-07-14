@@ -83,6 +83,16 @@ enum Theme {
     enum Pad {
         static let screenH: CGFloat = 28   // default horizontal inset
     }
+
+    // MARK: Adaptive layout (iPad)
+    // On regular-width screens content sits in a centered, readable column
+    // instead of stretching the phone layout across the full canvas
+    // (App Review Guideline 4, iPad Air 11"). Both caps are wider than any
+    // iPhone, so they are no-ops on compact devices.
+    enum Layout {
+        static let contentMaxWidth: CGFloat = 560   // text & control column
+        static let galleryMaxWidth: CGFloat = 920   // grid screens
+    }
 }
 
 // MARK: - Color hex helper
@@ -106,5 +116,12 @@ extension View {
             .textCase(.uppercase)
             .tracking(tracking)
             .foregroundStyle(color)
+    }
+
+    /// Caps the view at a readable column width and centers it horizontally.
+    /// iPhones are narrower than every cap, so this only affects iPad.
+    func contentColumn(_ maxWidth: CGFloat = Theme.Layout.contentMaxWidth) -> some View {
+        self.frame(maxWidth: maxWidth)
+            .frame(maxWidth: .infinity)
     }
 }

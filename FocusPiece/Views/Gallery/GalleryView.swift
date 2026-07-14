@@ -4,10 +4,14 @@ import SwiftUI
 /// are blurred behind a lock.
 struct GalleryView: View {
     @EnvironmentObject var app: AppModel
+    @Environment(\.horizontalSizeClass) private var hSize
     @State private var selected: Artwork?
 
-    private let columns = [GridItem(.flexible(), spacing: 14),
-                           GridItem(.flexible(), spacing: 14)]
+    // Two columns on iPhone, three in the wider iPad column.
+    private var columns: [GridItem] {
+        Array(repeating: GridItem(.flexible(), spacing: 14),
+              count: hSize == .regular ? 3 : 2)
+    }
 
     var body: some View {
         VStack(spacing: 0) {
@@ -21,6 +25,7 @@ struct GalleryView: View {
                 }
                 .padding(.horizontal, 28)
                 .padding(.bottom, 24)
+                .contentColumn(Theme.Layout.galleryMaxWidth)
             }
         }
         .background(Theme.Palette.paper)
@@ -48,6 +53,7 @@ struct GalleryView: View {
         .padding(.horizontal, 28)
         .padding(.top, 8)
         .padding(.bottom, 18)
+        .contentColumn(Theme.Layout.galleryMaxWidth)
     }
 }
 

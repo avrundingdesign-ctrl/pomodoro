@@ -3,6 +3,7 @@ import SwiftUI
 /// Screen 7 — the work is fully revealed and unlocked.
 struct CompletionView: View {
     @EnvironmentObject var app: AppModel
+    @Environment(\.horizontalSizeClass) private var hSize
     @ObservedObject var session: SessionModel
     let onSave: () -> Void
 
@@ -13,7 +14,7 @@ struct CompletionView: View {
         VStack(spacing: 0) {
             // Sharp full painting with a wash to paper at the bottom.
             ArtworkImage(assetName: session.artwork.assetName, contentMode: .fill)
-                .frame(height: 486)
+                .frame(height: hSize == .regular ? 620 : 486)
                 .frame(maxWidth: .infinity)
                 .clipped()
                 .overlay(
@@ -83,6 +84,7 @@ struct CompletionView: View {
             }
             .padding(.horizontal, 34)
             .padding(.top, 6)
+            .contentColumn()
         }
     }
 

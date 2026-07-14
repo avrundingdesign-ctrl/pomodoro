@@ -19,6 +19,7 @@ struct SettingsView: View {
             }
             .padding(.horizontal, 28)
             .padding(.top, 8).padding(.bottom, 16)
+            .contentColumn()
 
             ScrollView {
                 VStack(alignment: .leading, spacing: 22) {
@@ -60,6 +61,7 @@ struct SettingsView: View {
                 }
                 .padding(.horizontal, 24)
                 .padding(.bottom, 24)
+                .contentColumn()
             }
         }
         .background(Theme.Palette.paper)

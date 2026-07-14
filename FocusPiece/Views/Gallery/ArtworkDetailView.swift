@@ -75,6 +75,7 @@ struct ArtworkDetailView: View {
                 }
                 .padding(.horizontal, 34)
                 .padding(.top, 4)
+                .contentColumn()
             }
         }
         .background(Theme.Palette.paper)

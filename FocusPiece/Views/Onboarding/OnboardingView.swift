@@ -63,6 +63,7 @@ private struct WelcomePage: View {
                 }
                 .padding(.horizontal, 34)
                 .padding(.bottom, 24)
+                .contentColumn()
             }
         }
     }
@@ -100,6 +101,7 @@ private struct HowItWorksPage: View {
         }
         .padding(.horizontal, 24)
         .padding(.bottom, 24)
+        .contentColumn()
     }
 }
 
@@ -168,6 +170,7 @@ private struct FirstSessionPage: View {
         }
         .padding(.horizontal, 28)
         .padding(.bottom, 24)
+        .contentColumn()
     }
 }
 
