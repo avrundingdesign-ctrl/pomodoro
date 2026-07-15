@@ -1,15 +1,24 @@
 import SwiftUI
 import Combine
 
-/// Persisted app settings (Klang & Haptik, Darstellung, Session).
+/// Persisted app settings (Session, Klang & Haptik).
+/// Decoding is field-tolerant: adding a setting later never resets the others.
 struct Settings: Codable, Equatable {
     var selectedDuration: Int = 25     // minutes — "Standarddauer"
     var gentleStart: Bool = true       // "Sanfter Start"
-    var ambientSound: String = "Regen" // "Umgebungsklang"
     var completionTone: Bool = true    // "Abschluss-Ton"
-    var haptics: Bool = false          // "Haptisches Feedback"
-    var theme: String = "Hell"         // "Thema"
-    var notifications: Bool = true     // "Benachrichtigungen"
+    var haptics: Bool = true           // "Haptisches Feedback"
+
+    init() {}
+
+    init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        let d = Settings()
+        selectedDuration = (try? c.decode(Int.self, forKey: .selectedDuration)) ?? d.selectedDuration
+        gentleStart      = (try? c.decode(Bool.self, forKey: .gentleStart)) ?? d.gentleStart
+        completionTone   = (try? c.decode(Bool.self, forKey: .completionTone)) ?? d.completionTone
+        haptics          = (try? c.decode(Bool.self, forKey: .haptics)) ?? d.haptics
+    }
 }
 
 /// Top-level tabs.
@@ -41,15 +50,32 @@ final class AppModel: ObservableObject {
         let d = UserDefaults.standard
         onboardingComplete = d.bool(forKey: Keys.onboarding)
         settings = Self.load(Settings.self, key: Keys.settings, from: d) ?? Settings()
-        collection = Self.load([Artwork].self, key: Keys.collection, from: d) ?? Artwork.seedCollection
+
+        // Merge: stored progress wins, but newly shipped works are appended so
+        // the collection can grow with app updates.
+        var stored = Self.load([Artwork].self, key: Keys.collection, from: d) ?? []
+        let knownIDs = Set(stored.map(\.id))
+        stored.append(contentsOf: Artwork.seedCollection.filter { !knownIDs.contains($0.id) })
+        collection = stored
     }
 
     // MARK: Derived
     var unlockedCount: Int { collection.filter(\.unlocked).count }
     var totalCount: Int { collection.count }
+    var allUnlocked: Bool { unlockedCount == totalCount }
     /// Total focused minutes across the whole collection.
     var totalFocusMinutes: Int { collection.compactMap(\.sessionMinutes).reduce(0, +) }
-    var totalFocusHours: Int { totalFocusMinutes / 60 }
+
+    /// "45 Min Fokus" under an hour, then "1,5 Std Fokus".
+    var focusTimeLabel: String {
+        let minutes = totalFocusMinutes
+        if minutes < 60 { return "\(minutes) Min Fokus" }
+        let hours = Double(minutes) / 60.0
+        let text = hours.truncatingRemainder(dividingBy: 1) == 0
+            ? String(Int(hours))
+            : String(format: "%.1f", hours).replacingOccurrences(of: ".", with: ",")
+        return "\(text) Std Fokus"
+    }
 
     /// A random still-locked artwork to hide behind the next session.
     func nextLockedArtwork() -> Artwork? {
@@ -57,8 +83,10 @@ final class AppModel: ObservableObject {
     }
 
     /// Mark an artwork unlocked and stamp it with this session's metadata.
+    /// Already-unlocked works keep their original unlock stamp (free focus).
     func unlock(_ artwork: Artwork, minutes: Int) {
-        guard let idx = collection.firstIndex(where: { $0.id == artwork.id }) else { return }
+        guard let idx = collection.firstIndex(where: { $0.id == artwork.id }),
+              !collection[idx].unlocked else { return }
         collection[idx].unlocked = true
         collection[idx].unlockedDate = Date()
         collection[idx].sessionMinutes = minutes

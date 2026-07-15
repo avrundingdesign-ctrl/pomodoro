@@ -9,6 +9,9 @@ struct FocusPieceApp: App {
             RootView()
                 .environmentObject(app)
                 .tint(Theme.Palette.accent)
+                // Die Palette ist bewusst hell — ohne dieses Pinning würde die
+                // Statusbar im System-Dunkelmodus weiß auf Papier rendern.
+                .preferredColorScheme(.light)
         }
     }
 }

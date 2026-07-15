@@ -5,8 +5,6 @@ struct SettingsView: View {
     @EnvironmentObject var app: AppModel
 
     private let durations = [15, 25, 45, 60]
-    private let sounds = ["Regen", "Wald", "Ozean", "Stille"]
-    private let themes = ["Hell", "Dunkel", "System"]
 
     var body: some View {
         VStack(spacing: 0) {
@@ -36,21 +34,9 @@ struct SettingsView: View {
                     }
 
                     SettingsGroup(title: "Klang & Haptik") {
-                        PickerRow(label: "Umgebungsklang",
-                                  value: app.settings.ambientSound,
-                                  options: sounds) { app.settings.ambientSound = $0 }
-                        Divider().overlay(Theme.Palette.hairline3)
                         ToggleRow(label: "Abschluss-Ton", isOn: $app.settings.completionTone)
                         Divider().overlay(Theme.Palette.hairline3)
                         ToggleRow(label: "Haptisches Feedback", isOn: $app.settings.haptics)
-                    }
-
-                    SettingsGroup(title: "Darstellung") {
-                        PickerRow(label: "Thema",
-                                  value: app.settings.theme,
-                                  options: themes) { app.settings.theme = $0 }
-                        Divider().overlay(Theme.Palette.hairline3)
-                        ToggleRow(label: "Benachrichtigungen", isOn: $app.settings.notifications)
                     }
 
                     Text("FocusPiece · Version 1.0")

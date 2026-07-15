@@ -46,7 +46,7 @@ struct GalleryView: View {
                     .foregroundStyle(Theme.Palette.muted2)
             }
             Spacer()
-            Text("\(app.totalFocusHours) Std Fokus")
+            Text(app.focusTimeLabel)
                 .font(Theme.Font.sans(13, weight: .medium))
                 .foregroundStyle(Theme.Palette.accent)
         }
