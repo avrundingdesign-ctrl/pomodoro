@@ -200,28 +200,33 @@ private struct ShopThumb: View {
     let onInfo: () -> Void
 
     var body: some View {
-        ZStack {
-            ArtworkImage(assetName: artwork.assetName, contentMode: .fill)
-            Rectangle().fill(.ultraThinMaterial)
-            Theme.Palette.paper.opacity(0.35)
-            Button(action: onInfo) {
-                Image(systemName: "info")
-                    .font(.system(size: 10, weight: .semibold))
-                    .foregroundStyle(Theme.Palette.ink)
-                    .frame(width: 23, height: 23)
-                    .background(.ultraThinMaterial, in: Circle())
+        // Color.clear carries the layout (see GalleryTile): the fill-mode
+        // image must never dictate the thumb's size.
+        Color.clear
+            .aspectRatio(3.0/4.0, contentMode: .fit)
+            .frame(maxWidth: .infinity)
+            .overlay {
+                ZStack {
+                    ArtworkImage(assetName: artwork.assetName, contentMode: .fill)
+                    Rectangle().fill(.ultraThinMaterial)
+                    Theme.Palette.paper.opacity(0.35)
+                    Button(action: onInfo) {
+                        Image(systemName: "info")
+                            .font(.system(size: 10, weight: .semibold))
+                            .foregroundStyle(Theme.Palette.ink)
+                            .frame(width: 23, height: 23)
+                            .background(.ultraThinMaterial, in: Circle())
+                    }
+                    .buttonStyle(.plain)
+                    .accessibilityIdentifier("gallery.shopinfo.\(artwork.id)")
+                    .accessibilityLabel("Werkinfo")
+                }
             }
-            .buttonStyle(.plain)
-            .accessibilityIdentifier("gallery.shopinfo.\(artwork.id)")
-            .accessibilityLabel("Werkinfo")
-        }
-        .aspectRatio(3.0/4.0, contentMode: .fit)
-        .frame(maxWidth: .infinity)
-        .clipShape(RoundedRectangle(cornerRadius: 11, style: .continuous))
-        .overlay(
-            RoundedRectangle(cornerRadius: 11, style: .continuous)
-                .stroke(Theme.Palette.hairline, lineWidth: 1)
-        )
+            .clipShape(RoundedRectangle(cornerRadius: 11, style: .continuous))
+            .overlay(
+                RoundedRectangle(cornerRadius: 11, style: .continuous)
+                    .stroke(Theme.Palette.hairline, lineWidth: 1)
+            )
     }
 }
 

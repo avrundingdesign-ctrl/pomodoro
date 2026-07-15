@@ -17,7 +17,8 @@ struct ArtworkInfoSheet: View {
                 HStack {
                     Text("WERKINFO").eyebrow()
                     Spacer()
-                    CircleIconButton(systemName: "xmark", identifier: "info.close") { dismiss() }
+                    CircleIconButton(systemName: "xmark") { dismiss() }
+                        .accessibilityIdentifier("info.close")
                 }
                 .padding(.bottom, 14)
 

@@ -1,14 +1,6 @@
 import SwiftUI
 import StoreKit
 
-/// Legal links shown with the purchase UI. Replace the privacy URL with the
-/// final policy address before App Store submission (see README).
-enum LegalLinks {
-    /// Apple's standard EULA for paid apps/content.
-    static let terms = URL(string: "https://www.apple.com/legal/internet-services/itunes/dev/stdeula/")!
-    static let privacy = URL(string: "https://focuspiece.app/datenschutz")!
-}
-
 /// The shop sheet: themed artwork sets as one-time In-App purchases.
 /// Bought works join the collection *locked* and are revealed through focus
 /// sessions — the free eight works stay free.
@@ -65,7 +57,8 @@ struct PaywallView: View {
             HStack {
                 Text("NEUE WERKE").eyebrow()
                 Spacer()
-                CircleIconButton(systemName: "xmark", identifier: "paywall.close") { dismiss() }
+                CircleIconButton(systemName: "xmark") { dismiss() }
+                    .accessibilityIdentifier("paywall.close")
             }
             Text("Sammlung erweitern")
                 .font(Theme.Font.serif(30))

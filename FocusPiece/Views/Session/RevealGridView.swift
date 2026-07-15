@@ -40,10 +40,14 @@ struct RevealGridView: View {
     private var pieceMask: some View {
         ZStack {
             ForEach(0..<(rows * columns), id: \.self) { index in
-                pieceShape(index)
-                    .fill(.black)
-                    .opacity(revealedTiles.contains(index) ? 0 : 1)
-                    .animation(.easeInOut(duration: 0.55), value: revealedCount)
+                // Fill + stroke: the stroke closes the anti-aliasing seam
+                // between adjacent pieces, which would otherwise shimmer.
+                ZStack {
+                    pieceShape(index).fill(.black)
+                    pieceShape(index).stroke(.black, lineWidth: 1)
+                }
+                .opacity(revealedTiles.contains(index) ? 0 : 1)
+                .animation(.easeInOut(duration: 0.55), value: revealedCount)
             }
         }
     }
