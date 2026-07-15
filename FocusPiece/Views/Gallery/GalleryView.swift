@@ -61,6 +61,17 @@ private struct GalleryTile: View {
     let artwork: Artwork
 
     var body: some View {
+        // Color.clear carries the layout: it can never exceed the grid cell,
+        // while the fill-mode image lives in an overlay and gets clipped.
+        Color.clear
+            .aspectRatio(3.0/4.0, contentMode: .fit)
+            .overlay { tileContent }
+            .background(Theme.Palette.hairline)
+            .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.galleryTile, style: .continuous))
+            .contentShape(RoundedRectangle(cornerRadius: Theme.Radius.galleryTile, style: .continuous))
+    }
+
+    private var tileContent: some View {
         ZStack {
             ArtworkImage(assetName: artwork.assetName, contentMode: .fill)
 
@@ -102,8 +113,5 @@ private struct GalleryTile: View {
                 }
             }
         }
-        .aspectRatio(3.0/4.0, contentMode: .fill)
-        .background(Theme.Palette.hairline)
-        .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.galleryTile, style: .continuous))
     }
 }
