@@ -449,7 +449,7 @@
 			buildSettings = {
 				CODE_SIGN_ENTITLEMENTS = FocusPieceWidget/FocusPieceWidget.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 4;
+				CURRENT_PROJECT_VERSION = 6;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = FocusPieceWidget/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = FocusPiece;
@@ -474,7 +474,7 @@
 			buildSettings = {
 				CODE_SIGN_ENTITLEMENTS = FocusPieceWidget/FocusPieceWidget.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 4;
+				CURRENT_PROJECT_VERSION = 6;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = FocusPieceWidget/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = FocusPiece;
