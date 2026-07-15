@@ -13,6 +13,11 @@ enum Feedback {
         if haptics { UINotificationFeedbackGenerator().notificationOccurred(.success) }
     }
 
+    /// Mark a completed focus round between breaks — softer than the finale.
+    static func roundCompleted(haptics: Bool) {
+        if haptics { UINotificationFeedbackGenerator().notificationOccurred(.success) }
+    }
+
     /// Light tap for primary interactions (start / pause / resume).
     static func tap(_ enabled: Bool) {
         guard enabled else { return }

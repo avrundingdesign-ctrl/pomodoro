@@ -7,30 +7,32 @@ import SwiftUI
 enum Theme {
 
     // MARK: Colors
+    // Light values are the binding handoff tokens; dark values are warm,
+    // gallery-at-night counterparts. Resolved per trait via dynamic UIColor.
     enum Palette {
-        static let paper       = Color(hex: 0xF3EFE7) // App background
-        static let surface     = Color(hex: 0xFBF9F4) // List / setting cards
-        static let surface2     = Color(hex: 0xEFE7DA) // Icon badges, info cards, chips
-        static let ink         = Color(hex: 0x2A251F) // Primary text
-        static let ink2        = Color(hex: 0x211E1A) // Headings / values
-        static let muted       = Color(hex: 0x6F675C) // Body text
-        static let muted2      = Color(hex: 0x8C8479) // Captions, labels
-        static let muted3      = Color(hex: 0xA39A8C) // Group labels, disabled
-        static let muted3Soft  = Color(hex: 0xB3AA9C)
-        static let accent      = Color(hex: 0xC25A35) // Terracotta — buttons, active states
-        static let hairline    = Color(hex: 0xE6E0D4) // Dividers, borders
-        static let hairline2   = Color(hex: 0xECE5D8)
-        static let hairline3   = Color(hex: 0xEFE8DB)
-        static let cardBorder  = Color(hex: 0xE9E2D5) // Chip / card border
-        static let toggleOff   = Color(hex: 0xD8D2C6) // Inactive switch track
-        static let artistInk   = Color(hex: 0x7D7468) // Italic artist caption
-        static let bodySoft    = Color(hex: 0x5F574C)
-        static let dotInactive = Color(hex: 0xCFC7B8) // Onboarding page dots
-        static let progressTrack = Color(hex: 0xE3DCCD)
-        static let circleButton  = Color(hex: 0xECE5D8) // Round back/pause buttons
+        static let paper       = Color(light: 0xF3EFE7, dark: 0x1C1915) // App background
+        static let surface     = Color(light: 0xFBF9F4, dark: 0x26221B) // List / setting cards
+        static let surface2    = Color(light: 0xEFE7DA, dark: 0x2E2820) // Icon badges, info cards, chips
+        static let ink         = Color(light: 0x2A251F, dark: 0xEDE7DB) // Primary text
+        static let ink2        = Color(light: 0x211E1A, dark: 0xF2EDE2) // Headings / values
+        static let muted       = Color(light: 0x6F675C, dark: 0xA79D8F) // Body text
+        static let muted2      = Color(light: 0x8C8479, dark: 0x948B7E) // Captions, labels
+        static let muted3      = Color(light: 0xA39A8C, dark: 0x7A7164) // Group labels, disabled
+        static let muted3Soft  = Color(light: 0xB3AA9C, dark: 0x6B6357)
+        static let accent      = Color(light: 0xC25A35, dark: 0xD06A43) // Terracotta — buttons, active states
+        static let hairline    = Color(light: 0xE6E0D4, dark: 0x353028) // Dividers, borders
+        static let hairline2   = Color(light: 0xECE5D8, dark: 0x322D25)
+        static let hairline3   = Color(light: 0xEFE8DB, dark: 0x2F2A23)
+        static let cardBorder  = Color(light: 0xE9E2D5, dark: 0x3A342B) // Chip / card border
+        static let toggleOff   = Color(light: 0xD8D2C6, dark: 0x4A443A) // Inactive switch track
+        static let artistInk   = Color(light: 0x7D7468, dark: 0x9A9083) // Italic artist caption
+        static let bodySoft    = Color(light: 0x5F574C, dark: 0xC4BBAC)
+        static let dotInactive = Color(light: 0xCFC7B8, dark: 0x4E473C) // Onboarding page dots
+        static let progressTrack = Color(light: 0xE3DCCD, dark: 0x3A342B)
+        static let circleButton  = Color(light: 0xECE5D8, dark: 0x322D25) // Round back/pause buttons
 
-        /// Paper veil drawn over hidden reveal tiles — rgba(243,239,231,0.22)
-        static let revealVeil  = Color(hex: 0xF3EFE7).opacity(0.22)
+        /// Paper veil drawn over hidden reveal tiles — rgba(paper, 0.22)
+        static let revealVeil  = Color(light: 0xF3EFE7, dark: 0x1C1915).opacity(0.22)
     }
 
     // MARK: Typography
@@ -95,7 +97,7 @@ enum Theme {
     }
 }
 
-// MARK: - Color hex helper
+// MARK: - Color hex helpers
 extension Color {
     init(hex: UInt, alpha: Double = 1.0) {
         self.init(
@@ -105,6 +107,18 @@ extension Color {
             blue:  Double(hex & 0xFF) / 255.0,
             opacity: alpha
         )
+    }
+
+    /// Dynamic color that resolves per light/dark trait.
+    init(light: UInt, dark: UInt) {
+        self.init(uiColor: UIColor { trait in
+            let hex = trait.userInterfaceStyle == .dark ? dark : light
+            return UIColor(
+                red:   CGFloat((hex >> 16) & 0xFF) / 255.0,
+                green: CGFloat((hex >> 8) & 0xFF) / 255.0,
+                blue:  CGFloat(hex & 0xFF) / 255.0,
+                alpha: 1)
+        })
     }
 }
 
