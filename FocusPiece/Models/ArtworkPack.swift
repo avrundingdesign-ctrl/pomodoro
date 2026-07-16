@@ -120,7 +120,7 @@ enum ArtworkCatalog {
                     packID: "nachtstuecke"),
             Artwork(id: "nocturne_gold",
                     title: "Nocturne in Schwarz und Gold", artist: "James McNeill Whistler", year: "1875",
-                    assetName: "James_Abbott_McNeill_Whistler_-_Nocturne_in_Black_and_Gold_-_The_Falling_Rocket_-_Google_Art_Project",
+                    assetName: "Whistler_James_Nocturne_in_Black_and_Gold_The_Falling_Rocket_1875",
                     collectionTag: "Tonalismus",
                     blurb: "Funken eines Feuerwerks fallen durch die Nacht über dem Themse-Ufer — Malerei an der Schwelle zur Abstraktion.",
                     packID: "nachtstuecke"),

@@ -34,19 +34,25 @@
 		};
 /* End PBXCopyFilesBuildPhase section */
 
+/* Begin PBXFileReference section */
+		FC0000000000000000000006 /* FocusPiece.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = FocusPiece.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		FC0000000000000000000033 /* FocusPieceWidgetExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = FocusPieceWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		FC0000000000000000000040 /* Products.storekit */ = {isa = PBXFileReference; lastKnownFileType = text; path = Products.storekit; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
 		FC0000000000000000000031 /* Exceptions for "FocusPiece" folder in "FocusPieceWidgetExtension" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Models/WidgetState.swift,
-				Resources/Fonts/HankenGrotesk-Bold.ttf,
-				Resources/Fonts/HankenGrotesk-Medium.ttf,
-				Resources/Fonts/HankenGrotesk-Regular.ttf,
-				Resources/Fonts/HankenGrotesk-SemiBold.ttf,
-				Resources/Fonts/Newsreader-Italic.ttf,
-				Resources/Fonts/Newsreader-Light.ttf,
-				Resources/Fonts/Newsreader-Medium.ttf,
-				Resources/Fonts/Newsreader-Regular.ttf,
+				"Resources/Fonts/HankenGrotesk-Bold.ttf",
+				"Resources/Fonts/HankenGrotesk-Medium.ttf",
+				"Resources/Fonts/HankenGrotesk-Regular.ttf",
+				"Resources/Fonts/HankenGrotesk-SemiBold.ttf",
+				"Resources/Fonts/Newsreader-Italic.ttf",
+				"Resources/Fonts/Newsreader-Light.ttf",
+				"Resources/Fonts/Newsreader-Medium.ttf",
+				"Resources/Fonts/Newsreader-Regular.ttf",
 				Theme.swift,
 			);
 			target = FC0000000000000000000032 /* FocusPieceWidgetExtension */;
@@ -54,17 +60,9 @@
 		FC000000000000000000003E /* Exceptions for "FocusPieceWidget" folder in "FocusPieceWidgetExtension" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
-				FocusPieceWidget.entitlements,
 				Info.plist,
 			);
 			target = FC0000000000000000000032 /* FocusPieceWidgetExtension */;
-		};
-		FC000000000000000000003F /* Exceptions for "FocusPiece" folder in "FocusPiece" target */ = {
-			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
-			membershipExceptions = (
-				FocusPiece.entitlements,
-			);
-			target = FC0000000000000000000005 /* FocusPiece */;
 		};
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
@@ -73,7 +71,6 @@
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
 				FC0000000000000000000031 /* Exceptions for "FocusPiece" folder in "FocusPieceWidgetExtension" target */,
-				FC000000000000000000003F /* Exceptions for "FocusPiece" folder in "FocusPiece" target */,
 			);
 			path = FocusPiece;
 			sourceTree = "<group>";
@@ -208,32 +205,6 @@
 			);
 		};
 /* End PBXProject section */
-
-/* Begin PBXReferenceProxy section */
-/* End PBXReferenceProxy section */
-
-/* Begin PBXFileReference section */
-		FC0000000000000000000006 /* FocusPiece.app */ = {
-			isa = PBXFileReference;
-			explicitFileType = wrapper.application;
-			includeInIndex = 0;
-			path = FocusPiece.app;
-			sourceTree = BUILT_PRODUCTS_DIR;
-		};
-		FC0000000000000000000033 /* FocusPieceWidgetExtension.appex */ = {
-			isa = PBXFileReference;
-			explicitFileType = "wrapper.app-extension";
-			includeInIndex = 0;
-			path = FocusPieceWidgetExtension.appex;
-			sourceTree = BUILT_PRODUCTS_DIR;
-		};
-		FC0000000000000000000040 /* Products.storekit */ = {
-			isa = PBXFileReference;
-			lastKnownFileType = text;
-			path = Products.storekit;
-			sourceTree = "<group>";
-		};
-/* End PBXFileReference section */
 
 /* Begin PBXResourcesBuildPhase section */
 		FC0000000000000000000009 /* Resources */ = {
@@ -457,6 +428,7 @@
 				CODE_SIGN_ENTITLEMENTS = FocusPieceWidget/FocusPieceWidget.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 6;
+				DEVELOPMENT_TEAM = 8698DN5A64;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = FocusPieceWidget/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = FocusPiece;
@@ -482,6 +454,7 @@
 				CODE_SIGN_ENTITLEMENTS = FocusPieceWidget/FocusPieceWidget.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 6;
+				DEVELOPMENT_TEAM = 8698DN5A64;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = FocusPieceWidget/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = FocusPiece;

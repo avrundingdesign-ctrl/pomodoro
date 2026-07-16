@@ -42,7 +42,7 @@ FILES=(
   # Set: Nachtstücke
   "Vincent_Willem_van_Gogh_-_Cafe_Terrace_at_Night_(Yorck).jpg"
   "Caspar_David_Friedrich_-_Mondaufgang_am_Meer_-_Google_Art_Project.jpg"
-  "James_Abbott_McNeill_Whistler_-_Nocturne_in_Black_and_Gold_-_The_Falling_Rocket_-_Google_Art_Project.jpg"
+  "Whistler_James_Nocturne_in_Black_and_Gold_The_Falling_Rocket_1875.jpg"
   "Starry_Night_Over_the_Rhone.jpg"
 )
 
