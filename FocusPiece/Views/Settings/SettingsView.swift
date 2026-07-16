@@ -1,11 +1,10 @@
 import SwiftUI
 
-/// Legal links shown in settings. Replace the privacy URL with the final
-/// policy address before App Store submission.
+/// Legal links shown in settings and with the purchase UI.
 enum LegalLinks {
     /// Apple's standard EULA for paid apps/content.
     static let terms = URL(string: "https://www.apple.com/legal/internet-services/itunes/dev/stdeula/")!
-    static let privacy = URL(string: "https://focuspiece.app/datenschutz")!
+    static let privacy = URL(string: "https://trin.studio/datenschutz")!
 }
 
 /// Screen 10 — grouped settings.
