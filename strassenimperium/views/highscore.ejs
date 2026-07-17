@@ -1,0 +1,28 @@
+<%- include('partials/head', { title, active }) %>
+<h1>Highscore</h1>
+<p class="muted"><%= total %> Gestalten kämpfen um die Straßenkrone. Punkte gibt es für Kampfsiege und abgeschlossene Weiterbildungen.</p>
+<section class="card">
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Rang</th><th>Name</th><th>Punkte</th><th>Dabei seit</th></tr></thead>
+      <tbody>
+        <% for (const [i, row] of rows.entries()) { %>
+          <tr class="<%= row.id === meId ? 'me' : '' %>">
+            <td><%= startRank + i %></td>
+            <td><a href="/profil/<%= encodeURIComponent(row.username) %>"><%= row.username %></a></td>
+            <td><%= row.points %></td>
+            <td class="muted"><%= new Date(row.created_at).toLocaleDateString('de-DE') %></td>
+          </tr>
+        <% } %>
+      </tbody>
+    </table>
+  </div>
+  <% if (pages > 1) { %>
+    <p class="pagination">
+      <% if (page > 1) { %><a class="btn btn-sm" href="/highscore?seite=<%= page - 1 %>">← Zurück</a><% } %>
+      <span class="muted">Seite <%= page %> von <%= pages %></span>
+      <% if (page < pages) { %><a class="btn btn-sm" href="/highscore?seite=<%= page + 1 %>">Weiter →</a><% } %>
+    </p>
+  <% } %>
+</section>
+<%- include('partials/foot') %>

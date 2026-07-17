@@ -1,0 +1,22 @@
+<%- include('partials/head', { title, active }) %>
+<div class="card auth-card">
+  <h1><%= them.username %></h1>
+  <table class="stats">
+    <tr><th>Rang</th><td><%= themRank %></td></tr>
+    <tr><th>Punkte</th><td><%= them.points %></td></tr>
+    <tr><th>Auf der Straße seit</th><td><%= new Date(them.created_at).toLocaleDateString('de-DE') %></td></tr>
+  </table>
+  <% if (isMe) { %>
+    <p class="muted">Das bist du. Sieh zu, dass die Zahlen größer werden.</p>
+  <% } else if (canAttackNow) { %>
+    <form method="post" action="/kampf/angriff">
+      <input type="hidden" name="_csrf" value="<%= csrf %>">
+      <input type="hidden" name="defenderId" value="<%= them.id %>">
+      <button class="btn btn-danger" type="submit">⚔️ Überfallen</button>
+    </form>
+  <% } else if (attackBlockReason) { %>
+    <p class="muted">Kein Angriff möglich: <%= attackBlockReason %></p>
+  <% } %>
+  <p><a href="/kampf">← Zurück zum Kampf</a></p>
+</div>
+<%- include('partials/foot') %>

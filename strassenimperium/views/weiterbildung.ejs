@@ -1,0 +1,51 @@
+<%- include('partials/head', { title, active }) %>
+<h1>Weiterbildung</h1>
+<p class="muted">
+  Trainings laufen im Hintergrund weiter — auch wenn du ausgeloggt bist.
+  <strong><%= slotsFree %></strong> von <%= GAME.MAX_PARALLEL_TRAININGS %> Trainingsplätzen frei.
+</p>
+
+<% if (trainings.length > 0) { %>
+  <section class="card">
+    <h2>Läuft gerade</h2>
+    <ul class="timers">
+      <% for (const t of trainings) { %>
+        <li>📖 <strong><%= skillInfo[t.skill_type].name %></strong> auf Stufe <%= t.target_level %> —
+          fertig in <span class="countdown" data-ends="<%= t.ends_at %>">…</span></li>
+      <% } %>
+    </ul>
+  </section>
+<% } %>
+
+<section class="card">
+  <h2>Skills</h2>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>Skill</th><th>Stufe</th><th>Effekt</th><th>Nächste Stufe</th><th></th></tr>
+      </thead>
+      <tbody>
+        <% for (const o of offers) { %>
+          <tr>
+            <td><strong><%= o.name %></strong></td>
+            <td><%= o.level %></td>
+            <td class="muted"><%= o.effect %></td>
+            <td>Stufe <%= o.target %>: <%= fmtMoney(o.cost) %>, <%= fmtDuration(o.durationMs) %></td>
+            <td>
+              <% if (o.blocked) { %>
+                <span class="badge"><%= o.blocked %></span>
+              <% } else { %>
+                <form method="post" action="/weiterbildung/start" class="inline">
+                  <input type="hidden" name="_csrf" value="<%= csrf %>">
+                  <input type="hidden" name="skill" value="<%= o.type %>">
+                  <button class="btn btn-primary btn-sm" type="submit">Trainieren</button>
+                </form>
+              <% } %>
+            </td>
+          </tr>
+        <% } %>
+      </tbody>
+    </table>
+  </div>
+</section>
+<%- include('partials/foot') %>

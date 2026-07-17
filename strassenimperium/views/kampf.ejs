@@ -1,0 +1,84 @@
+<%- include('partials/head', { title, active }) %>
+<h1>Kampf</h1>
+
+<% if (action) { %>
+  <section class="card">
+    <% if (action.type === 'kampf') { %>
+      <h2>⚔️ Du bist unterwegs</h2>
+      <p>Auf dem Weg zu <strong><%= action.defender_name %></strong> —
+        Ergebnis in <span class="countdown" data-ends="<%= action.ends_at %>">…</span></p>
+    <% } else { %>
+      <h2>Du bist unterwegs</h2>
+      <p>Du sammelst gerade Flaschen — kämpfen geht erst danach
+        (<span class="countdown" data-ends="<%= action.ends_at %>">…</span>).</p>
+    <% } %>
+  </section>
+<% } %>
+
+<% if (incomingVisible && incoming && incoming.length > 0) { %>
+  <section class="card incoming">
+    <h2>⚠️ Eingehende Angriffe</h2>
+    <ul>
+      <% for (const a of incoming) { %>
+        <li><strong><%= a.attackerName %></strong> trifft ein in
+          <span class="countdown" data-ends="<%= a.endsAt %>">…</span> — bring dein Geld in Sicherheit!</li>
+      <% } %>
+    </ul>
+  </section>
+<% } %>
+
+<section class="card">
+  <h2>Mögliche Ziele</h2>
+  <p class="muted">
+    Angreifbar sind Spieler mit <%= range.min %>–<%= range.max %> Punkten (deine Liga).
+    Nach einem Kampf ist dasselbe Ziel <%= GAME.FIGHT_COOLDOWN_HOURS %> Stunden geschützt.
+    <% if (!incomingVisible) { %>
+      Ab Geschicklichkeit <%= incomingUnlockLevel %> siehst du eingehende Angriffe vorab.
+    <% } %>
+  </p>
+  <% if (targets.length === 0) { %>
+    <p class="muted">Gerade ist niemand aus deiner Liga auf der Straße. Schau später wieder vorbei.</p>
+  <% } else { %>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Name</th><th>Punkte</th><th>Rang</th><th></th></tr></thead>
+        <tbody>
+          <% for (const t of targets) { %>
+            <tr>
+              <td><a href="/profil/<%= encodeURIComponent(t.username) %>"><%= t.username %></a></td>
+              <td><%= t.points %></td>
+              <td><%= t.rank %></td>
+              <td>
+                <% if (t.cooldownUntil) { %>
+                  <span class="badge" title="Cooldown">geschützt bis <%= fmtDateTime(t.cooldownUntil) %></span>
+                <% } else if (action) { %>
+                  <span class="badge">du bist beschäftigt</span>
+                <% } else { %>
+                  <form method="post" action="/kampf/angriff" class="inline">
+                    <input type="hidden" name="_csrf" value="<%= csrf %>">
+                    <input type="hidden" name="defenderId" value="<%= t.id %>">
+                    <button class="btn btn-sm btn-danger" type="submit">Überfallen</button>
+                  </form>
+                <% } %>
+              </td>
+            </tr>
+          <% } %>
+        </tbody>
+      </table>
+    </div>
+  <% } %>
+</section>
+
+<section class="card">
+  <h2>Kampflog</h2>
+  <% if (log.length === 0) { %>
+    <p class="muted">Noch keine Kämpfe. Deine Fäuste sind ganz verschlafen.</p>
+  <% } else { %>
+    <ul class="log">
+      <% for (const e of log) { %>
+        <li class="<%= e.cls %>"><%= e.text %> <span class="muted small"><%= fmtDateTime(e.ts) %></span></li>
+      <% } %>
+    </ul>
+  <% } %>
+</section>
+<%- include('partials/foot') %>

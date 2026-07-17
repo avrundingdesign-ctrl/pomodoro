@@ -1,0 +1,40 @@
+<%- include('partials/head', { title, active }) %>
+<h1>Flaschen sammeln</h1>
+
+<% if (action) { %>
+  <section class="card">
+    <% if (action.type === 'sammeln') { %>
+      <h2>Du bist unterwegs</h2>
+      <p>Du klapperst gerade die Parkbänke ab — zurück in
+        <span class="countdown" data-ends="<%= action.ends_at %>">…</span>.</p>
+    <% } else { %>
+      <h2>Du bist beschäftigt</h2>
+      <p>Du steckst gerade in einem Kampf. Danach kannst du wieder sammeln.</p>
+    <% } %>
+  </section>
+<% } else { %>
+  <section class="card">
+    <h2>Wie lange willst du losziehen?</h2>
+    <p class="muted">
+      Tageskurs: <strong><%= kurs %> Cent</strong> pro Flasche (Verkauf im <a href="/inventar">Inventar</a>).
+      Kurze Touren bringen pro Stunde am meisten — lange Touren sind bequem für die Nacht.
+      Deine Geschicklichkeit (Stufe <%= geschick %>) erhöht den Ertrag.
+    </p>
+    <form method="post" action="/aktionen/sammeln/start">
+      <input type="hidden" name="_csrf" value="<%= csrf %>">
+      <ul class="options">
+        <% for (const [i, o] of options.entries()) { %>
+          <li>
+            <label>
+              <input type="radio" name="minutes" value="<%= o.minutes %>" <%= i === 0 ? 'checked' : '' %>>
+              <strong><%= o.label %></strong>
+              <span class="muted">— ca. <%= o.bottles %> Flaschen (≈ <%= fmtMoney(o.estCents) %>, <%= o.perHour %> Flaschen/Std.)</span>
+            </label>
+          </li>
+        <% } %>
+      </ul>
+      <button class="btn btn-primary" type="submit">Losziehen</button>
+    </form>
+  </section>
+<% } %>
+<%- include('partials/foot') %>

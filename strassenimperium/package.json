@@ -1,0 +1,25 @@
+{
+  "name": "strassenimperium",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Straßenimperium — browserbasiertes Text-Aufbauspiel (MVP Phase 1 laut Lastenheft)",
+  "type": "module",
+  "engines": {
+    "node": ">=22.5"
+  },
+  "scripts": {
+    "build": "tsc",
+    "start": "npm run build && node dist/src/server.js",
+    "dev": "npm run build && DEV_TIME_SCALE=60 node dist/src/server.js",
+    "test": "npm run build && node --test \"dist/test/*.test.js\""
+  },
+  "dependencies": {
+    "ejs": "^3.1.10",
+    "express": "^4.21.2"
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.21",
+    "@types/node": "^22.10.0",
+    "typescript": "^5.7.2"
+  }
+}

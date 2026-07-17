@@ -1,0 +1,26 @@
+<%- include('partials/head', { title }) %>
+<div class="auth-card card">
+  <h1>Ganz unten anfangen</h1>
+  <p class="muted">
+    Du startest mit <%= fmtMoney(GAME.START_MONEY) %> in der Hosentasche und großen Plänen.
+    Sammle Pfand, bilde dich weiter, arbeite dich hoch — bis dir die halbe Stadt gehört.
+  </p>
+  <% if (error) { %><div class="flash err"><%= error %></div><% } %>
+  <form method="post" action="/registrieren" class="stack">
+    <label>Spielername <span class="muted">(3–20 Zeichen: Buchstaben, Zahlen, _)</span>
+      <input type="text" name="username" value="<%= values.username || '' %>" required autofocus>
+    </label>
+    <label>E-Mail
+      <input type="email" name="email" value="<%= values.email || '' %>" required>
+    </label>
+    <label>Passwort <span class="muted">(mind. 8 Zeichen)</span>
+      <input type="password" name="password" required>
+    </label>
+    <label>Passwort wiederholen
+      <input type="password" name="password2" required>
+    </label>
+    <button class="btn btn-primary" type="submit">Los geht’s</button>
+  </form>
+  <p class="muted">Schon dabei? <a href="/login">Anmelden</a></p>
+</div>
+<%- include('partials/foot') %>

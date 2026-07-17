@@ -1,0 +1,17 @@
+<%- include('partials/head', { title }) %>
+<div class="auth-card card">
+  <h1>Willkommen zurück auf der Straße</h1>
+  <p class="muted">Melde dich an und schau, was deine Timer gemacht haben.</p>
+  <% if (error) { %><div class="flash err"><%= error %></div><% } %>
+  <form method="post" action="/login" class="stack">
+    <label>Name oder E-Mail
+      <input type="text" name="identifier" value="<%= values.identifier || '' %>" required autofocus>
+    </label>
+    <label>Passwort
+      <input type="password" name="password" required>
+    </label>
+    <button class="btn btn-primary" type="submit">Anmelden</button>
+  </form>
+  <p class="muted">Noch keinen Schlafplatz hier? <a href="/registrieren">Jetzt registrieren</a></p>
+</div>
+<%- include('partials/foot') %>

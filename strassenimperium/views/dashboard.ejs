@@ -1,0 +1,80 @@
+<%- include('partials/head', { title, active }) %>
+<h1>Übersicht</h1>
+<div class="grid-2">
+  <section class="card">
+    <h2>Dein Status</h2>
+    <table class="stats">
+      <tr>
+        <th>Geld</th>
+        <td>
+          <%= fmtMoney(user.money) %> <span class="muted">von <%= fmtMoney(stats.capacity) %></span>
+          <div class="bar"><div class="bar-fill" style="width: <%= Math.min(100, Math.round(user.money / stats.capacity * 100)) %>%"></div></div>
+          <span class="muted small">Behälter: <%= stats.container ? stats.container.name : 'Hosentasche' %> — Überschüssiges Geld geht verloren!</span>
+        </td>
+      </tr>
+      <tr>
+        <th>Pfandflaschen</th>
+        <td><%= user.bottles %> <span class="muted">· Tageskurs <%= kurs %> Cent</span>
+          <% if (user.bottles > 0) { %><a href="/inventar">→ verkaufen</a><% } %>
+        </td>
+      </tr>
+      <tr><th>Angriff (ATT)</th><td><%= stats.attEff %> <span class="muted">= Stufe <%= stats.skills.angriff %><%= stats.weapon ? ` + ${stats.weapon.att_bonus} (${stats.weapon.name})` : '' %></span></td></tr>
+      <tr><th>Verteidigung (DEF)</th><td><%= stats.defEff %> <span class="muted">= Stufe <%= stats.skills.verteidigung %></span></td></tr>
+      <tr><th>Geschicklichkeit</th><td><%= stats.skills.geschick %></td></tr>
+      <tr><th>Punkte</th><td><%= user.points %> <span class="muted">· Rang <%= status.rank %></span> <a href="/highscore">→ Highscore</a></td></tr>
+    </table>
+  </section>
+
+  <section class="card">
+    <h2>Laufende Unternehmungen</h2>
+    <% if (trainings.length === 0 && !action) { %>
+      <p class="muted">Gerade herrscht tote Hose. Zeit, etwas anzustoßen:</p>
+      <p class="stack-h">
+        <a class="btn" href="/aktionen/sammeln">Flaschen sammeln</a>
+        <a class="btn" href="/weiterbildung">Weiterbilden</a>
+        <a class="btn" href="/kampf">Jemanden überfallen</a>
+      </p>
+    <% } %>
+    <ul class="timers">
+      <% for (const t of trainings) { %>
+        <li>
+          📖 Weiterbildung <strong><%= skillInfo[t.skill_type].name %></strong> auf Stufe <%= t.target_level %>
+          — <span class="countdown" data-ends="<%= t.ends_at %>">läuft…</span>
+        </li>
+      <% } %>
+      <% if (action && action.type === 'sammeln') { %>
+        <li>🍾 Du bist unterwegs und sammelst Pfandflaschen — zurück in <span class="countdown" data-ends="<%= action.ends_at %>">…</span></li>
+      <% } else if (action && action.type === 'kampf') { %>
+        <li>⚔️ Du bist auf dem Weg zu <strong><%= action.defender_name %></strong> — Ergebnis in <span class="countdown" data-ends="<%= action.ends_at %>">…</span></li>
+      <% } %>
+    </ul>
+    <% if (incoming !== null) { %>
+      <% if (incoming.length > 0) { %>
+        <div class="incoming">
+          <h3>⚠️ Eingehende Angriffe</h3>
+          <ul>
+            <% for (const a of incoming) { %>
+              <li><strong><%= a.attackerName %></strong> ist auf dem Weg zu dir — trifft ein in <span class="countdown" data-ends="<%= a.endsAt %>">…</span>. Bring dein Geld in Sicherheit!</li>
+            <% } %>
+          </ul>
+        </div>
+      <% } else { %>
+        <p class="muted small">🕵️ Deine Geschicklichkeit warnt dich vor eingehenden Angriffen — aktuell ist keiner unterwegs.</p>
+      <% } %>
+    <% } %>
+  </section>
+</div>
+
+<section class="card">
+  <h2>Letzte Ereignisse</h2>
+  <% if (events.length === 0) { %>
+    <p class="muted">Noch nichts passiert. Deine Legende beginnt jetzt.</p>
+  <% } else { %>
+    <ul class="log">
+      <% for (const e of events) { %>
+        <li class="<%= e.cls %>"><%= e.text %> <span class="muted small"><%= fmtDateTime(e.ts) %></span></li>
+      <% } %>
+    </ul>
+  <% } %>
+</section>
+<%- include('partials/foot') %>

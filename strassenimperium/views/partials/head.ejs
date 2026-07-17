@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="de" data-server-now="<%= serverNow %>">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title><%= title %> · Straßenimperium</title>
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+<header class="topbar">
+  <div class="topbar-inner">
+    <a class="logo" href="/">🛒 Straßenimperium</a>
+    <% if (locals.user) { %>
+      <nav class="nav">
+        <%
+          const NAV = [
+            ["uebersicht", "Übersicht", "/uebersicht"],
+            ["weiterbildung", "Weiterbildung", "/weiterbildung"],
+            ["sammeln", "Sammeln", "/aktionen/sammeln"],
+            ["inventar", "Inventar", "/inventar"],
+            ["kampf", "Kampf", "/kampf"],
+            ["highscore", "Highscore", "/highscore"],
+          ];
+        %>
+        <% for (const [key, label, href] of NAV) { %>
+          <a href="<%= href %>" class="<%= locals.active === key ? 'on' : '' %>"><%= label %></a>
+        <% } %>
+        <form method="post" action="/logout" class="inline">
+          <input type="hidden" name="_csrf" value="<%= csrf %>">
+          <button class="linklike" type="submit" title="Abmelden">Abmelden</button>
+        </form>
+      </nav>
+    <% } else { %>
+      <nav class="nav">
+        <a href="/login">Anmelden</a>
+        <a href="/registrieren">Registrieren</a>
+      </nav>
+    <% } %>
+  </div>
+  <% if (locals.user && locals.status) { %>
+    <div class="statusbar">
+      <span class="chip" title="Bargeld / Behälter-Kapazität">💶 <%= fmtMoney(status.money) %> <span class="muted">/ <%= fmtMoney(status.capacity) %></span></span>
+      <span class="chip" title="Pfandflaschen im Beutel · Tageskurs">🍾 <%= status.bottles %> <span class="muted">(Kurs <%= status.kurs %> ct)</span></span>
+      <span class="chip" title="Angriff (inkl. Waffe)">⚔️ <%= status.att %></span>
+      <span class="chip" title="Verteidigung">🛡️ <%= status.def %></span>
+      <span class="chip" title="Geschicklichkeit">✋ <%= status.geschick %></span>
+      <span class="chip" title="Punkte und Highscore-Rang">🏆 <%= status.points %> Pkt. <span class="muted">· Rang <%= status.rank %></span></span>
+    </div>
+  <% } %>
+</header>
+<main class="wrap">
+<% for (const f of (locals.flashes || [])) { %>
+  <div class="flash <%= f.type %>"><%= f.msg %></div>
+<% } %>
