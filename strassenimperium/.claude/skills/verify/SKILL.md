@@ -29,11 +29,23 @@ curl -si -X POST localhost:3210/registrieren \
 # CSRF-Token steht in jeder Seite (Logout-Form): name="_csrf" value="…"
 curl -s localhost:3210/uebersicht -H "Cookie: sid=…" | grep -o 'name="_csrf" value="[0-9a-f]*"'
 # Alle Spiel-POSTs brauchen Cookie + _csrf:
-#   /weiterbildung/start (skill=angriff|verteidigung|geschick)
+#   /weiterbildung/start (skill=angriff|verteidigung|geschick|sozial)
 #   /aktionen/sammeln/start (minutes=10|30|60|120|240|480|720)
 #   /kampf/angriff (defenderId=…)  — IDs stehen in /kampf im defenderId-Hidden-Field
-#   /inventar/verkaufen · /inventar/kaufen (itemId) · /inventar/aktivieren (invId)
+#   /inventar/verkaufen · /inventar/aktivieren (invId) · /inventar/verkaufen-item (invId)
+#   /inventar/konsumieren (invId)  — Trinken/Essen, verändert Promille
+#   /stadt/kaufen (itemId, back=/stadt/…)  — alle Läden kaufen hierüber
+#   /stadt/umzug (districtId) · /stadt/waschhaus (option=guenstig|gruendlich)
+#   /aktionen/betteln/neuer-link
+# Öffentlich OHNE Login: GET /spende/<code> (Code steht in users.donation_code
+# bzw. auf /aktionen/betteln) — zahlt 1× pro Quelle/Tag aus.
 ```
+
+Item-/Viertel-IDs für POSTs am schnellsten aus der DB holen
+(`items.key` wie `drink_1`, `home_4`, `pet_1`; `districts.name`).
+Achtung Zeitraffer: auch der Promille-Abbau läuft ×TIME_SCALE — bei ×600
+verdunstet ein Bier in Sekunden; für Krankenhaus-Tests schnell
+hintereinander trinken.
 
 Timer werden bei **jedem** Request lazy aufgelöst — nach Ablauf reicht ein
 beliebiger GET (z. B. `/healthz`), dann zeigt `/uebersicht` das Ergebnis

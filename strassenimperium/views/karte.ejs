@@ -1,0 +1,41 @@
+<%- include('partials/head', { title, active }) %>
+<h1>Stadtkarte</h1>
+<p class="muted">
+  Jedes Viertel hat seinen eigenen Schlag Leute: Der <strong>Faktor</strong> erhöht deinen
+  Sammelertrag und die Spendenbereitschaft. Umzüge kosten einmalig. Manche Unterkünfte
+  gibt es nur in besseren Vierteln (Viertel-Stufe).
+</p>
+<section class="card">
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>Viertel</th><th>Stufe</th><th>Faktor</th><th>Umzugskosten</th><th></th></tr>
+      </thead>
+      <tbody>
+        <% for (const d of districts) { %>
+          <tr class="<%= d.id === current.id ? 'me' : '' %>">
+            <td>
+              <strong><%= d.name %></strong>
+              <div class="muted small"><%= d.blurb %></div>
+            </td>
+            <td><%= d.tier %></td>
+            <td>×<%= d.factor.toLocaleString('de-DE') %></td>
+            <td><%= d.move_cost === 0 ? '—' : fmtMoney(d.move_cost) %></td>
+            <td>
+              <% if (d.id === current.id) { %>
+                <span class="badge on">du wohnst hier</span>
+              <% } else { %>
+                <form method="post" action="/stadt/umzug" class="inline">
+                  <input type="hidden" name="_csrf" value="<%= csrf %>">
+                  <input type="hidden" name="districtId" value="<%= d.id %>">
+                  <button class="btn btn-sm <%= user.money >= d.move_cost ? 'btn-primary' : '' %>" type="submit" <%= user.money >= d.move_cost ? '' : 'disabled' %>>Umziehen</button>
+                </form>
+              <% } %>
+            </td>
+          </tr>
+        <% } %>
+      </tbody>
+    </table>
+  </div>
+</section>
+<%- include('partials/foot') %>

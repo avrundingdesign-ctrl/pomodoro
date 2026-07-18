@@ -1,0 +1,17 @@
+<%- include('partials/head', { title }) %>
+<div class="card auth-card">
+  <h1>🥫 Danke!</h1>
+  <% if (result.paid) { %>
+    <p>Du hast <strong><%= ownerName %></strong> ein paar Münzen in den Becher geworfen
+      (<%= fmtMoney(result.amount) %>). Irgendwo in der Stadt klimpert es dankbar.</p>
+  <% } else if (result.reason === 'duplicate') { %>
+    <p>Du hast <strong><%= ownerName %></strong> heute schon etwas zugesteckt —
+      so viel Großzügigkeit auf einmal wäre verdächtig.</p>
+  <% } else { %>
+    <p>Der Becher von <strong><%= ownerName %></strong> quillt heute schon über —
+      versuch es morgen wieder.</p>
+  <% } %>
+  <p class="muted">Straßenimperium ist ein fiktives Satirespiel: Vom Flaschensammler zum Stadt-Imperium.</p>
+  <p><a class="btn btn-primary" href="/registrieren">Selbst auf der Straße durchstarten</a></p>
+</div>
+<%- include('partials/foot') %>

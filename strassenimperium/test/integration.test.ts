@@ -214,7 +214,7 @@ test("Spielfluss end-to-end: Registrieren → Training → Kampf → Sammeln →
     .get() as any;
   const buy = await post(
     ctx,
-    "/inventar/kaufen",
+    "/stadt/kaufen",
     { itemId: String(container.id), _csrf: csrfA },
     cookieA,
   );

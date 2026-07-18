@@ -79,10 +79,45 @@ export const GAME = {
 
   /** Session-Lebensdauer: 30 Tage. */
   SESSION_TTL_MS: 30 * 24 * 60 * 60 * 1000,
+
+  // ---------------------------------------------------- Phase 2: Promille (Kap. 3)
+  /** Natürlicher Abbau pro (Spiel-)Stunde in ‰. */
+  PROMILLE_DECAY_PER_HOUR: 0.15,
+  /** Ab hier: „Lebensgefahr" → Krankenhaus-Event (Kap. 3: 4,0 ‰). */
+  PROMILLE_HOSPITAL_AT: 4.0,
+  /** Krankenhaus kostet diesen Anteil des Bargelds. */
+  PROMILLE_HOSPITAL_FEE_FACTOR: 0.25,
+  /** Warnstufe laut Beispielkurve. */
+  PROMILLE_WARN_AT: 3.5,
+
+  // ------------------------------------------------- Phase 2: Sauberkeit (Kap. 3/8)
+  /** Sauberkeitsverlust pro Stunde Sammeln (Prozentpunkte). */
+  CLEANLINESS_LOSS_PER_HOUR: 2,
+  /** Startwert bei Registrierung. */
+  CLEANLINESS_START: 50,
+  /** Waschhaus (Kap. 8): günstig +20 %-Punkte, gründlich → 100 %. */
+  WASH_CHEAP_COST: 150,
+  WASH_CHEAP_GAIN: 20,
+  WASH_FULL_COST: 600,
+
+  // ------------------------------------- Phase 2: Betteln/Spendenlink (Kap. 5/10)
+  /** Basis-Auszahlung pro Klick in Cent (vor Faktoren). */
+  DONATION_BASE_CENTS: 8,
+  /** Max. vergütete Klicks pro Tag (Bot-/Missbrauchsbremse). */
+  DONATION_DAILY_CAP: 50,
+
+  // --------------------------------------------------- Phase 2: Skill-Stufenlimits
+  /** Stufenlimits (Kap. 4): Sozialkontakte ist gedeckelt, Kampfskills nicht. */
+  SKILL_MAX_LEVEL: { sozial: 10 } as Partial<Record<string, number>>,
 } as const;
 
-export type SkillType = "angriff" | "verteidigung" | "geschick";
-export const SKILL_TYPES: SkillType[] = ["angriff", "verteidigung", "geschick"];
+export type SkillType = "angriff" | "verteidigung" | "geschick" | "sozial";
+export const SKILL_TYPES: SkillType[] = [
+  "angriff",
+  "verteidigung",
+  "geschick",
+  "sozial",
+];
 
 export const SKILL_INFO: Record<
   SkillType,
@@ -94,11 +129,16 @@ export const SKILL_INFO: Record<
   },
   verteidigung: {
     name: "Verteidigung",
-    effect: "+1 DEF pro Stufe, reduziert Verluste bei Überfällen.",
+    effect:
+      "+1 DEF pro Stufe, reduziert Verluste bei Überfällen und schaltet Unterkünfte frei.",
   },
   geschick: {
     name: "Geschicklichkeit",
     effect:
       "+5 % Sammelertrag pro Stufe. Ab Stufe 20 siehst du eingehende Angriffe vorab.",
+  },
+  sozial: {
+    name: "Sozialkontakte",
+    effect: "Schaltet Haustiere frei (max. Stufe 10).",
   },
 };

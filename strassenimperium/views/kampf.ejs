@@ -32,6 +32,7 @@
   <p class="muted">
     Angreifbar sind Spieler mit <%= range.min %>–<%= range.max %> Punkten (deine Liga).
     Nach einem Kampf ist dasselbe Ziel <%= GAME.FIGHT_COOLDOWN_HOURS %> Stunden geschützt.
+    Dein Pegel: <%= status.promilleLabel %> — <%= status.mood %>. Nüchtern schlägst du präziser zu.
     <% if (!incomingVisible) { %>
       Ab Geschicklichkeit <%= incomingUnlockLevel %> siehst du eingehende Angriffe vorab.
     <% } %>

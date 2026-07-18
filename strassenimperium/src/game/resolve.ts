@@ -5,6 +5,8 @@ import { GAME } from "../config.js";
 import { collectYield, fightScores, lootAmount } from "./formulas.js";
 import { addMoney } from "./money.js";
 import { effectiveStats } from "./stats.js";
+import { districtOf } from "./districts.js";
+import { fightFactor, promilleOf } from "./promille.js";
 
 /**
  * Kern des Idle-Prinzips: Alle fälligen, noch nicht aufgelösten Timer
@@ -74,14 +76,20 @@ function resolveAction(db: Db, action: ActionRow): void {
 function resolveCollect(db: Db, action: ActionRow): void {
   const payload = JSON.parse(action.payload ?? "{}") as { minutes?: number };
   const minutes = payload.minutes ?? 60;
+  const user = db
+    .prepare("SELECT * FROM users WHERE id = ?")
+    .get(action.user_id) as unknown as UserRow | undefined;
+  if (!user) return;
   const stats = effectiveStats(db, action.user_id);
-  const bottles = collectYield(minutes, stats.skills.geschick);
-  db.prepare("UPDATE users SET bottles = bottles + ? WHERE id = ?").run(
-    bottles,
-    action.user_id,
-  );
+  const district = districtOf(db, user);
+  const bottles = collectYield(minutes, stats.skills.geschick, district.factor);
+  // Wühlen in Containern macht dreckig (Kap. 3: Sauberkeit sinkt beim Sammeln).
+  const dirt = Math.max(1, Math.round((minutes / 60) * GAME.CLEANLINESS_LOSS_PER_HOUR));
+  db.prepare(
+    "UPDATE users SET bottles = bottles + ?, cleanliness = MAX(0, cleanliness - ?) WHERE id = ?",
+  ).run(bottles, dirt, action.user_id);
   db.prepare("UPDATE actions SET result = ? WHERE id = ?").run(
-    JSON.stringify({ bottles, minutes }),
+    JSON.stringify({ bottles, minutes, dirt }),
     action.id,
   );
 }
@@ -105,9 +113,14 @@ function resolveFight(db: Db, action: ActionRow): void {
 
   const attStats = effectiveStats(db, attacker.id);
   const defStats = effectiveStats(db, defender.id);
+  // Promille wirkt auf den eigenen Wurf: nüchtern-aggressiv stark,
+  // betrunken unpräzise (Kap. 3/7.1).
   const { attScore, defScore, outcome } = fightScores(
     attStats.attEff,
     defStats.defEff,
+    Math.random,
+    fightFactor(promilleOf(attacker)),
+    fightFactor(promilleOf(defender)),
   );
 
   const P = GAME.FIGHT_POINTS;

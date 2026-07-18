@@ -1,3 +1,4 @@
+import crypto from "node:crypto";
 import { Router } from "express";
 import type { Db, UserRow } from "../db.js";
 import { withTx } from "../db.js";
@@ -82,10 +83,19 @@ export function authRoutes(db: Db): Router {
     const userId = withTx(db, () => {
       const result = db
         .prepare(
-          `INSERT INTO users (username, email, password_hash, created_at, money)
-           VALUES (?, ?, ?, ?, ?)`,
+          `INSERT INTO users (username, email, password_hash, created_at, money,
+                              cleanliness, donation_code)
+           VALUES (?, ?, ?, ?, ?, ?, ?)`,
         )
-        .run(username, email, hashPassword(password), now(), GAME.START_MONEY);
+        .run(
+          username,
+          email,
+          hashPassword(password),
+          now(),
+          GAME.START_MONEY,
+          GAME.CLEANLINESS_START,
+          crypto.randomBytes(8).toString("hex"),
+        );
       const id = Number(result.lastInsertRowid);
       const skill = db.prepare(
         "INSERT INTO skills (user_id, type, level) VALUES (?, ?, 0)",

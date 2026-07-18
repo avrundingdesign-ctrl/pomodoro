@@ -57,17 +57,20 @@ export interface FightResult {
 /**
  * Kampfformel (Kap. 7.1): beide Seiten würfeln ihren Effektivwert mal
  * Zufallsfaktor 0,85–1,15. Das entspricht der Vorgabe
- * P(A) ≈ ATT_A / (ATT_A + DEF_B) × Zufall. +1 Basis, damit auch frische
- * Charaktere (Stufe 0) kämpfen können. `rnd` ist injizierbar für Tests.
+ * P(A) ≈ ATT_A / (ATT_A + DEF_B) × Zufall × Promille-Malus. +1 Basis, damit
+ * auch frische Charaktere (Stufe 0) kämpfen können. `rnd` ist injizierbar
+ * für Tests; `attFactor`/`defFactor` tragen den jeweiligen Promille-Zustand.
  */
 export function fightScores(
   attEff: number,
   defEff: number,
   rnd: () => number = Math.random,
+  attFactor = 1,
+  defFactor = 1,
 ): FightResult {
   const roll = () => GAME.FIGHT_RANDOM_MIN + GAME.FIGHT_RANDOM_SPAN * rnd();
-  const attScore = (1 + attEff) * roll();
-  const defScore = (1 + defEff) * roll();
+  const attScore = (1 + attEff) * roll() * attFactor;
+  const defScore = (1 + defEff) * roll() * defFactor;
   const margin = GAME.FIGHT_DRAW_MARGIN * Math.max(attScore, defScore, 1);
   let outcome: FightOutcome;
   if (Math.abs(attScore - defScore) <= margin) outcome = "draw";

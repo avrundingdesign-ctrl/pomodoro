@@ -1,0 +1,44 @@
+<%- include('partials/head', { title, active }) %>
+<h1><%= title %></h1>
+<p class="muted"><%= blurb %></p>
+<% if (hint) { %><p class="muted small">💡 <%= hint %></p><% } %>
+<section class="card">
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>Angebot</th><th>Effekt</th><th>Voraussetzung</th><th>Preis</th><th></th></tr>
+      </thead>
+      <tbody>
+        <% for (const row of rows) { %>
+          <tr>
+            <td>
+              <strong><%= row.name %></strong> <span class="muted">(Stufe <%= row.tier %>)</span>
+              <% if (row.ownedQuantity > 0 && row.isConsumable) { %>
+                <span class="badge"><%= row.ownedQuantity %>× im Inventar</span>
+              <% } %>
+            </td>
+            <td class="muted"><%= row.effectText %></td>
+            <td class="muted"><%= row.requirementText ?? '—' %></td>
+            <td><%= fmtMoney(row.price) %></td>
+            <td>
+              <% if (row.ownedQuantity > 0 && !row.isConsumable) { %>
+                <span class="badge on">gehört dir</span>
+              <% } else if (!row.unlocked) { %>
+                <span class="badge">🔒 <%= row.requirementText %></span>
+              <% } else { %>
+                <form method="post" action="/stadt/kaufen" class="inline">
+                  <input type="hidden" name="_csrf" value="<%= csrf %>">
+                  <input type="hidden" name="itemId" value="<%= row.id %>">
+                  <input type="hidden" name="back" value="<%= currentPath %>">
+                  <button class="btn btn-sm btn-primary" type="submit" <%= row.affordable ? '' : 'disabled' %>>Kaufen</button>
+                </form>
+              <% } %>
+            </td>
+          </tr>
+        <% } %>
+      </tbody>
+    </table>
+  </div>
+</section>
+<p><a href="/stadt">← Zurück in die Stadt</a></p>
+<%- include('partials/foot') %>

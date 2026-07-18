@@ -7,11 +7,15 @@ import { attachSession, csrfProtect, takeFlashes } from "./auth.js";
 import { resolveAllDue } from "./game/resolve.js";
 import { effectiveStats, rankOf } from "./game/stats.js";
 import { kursToday } from "./game/svc.js";
+import { districtOf } from "./game/districts.js";
+import { fmtPromille, moodLabel, promilleOf } from "./game/promille.js";
+import { hashIp, recordDonationClick } from "./game/donation.js";
 import { fmtDateTime, fmtDuration, fmtMoney } from "./util.js";
 import { authRoutes } from "./routes/authRoutes.js";
 import { gameRoutes } from "./routes/gameRoutes.js";
 import { inventoryRoutes } from "./routes/inventoryRoutes.js";
 import { fightRoutes } from "./routes/fightRoutes.js";
+import { stadtRoutes } from "./routes/stadtRoutes.js";
 
 export function createApp(db: Db): express.Express {
   const app = express();
@@ -53,6 +57,7 @@ export function createApp(db: Db): express.Express {
         .get((res.locals.user as UserRow).id) as unknown as UserRow;
       res.locals.user = fresh;
       const stats = effectiveStats(db, fresh.id);
+      const promille = promilleOf(fresh);
       res.locals.status = {
         money: fresh.money,
         capacity: stats.capacity,
@@ -63,6 +68,11 @@ export function createApp(db: Db): express.Express {
         def: stats.defEff,
         geschick: stats.skills.geschick,
         kurs: kursToday(),
+        cleanliness: fresh.cleanliness,
+        promille,
+        promilleLabel: fmtPromille(promille),
+        mood: moodLabel(promille),
+        districtName: districtOf(db, fresh).name,
       };
       if (res.locals.session) {
         res.locals.flashes = takeFlashes(db, res.locals.session.token);
@@ -80,10 +90,36 @@ export function createApp(db: Db): express.Express {
     res.json({ ok: true, now: now() });
   });
 
+  /**
+   * Öffentlicher Spendenlink (Kap. 5/10): bewusst OHNE Login erreichbar —
+   * jeder Klick eines Dritten zahlt dem Besitzer einen kleinen Betrag aus
+   * (dedupliziert pro Quelle und Tag, mit Tagesdeckel).
+   */
+  app.get("/spende/:code", (req, res) => {
+    const code = String(req.params.code);
+    const owner = db
+      .prepare("SELECT * FROM users WHERE donation_code = ?")
+      .get(code) as unknown as UserRow | undefined;
+    if (!owner) {
+      return res.status(404).render("error", {
+        title: "Nicht gefunden",
+        code: 404,
+        message: "Dieser Spendenlink ist abgelaufen oder hat nie existiert.",
+      });
+    }
+    const result = recordDonationClick(db, owner, hashIp(req.ip ?? "?", code));
+    res.render("spende", {
+      title: "Spende",
+      ownerName: owner.username,
+      result,
+    });
+  });
+
   app.use(authRoutes(db));
   app.use(gameRoutes(db));
   app.use(inventoryRoutes(db));
   app.use(fightRoutes(db));
+  app.use(stadtRoutes(db));
 
   app.use((req, res) => {
     res.status(404).render("error", {

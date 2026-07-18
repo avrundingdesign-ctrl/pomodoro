@@ -10,6 +10,13 @@ import {
 import { effectiveStats } from "../game/stats.js";
 import { fightDisplay, type FightRowNamed, type LogEntry } from "../game/logtext.js";
 import * as svc from "../game/svc.js";
+import { districtOf } from "../game/districts.js";
+import {
+  donationBreakdown,
+  donationStatsToday,
+  renewDonationCode,
+} from "../game/donation.js";
+import { moodLabel, promilleOf } from "../game/promille.js";
 import { fmtDuration } from "../util.js";
 
 interface PendingAttackRow extends ActionRow {
@@ -67,6 +74,7 @@ export function gameRoutes(db: Db): Router {
       .sort((a, b) => b.ts - a.ts)
       .slice(0, 6);
 
+    const promille = promilleOf(user);
     res.render("dashboard", {
       title: "Übersicht",
       active: "uebersicht",
@@ -77,6 +85,9 @@ export function gameRoutes(db: Db): Router {
       events,
       kurs: svc.kursToday(),
       skillInfo: SKILL_INFO,
+      district: districtOf(db, user),
+      promille,
+      mood: moodLabel(promille),
     });
   });
 
@@ -133,8 +144,9 @@ export function gameRoutes(db: Db): Router {
     const stats = effectiveStats(db, user.id);
     const action = svc.activePhysicalAction(db, user.id);
     const kurs = svc.kursToday();
+    const district = districtOf(db, user);
     const options = GAME.COLLECT_MINUTES.map((minutes) => {
-      const bottles = collectYield(minutes, stats.skills.geschick);
+      const bottles = collectYield(minutes, stats.skills.geschick, district.factor);
       return {
         minutes,
         label: fmtDuration(minutes * 60_000),
@@ -150,6 +162,7 @@ export function gameRoutes(db: Db): Router {
       options,
       kurs,
       geschick: stats.skills.geschick,
+      district,
     });
   });
 
@@ -161,6 +174,31 @@ export function gameRoutes(db: Db): Router {
       msg: result.msg,
     });
     res.redirect(result.ok ? "/uebersicht" : "/aktionen/sammeln");
+  });
+
+  // ---------------------------------------------------- Betteln / Spendenlink
+  r.get("/aktionen/betteln", (req, res) => {
+    const user = res.locals.user as UserRow;
+    const host = req.get("host") ?? `localhost`;
+    const proto = req.headers["x-forwarded-proto"] === "https" || req.secure ? "https" : "http";
+    res.render("betteln", {
+      title: "Betteln",
+      active: "betteln",
+      link: `${proto}://${host}/spende/${user.donation_code}`,
+      today: donationStatsToday(db, user.id),
+      breakdown: donationBreakdown(db, user),
+      dailyCap: GAME.DONATION_DAILY_CAP,
+    });
+  });
+
+  r.post("/aktionen/betteln/neuer-link", (req, res) => {
+    const user = res.locals.user as UserRow;
+    renewDonationCode(db, user.id);
+    setFlash(db, res.locals.session.token, {
+      type: "ok",
+      msg: "Neuer Spendenlink erstellt — der alte Link ist ab sofort ungültig.",
+    });
+    res.redirect("/aktionen/betteln");
   });
 
   return r;

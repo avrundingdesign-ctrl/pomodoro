@@ -1,0 +1,44 @@
+<%- include('partials/head', { title, active }) %>
+<h1>Stadt</h1>
+<p class="muted">
+  Du treibst dich gerade am <strong><%= district.name %></strong> herum
+  (Sammel-Faktor ×<%= district.factor.toLocaleString('de-DE') %>) · Pegel: <%= promille %>.
+</p>
+<div class="grid-2">
+  <section class="card">
+    <h2>🗺️ Stadtkarte</h2>
+    <p class="muted">Bessere Viertel = mehr Sammelertrag und großzügigere Spender — aber der Umzug kostet.</p>
+    <p><a class="btn" href="/stadt/karte">Zur Karte</a></p>
+  </section>
+  <section class="card">
+    <h2>🛒 Supermarkt</h2>
+    <p class="muted">Alkohol für die Laune, Essen gegen den Pegel.</p>
+    <p><a class="btn" href="/stadt/supermarkt">Einkaufen</a></p>
+  </section>
+  <section class="card">
+    <h2>🧼 Waschhaus</h2>
+    <p class="muted">Sauberkeit bringt Spenden. Katzenwäsche oder Vollprogramm?</p>
+    <p><a class="btn" href="/stadt/waschhaus">Waschen gehen</a></p>
+  </section>
+  <section class="card">
+    <h2>🔪 Waffenladen</h2>
+    <p class="muted">Vom Flaschenhals bis zur Bratpfanne — mehr ATT.</p>
+    <p><a class="btn" href="/stadt/waffenladen">Stöbern</a></p>
+  </section>
+  <section class="card">
+    <h2>🏠 Immobilienbüro</h2>
+    <p class="muted">Vom Pappkarton bis zur Dachbude — mehr DEF.</p>
+    <p><a class="btn" href="/stadt/immobilien">Besichtigen</a></p>
+  </section>
+  <section class="card">
+    <h2>🐀 Tierhandlung</h2>
+    <p class="muted">Treue Begleiter mit Kampfkraft und Mitleidsbonus.</p>
+    <p><a class="btn" href="/stadt/tierhandlung">Reinschauen</a></p>
+  </section>
+  <section class="card">
+    <h2>🎒 Zubehörladen</h2>
+    <p class="muted">Größere Behälter für dein Geld — Überlauf ist futsch.</p>
+    <p><a class="btn" href="/stadt/zubehoer">Aufrüsten</a></p>
+  </section>
+</div>
+<%- include('partials/foot') %>

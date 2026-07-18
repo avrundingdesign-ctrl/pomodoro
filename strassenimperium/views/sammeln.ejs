@@ -18,7 +18,9 @@
     <p class="muted">
       Tageskurs: <strong><%= kurs %> Cent</strong> pro Flasche (Verkauf im <a href="/inventar">Inventar</a>).
       Kurze Touren bringen pro Stunde am meisten — lange Touren sind bequem für die Nacht.
-      Deine Geschicklichkeit (Stufe <%= geschick %>) erhöht den Ertrag.
+      Deine Geschicklichkeit (Stufe <%= geschick %>) und dein Viertel
+      (<%= district.name %>, ×<%= district.factor.toLocaleString('de-DE') %>) erhöhen den Ertrag.
+      Aber Achtung: Sammeln macht dreckig.
     </p>
     <form method="post" action="/aktionen/sammeln/start">
       <input type="hidden" name="_csrf" value="<%= csrf %>">

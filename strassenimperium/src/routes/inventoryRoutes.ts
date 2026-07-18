@@ -1,21 +1,43 @@
 import { Router } from "express";
-import type { Db, InventoryRow, ItemRow, UserRow } from "../db.js";
+import type { Db, ItemRow, UserRow } from "../db.js";
+import { CONSUMABLE_CATEGORIES } from "../db.js";
 import { requireAuth, setFlash } from "../auth.js";
-import { GAME, SKILL_INFO, type SkillType } from "../config.js";
+import { GAME } from "../config.js";
 import { effectiveStats } from "../game/stats.js";
+import { fmtPromille, moodLabel, promilleOf } from "../game/promille.js";
 import * as svc from "../game/svc.js";
+import { fmtMoney } from "../util.js";
 
 export interface OwnedItemView extends ItemRow {
   invId: number;
   isActive: boolean;
+  quantity: number;
   resale: number;
+  effectText: string;
 }
 
-export interface ShopItemView extends ItemRow {
-  owned: boolean;
-  unlocked: boolean;
-  requirementText: string | null;
-  affordable: boolean;
+function ownedEffectText(item: ItemRow): string {
+  switch (item.category) {
+    case "weapon":
+      return `+${item.att_bonus} ATT`;
+    case "container":
+      return `Kapazität ${fmtMoney(item.capacity)}`;
+    case "home":
+      return `+${item.def_bonus} DEF`;
+    case "pet": {
+      const parts = [];
+      if (item.att_bonus) parts.push(`+${item.att_bonus} ATT`);
+      if (item.def_bonus) parts.push(`+${item.def_bonus} DEF`);
+      parts.push(`Mitleid +${item.empathy_bonus}`);
+      return parts.join(" · ");
+    }
+    case "drink":
+      return `+${item.promille_delta.toLocaleString("de-DE")} ‰`;
+    case "food":
+      return `${item.promille_delta.toLocaleString("de-DE")} ‰`;
+    default:
+      return "";
+  }
 }
 
 export function inventoryRoutes(db: Db): Router {
@@ -29,52 +51,37 @@ export function inventoryRoutes(db: Db): Router {
 
     const ownedRows = db
       .prepare(
-        `SELECT inventory.id AS invId, inventory.is_active AS isActiveNum, items.*
+        `SELECT inventory.id AS invId, inventory.is_active AS isActiveNum,
+                inventory.quantity AS quantity, items.*
          FROM inventory JOIN items ON items.id = inventory.item_id
          WHERE inventory.user_id = ?
          ORDER BY items.category, items.tier`,
       )
-      .all(user.id) as unknown as Array<ItemRow & { invId: number; isActiveNum: number }>;
+      .all(user.id) as unknown as Array<
+      ItemRow & { invId: number; isActiveNum: number; quantity: number }
+    >;
     const owned: OwnedItemView[] = ownedRows.map((row) => ({
       ...row,
       invId: row.invId,
       isActive: row.isActiveNum === 1,
+      quantity: row.quantity,
       resale: Math.floor(row.price * GAME.ITEM_RESALE_FACTOR),
+      effectText: ownedEffectText(row),
     }));
-    const ownedIds = new Set(owned.map((o) => o.id));
+    const isConsumable = (o: OwnedItemView) =>
+      (CONSUMABLE_CATEGORIES as readonly string[]).includes(o.category);
 
-    const catalog = db
-      .prepare("SELECT * FROM items ORDER BY category, tier")
-      .all() as unknown as ItemRow[];
-    const shop: ShopItemView[] = catalog.map((item) => {
-      let unlocked = true;
-      let requirementText: string | null = null;
-      if (item.unlock_skill) {
-        const skillName =
-          SKILL_INFO[item.unlock_skill as SkillType]?.name ?? item.unlock_skill;
-        requirementText = `${skillName} Stufe ${item.unlock_level}`;
-        unlocked =
-          (stats.skills[item.unlock_skill as SkillType] ?? 0) >=
-          (item.unlock_level ?? 0);
-      }
-      return {
-        ...item,
-        owned: ownedIds.has(item.id),
-        unlocked,
-        requirementText,
-        affordable: user.money >= item.price,
-      };
-    });
-
+    const promille = promilleOf(user);
     res.render("inventar", {
       title: "Inventar",
       active: "inventar",
       stats,
       kurs,
       bottleProceeds: user.bottles * kurs,
-      owned,
-      shopWeapons: shop.filter((s) => s.category === "weapon"),
-      shopContainers: shop.filter((s) => s.category === "container"),
+      equipment: owned.filter((o) => !isConsumable(o)),
+      consumables: owned.filter(isConsumable),
+      promilleLabel: fmtPromille(promille),
+      mood: moodLabel(promille),
     });
   });
 
@@ -90,13 +97,6 @@ export function inventoryRoutes(db: Db): Router {
     redirectWithResult(res, svc.sellBottles(db, (res.locals.user as UserRow).id));
   });
 
-  r.post("/inventar/kaufen", (req, res) => {
-    redirectWithResult(
-      res,
-      svc.buyItem(db, (res.locals.user as UserRow).id, (req.body as any).itemId),
-    );
-  });
-
   r.post("/inventar/aktivieren", (req, res) => {
     redirectWithResult(
       res,
@@ -108,6 +108,13 @@ export function inventoryRoutes(db: Db): Router {
     redirectWithResult(
       res,
       svc.sellInventoryItem(db, (res.locals.user as UserRow).id, (req.body as any).invId),
+    );
+  });
+
+  r.post("/inventar/konsumieren", (req, res) => {
+    redirectWithResult(
+      res,
+      svc.consumeItem(db, (res.locals.user as UserRow).id, (req.body as any).invId),
     );
   });
 

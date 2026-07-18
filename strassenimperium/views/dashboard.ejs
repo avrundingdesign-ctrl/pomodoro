@@ -18,9 +18,12 @@
           <% if (user.bottles > 0) { %><a href="/inventar">→ verkaufen</a><% } %>
         </td>
       </tr>
-      <tr><th>Angriff (ATT)</th><td><%= stats.attEff %> <span class="muted">= Stufe <%= stats.skills.angriff %><%= stats.weapon ? ` + ${stats.weapon.att_bonus} (${stats.weapon.name})` : '' %></span></td></tr>
-      <tr><th>Verteidigung (DEF)</th><td><%= stats.defEff %> <span class="muted">= Stufe <%= stats.skills.verteidigung %></span></td></tr>
+      <tr><th>Angriff (ATT)</th><td><%= stats.attEff %> <span class="muted">= Stufe <%= stats.skills.angriff %><%= stats.weapon ? ` + ${stats.weapon.att_bonus} (${stats.weapon.name})` : '' %><%= stats.pet && stats.pet.att_bonus ? ` + ${stats.pet.att_bonus} (${stats.pet.name})` : '' %></span></td></tr>
+      <tr><th>Verteidigung (DEF)</th><td><%= stats.defEff %> <span class="muted">= Stufe <%= stats.skills.verteidigung %><%= stats.home ? ` + ${stats.home.def_bonus} (${stats.home.name})` : '' %><%= stats.pet && stats.pet.def_bonus ? ` + ${stats.pet.def_bonus} (${stats.pet.name})` : '' %></span></td></tr>
       <tr><th>Geschicklichkeit</th><td><%= stats.skills.geschick %></td></tr>
+      <tr><th>Stadtteil</th><td><%= district.name %> <span class="muted">· Sammel-Faktor ×<%= district.factor.toLocaleString('de-DE') %></span> <a href="/stadt/karte">→ Karte</a></td></tr>
+      <tr><th>Sauberkeit</th><td><%= user.cleanliness %> % <span class="muted">· mehr Sauberkeit = mehr Spenden</span> <a href="/stadt/waschhaus">→ Waschhaus</a></td></tr>
+      <tr><th>Promille</th><td><%= promille.toLocaleString('de-DE', {minimumFractionDigits: 1, maximumFractionDigits: 1}) %> ‰ <span class="muted">· <%= mood %></span></td></tr>
       <tr><th>Punkte</th><td><%= user.points %> <span class="muted">· Rang <%= status.rank %></span> <a href="/highscore">→ Highscore</a></td></tr>
     </table>
   </section>

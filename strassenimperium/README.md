@@ -2,8 +2,8 @@
 
 Browserbasiertes Text-/Klick-Aufbauspiel (Idle-RPG) nach dem Lastenheft
 *„STRASSENIMPERIUM — Spielkonzept & technisches Lastenheft, Version 1.0"*.
-Dies ist die Umsetzung von **Phase 1 der MVP-Roadmap (Kap. 20): der Kern-Loop** —
-vollständig spielbar.
+Umgesetzt sind die **Phasen 1–2 der MVP-Roadmap (Kap. 20): Kern-Loop sowie
+Welt & Wirtschaft** — vollständig spielbar.
 
 > Fiktives Satirespiel mit bewusst comichafter Überzeichnung (Kap. 21):
 > eigenes Branding, Fiktions-Hinweis im Footer, keine Übernahme von
@@ -23,6 +23,13 @@ vollständig spielbar.
 | Eingehende Angriffe | Kap. 3/7.1 | Ab Geschicklichkeit 20 vorab sichtbar (mit Countdown) |
 | Highscore & Profil | Kap. 12/18 | Punkte-Rangliste mit Pagination, öffentliche Profile mit Angriffs-Button |
 | Tageskurs | Kap. 5/9 | Deterministisch pro UTC-Datum (8–15 Cent), serverseitig berechnet |
+| **Stadtteile** | Kap. 8 | 12 Viertel mit Ertragsfaktor & Umzugskosten; Faktor wirkt auf Sammeln und Spenden; Top-Unterkünfte sind stadtteilgebunden |
+| **Supermarkt** | Kap. 8 | Alkohol (+Promille) und Nahrung (−Promille) als stapelbare Konsumgüter im Inventar |
+| **Promille/Laune** | Kap. 3 | Pegel mit natürlichem Abbau; Laune folgt der Beispielkurve: nüchtern = kampfstark, angeheitert = schnelleres Training, ab 4,0 ‰ Krankenhaus-Event (Kosten + Zwangsnüchternheit) |
+| **Sauberkeit & Waschhaus** | Kap. 3/8 | Sammeln macht dreckig; Waschhaus mit Katzenwäsche (+20 %-Punkte) und Vollprogramm (100 %); Sauberkeit erhöht Spenden |
+| **Immobilienbüro** | Kap. 6/8 | 8 Unterkünfte (+DEF), freigeschaltet über Verteidigung, teils erst ab bestimmter Viertel-Stufe; Wegzug deaktiviert gebundene Unterkünfte |
+| **Tierhandlung & Haustiere** | Kap. 6 | 7 Haustiere (+ATT/+DEF + Mitleidswert), freigeschaltet über den neuen Skill Sozialkontakte (max. Stufe 10) |
+| **Betteln/Spendenlink** | Kap. 5/10/14 | Öffentlicher, erneuerbarer Spendenlink: jeder Klick Dritter zahlt aus (dedupliziert pro Quelle/Tag, Tagesdeckel); Betrag = Basis × Sauberkeit × Standort × Haustier-Mitleid |
 
 **Kern-Prinzip (Kap. 16, „Kritisch"):** Alle Timer und Belohnungen werden
 ausschließlich serverseitig berechnet. Fällige Trainings/Aktionen/Kämpfe werden
@@ -87,14 +94,15 @@ manuell gegen den laufenden Server zu fahren (curl/Playwright).
   transaktional und rein von Serverzeit + DB abhängig. Bei Wachstum kann ein
   Worker/Cron dieselben Funktionen (`resolveAllDue`) zusätzlich aufrufen.
 - **Noch nicht drin (bewusst, laut Roadmap):** E-Mail-Bestätigung,
-  Sauberkeit/Laune/Promille (Phase 2), Stadtteile & weitere Läden (Phase 2),
-  Verbrechen/Konzentrieren/Betteln (Phase 2+), Freunde/Nachrichten/Banden
-  (Phase 3), Bandenkriege/Liga/Haustierkämpfe/Chat/Forum/Premium (Phase 4).
+  Verbrechen & Konzentrieren (Kap. 5), Musikinstrumente & Bettelspots,
+  Apotheke/Krankenversicherung, Glücksspiele, Referral-Bonus beim Betteln,
+  Freunde/Nachrichten/Banden (Phase 3),
+  Bandenkriege/Liga/Haustierkämpfe/Chat/Forum/Premium (Phase 4).
 
 ## Roadmap-Status
 
-- [x] **Phase 1 — Kern-Loop** (dieses Verzeichnis)
-- [ ] Phase 2 — Welt & Wirtschaft (Stadtteile, Supermarkt/Waschhaus, Promille-/Sauberkeitssystem, Haustiere)
+- [x] **Phase 1 — Kern-Loop**
+- [x] **Phase 2 — Welt & Wirtschaft** (Stadtteile, Supermarkt/Waschhaus/Immobilien/Tierhandlung, Promille-/Sauberkeitssystem, Haustiere, dazu der Spendenlink aus Kap. 5 als Auszahlungskanal für Sauberkeit/Mitleid)
 - [ ] Phase 3 — Sozial & Wettbewerb (Freunde, Nachrichten, Banden-Basis, Auszeichnungen)
 - [ ] Phase 4 — Endgame & Bindung (Bandenkriege, Liga, Haustierkämpfe, Chat, Forum, Premium)
 - [ ] Phase 5 — Wachstum (Mobile-Feinschliff, weitere Städte/Sprachen, Events)

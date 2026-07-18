@@ -203,6 +203,15 @@ button.linklike:hover { color: var(--red); }
 .options label:hover { border-color: var(--accent); }
 .options input { margin-right: 0.5rem; }
 .pagination { display: flex; align-items: center; gap: 0.8rem; margin: 0.8rem 0 0; }
+code.donation-link {
+  display: block;
+  background: var(--panel2);
+  border: 1px dashed var(--accent);
+  border-radius: 6px;
+  padding: 0.5rem 0.8rem;
+  word-break: break-all;
+  color: var(--accent);
+}
 
 /* Fußzeile */
 .footer {

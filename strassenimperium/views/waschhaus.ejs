@@ -1,0 +1,34 @@
+<%- include('partials/head', { title, active }) %>
+<h1>Waschhaus</h1>
+<p class="muted">
+  Wer gepflegt auftritt, bekommt mehr Spenden (siehe <a href="/aktionen/betteln">Betteln</a>).
+  Sammeln macht dich dreckig — hier wirst du es wieder los.
+</p>
+<section class="card">
+  <h2>Deine Sauberkeit: <%= cleanliness %> %</h2>
+  <div class="bar"><div class="bar-fill" style="width: <%= cleanliness %>%"></div></div>
+  <div class="grid-2">
+    <div>
+      <h3>Katzenwäsche</h3>
+      <p class="muted">Waschbecken, kaltes Wasser, ein halbes Stück Seife.<br>
+        <strong>+<%= GAME.WASH_CHEAP_GAIN %> Prozentpunkte</strong> für <%= fmtMoney(GAME.WASH_CHEAP_COST) %></p>
+      <form method="post" action="/stadt/waschhaus">
+        <input type="hidden" name="_csrf" value="<%= csrf %>">
+        <input type="hidden" name="option" value="guenstig">
+        <button class="btn" type="submit">Kurz drüberwaschen</button>
+      </form>
+    </div>
+    <div>
+      <h3>Vollprogramm</h3>
+      <p class="muted">Heiße Dusche, Schaum, frisch geföhnt.<br>
+        <strong>Sauberkeit auf 100 %</strong> für <%= fmtMoney(GAME.WASH_FULL_COST) %></p>
+      <form method="post" action="/stadt/waschhaus">
+        <input type="hidden" name="_csrf" value="<%= csrf %>">
+        <input type="hidden" name="option" value="gruendlich">
+        <button class="btn btn-primary" type="submit">Einmal alles, bitte</button>
+      </form>
+    </div>
+  </div>
+</section>
+<p><a href="/stadt">← Zurück in die Stadt</a></p>
+<%- include('partials/foot') %>

@@ -18,6 +18,8 @@
             ["uebersicht", "Übersicht", "/uebersicht"],
             ["weiterbildung", "Weiterbildung", "/weiterbildung"],
             ["sammeln", "Sammeln", "/aktionen/sammeln"],
+            ["betteln", "Betteln", "/aktionen/betteln"],
+            ["stadt", "Stadt", "/stadt"],
             ["inventar", "Inventar", "/inventar"],
             ["kampf", "Kampf", "/kampf"],
             ["highscore", "Highscore", "/highscore"],
@@ -45,6 +47,8 @@
       <span class="chip" title="Angriff (inkl. Waffe)">⚔️ <%= status.att %></span>
       <span class="chip" title="Verteidigung">🛡️ <%= status.def %></span>
       <span class="chip" title="Geschicklichkeit">✋ <%= status.geschick %></span>
+      <span class="chip" title="Sauberkeit">🧼 <%= status.cleanliness %> %</span>
+      <span class="chip" title="Promillepegel — Laune: <%= status.mood %>">🍺 <%= status.promilleLabel %></span>
       <span class="chip" title="Punkte und Highscore-Rang">🏆 <%= status.points %> Pkt. <span class="muted">· Rang <%= status.rank %></span></span>
     </div>
   <% } %>

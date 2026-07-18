@@ -1,0 +1,41 @@
+<%- include('partials/head', { title, active }) %>
+<h1>Betteln — dein Spendenlink</h1>
+<p class="muted">
+  Teile deinen persönlichen Link (Forensignatur, Chat, wo auch immer): Jeder Klick
+  eines Besuchers steckt dir ein paar Cent zu. Pro Person zählt ein Klick am Tag,
+  maximal <%= dailyCap %> Spenden täglich.
+</p>
+
+<section class="card">
+  <h2>Dein Link</h2>
+  <p><code class="donation-link"><%= link %></code></p>
+  <form method="post" action="/aktionen/betteln/neuer-link" class="inline">
+    <input type="hidden" name="_csrf" value="<%= csrf %>">
+    <button class="btn btn-sm" type="submit" title="Alter Link wird ungültig">Neuen Link erzeugen</button>
+  </form>
+</section>
+
+<div class="grid-2">
+  <section class="card">
+    <h2>Heute</h2>
+    <table class="stats">
+      <tr><th>Spenden erhalten</th><td><%= today.clicks %> <span class="muted">von max. <%= dailyCap %></span></td></tr>
+      <tr><th>Eingenommen</th><td><%= fmtMoney(today.earned) %></td></tr>
+    </table>
+  </section>
+  <section class="card">
+    <h2>Was ein Klick bringt</h2>
+    <table class="stats">
+      <tr><th>Basis</th><td><%= breakdown.base %> Cent</td></tr>
+      <tr><th>Sauberkeit</th><td><%= breakdown.cleanliness %> % <span class="muted">→ ×<%= breakdown.cleanlinessFactor.toLocaleString('de-DE', {maximumFractionDigits: 2}) %></span> <a href="/stadt/waschhaus">→ Waschhaus</a></td></tr>
+      <tr><th>Standort</th><td><%= breakdown.district.name %> <span class="muted">→ ×<%= breakdown.district.factor.toLocaleString('de-DE') %></span></td></tr>
+      <tr><th>Haustier</th><td><%= breakdown.pet ? `${breakdown.pet.name} (Mitleid +${breakdown.pet.empathy_bonus})` : 'keins' %> <span class="muted">→ ×<%= breakdown.empathyFactor.toLocaleString('de-DE', {maximumFractionDigits: 2}) %></span></td></tr>
+      <tr><th><strong>Pro Klick</strong></th><td><strong><%= fmtMoney(breakdown.perClick) %></strong></td></tr>
+    </table>
+  </section>
+</div>
+<p class="muted small">
+  Tipp: Ein sauberer Auftritt, ein gutes Viertel und ein herzzerreißendes Haustier
+  vervielfachen die Spende. (Geworbene Mitspieler als Bonus folgen in einer späteren Phase.)
+</p>
+<%- include('partials/foot') %>

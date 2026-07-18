@@ -10,8 +10,9 @@
     </p>
     <div class="bar"><div class="bar-fill" style="width: <%= Math.min(100, Math.round(user.money / stats.capacity * 100)) %>%"></div></div>
     <p class="muted small">
-      Aktiver Behälter: <strong><%= stats.container ? stats.container.name : 'Hosentasche' %></strong>.
-      Alles, was nicht reinpasst, geht verloren — die eiserne Regel der Straße.
+      Aktiver Behälter: <strong><%= stats.container ? stats.container.name : 'Hosentasche' %></strong>
+      (<a href="/stadt/zubehoer">größere gibt’s im Zubehörladen</a>).
+      Alles, was nicht reinpasst, geht verloren.
     </p>
   </section>
 
@@ -35,21 +36,18 @@
 </div>
 
 <section class="card">
-  <h2>Meine Gegenstände</h2>
-  <% if (owned.length === 0) { %>
-    <p class="muted">Du besitzt genau: nichts. Der Shop unten hilft dir auf die Beine.</p>
+  <h2>Ausrüstung</h2>
+  <% if (equipment.length === 0) { %>
+    <p class="muted">Du besitzt genau: nichts. <a href="/stadt">Die Läden der Stadt</a> helfen dir auf die Beine.</p>
   <% } else { %>
     <div class="table-wrap">
       <table>
         <thead><tr><th>Gegenstand</th><th>Effekt</th><th>Status</th><th></th></tr></thead>
         <tbody>
-          <% for (const o of owned) { %>
+          <% for (const o of equipment) { %>
             <tr>
               <td><strong><%= o.name %></strong> <span class="muted">(Stufe <%= o.tier %>)</span></td>
-              <td class="muted">
-                <% if (o.category === 'weapon') { %>+<%= o.att_bonus %> ATT<% } %>
-                <% if (o.category === 'container') { %>Kapazität <%= fmtMoney(o.capacity) %><% } %>
-              </td>
+              <td class="muted"><%= o.effectText %></td>
               <td>
                 <% if (o.isActive) { %>
                   <span class="badge on">aktiv</span>
@@ -76,67 +74,41 @@
   <% } %>
 </section>
 
-<div class="grid-2">
-  <section class="card">
-    <h2>Waffenladen</h2>
-    <p class="muted">Mehr ATT für deine Raubzüge. Freischaltung über den Angriff-Skill.</p>
+<section class="card">
+  <h2>Proviant</h2>
+  <p class="muted">
+    Dein Pegel: <strong><%= promilleLabel %></strong> · Laune: <%= mood %>.
+    Trinken hebt den Pegel (gut fürs Training), Essen senkt ihn (gut vorm Kampf).
+  </p>
+  <% if (consumables.length === 0) { %>
+    <p class="muted">Nichts zu beißen dabei. <a href="/stadt/supermarkt">Ab in den Supermarkt.</a></p>
+  <% } else { %>
     <div class="table-wrap">
       <table>
-        <thead><tr><th>Waffe</th><th>ATT</th><th>Preis</th><th></th></tr></thead>
+        <thead><tr><th>Vorrat</th><th>Wirkung</th><th>Menge</th><th></th></tr></thead>
         <tbody>
-          <% for (const s of shopWeapons) { %>
+          <% for (const o of consumables) { %>
             <tr>
-              <td><strong><%= s.name %></strong></td>
-              <td>+<%= s.att_bonus %></td>
-              <td><%= fmtMoney(s.price) %></td>
+              <td><strong><%= o.name %></strong></td>
+              <td class="muted"><%= o.effectText %></td>
+              <td><%= o.quantity %>×</td>
               <td>
-                <% if (s.owned) { %>
-                  <span class="badge on">gehört dir</span>
-                <% } else if (!s.unlocked) { %>
-                  <span class="badge" title="Voraussetzung">🔒 <%= s.requirementText %></span>
-                <% } else { %>
-                  <form method="post" action="/inventar/kaufen" class="inline">
-                    <input type="hidden" name="_csrf" value="<%= csrf %>">
-                    <input type="hidden" name="itemId" value="<%= s.id %>">
-                    <button class="btn btn-sm btn-primary" type="submit" <%= s.affordable ? '' : 'disabled' %>>Kaufen</button>
-                  </form>
-                <% } %>
+                <form method="post" action="/inventar/konsumieren" class="inline">
+                  <input type="hidden" name="_csrf" value="<%= csrf %>">
+                  <input type="hidden" name="invId" value="<%= o.invId %>">
+                  <button class="btn btn-sm btn-primary" type="submit"><%= o.category === 'drink' ? 'Trinken' : 'Essen' %></button>
+                </form>
+                <form method="post" action="/inventar/verkaufen-item" class="inline">
+                  <input type="hidden" name="_csrf" value="<%= csrf %>">
+                  <input type="hidden" name="invId" value="<%= o.invId %>">
+                  <button class="btn btn-sm" type="submit">Verkaufen (<%= fmtMoney(o.resale) %>)</button>
+                </form>
               </td>
             </tr>
           <% } %>
         </tbody>
       </table>
     </div>
-  </section>
-
-  <section class="card">
-    <h2>Zubehörladen — Behälter</h2>
-    <p class="muted">Größere Behälter = mehr Geld, das du behalten kannst.</p>
-    <div class="table-wrap">
-      <table>
-        <thead><tr><th>Behälter</th><th>Kapazität</th><th>Preis</th><th></th></tr></thead>
-        <tbody>
-          <% for (const s of shopContainers) { %>
-            <tr>
-              <td><strong><%= s.name %></strong></td>
-              <td><%= fmtMoney(s.capacity) %></td>
-              <td><%= fmtMoney(s.price) %></td>
-              <td>
-                <% if (s.owned) { %>
-                  <span class="badge on">gehört dir</span>
-                <% } else { %>
-                  <form method="post" action="/inventar/kaufen" class="inline">
-                    <input type="hidden" name="_csrf" value="<%= csrf %>">
-                    <input type="hidden" name="itemId" value="<%= s.id %>">
-                    <button class="btn btn-sm btn-primary" type="submit" <%= s.affordable ? '' : 'disabled' %>>Kaufen</button>
-                  </form>
-                <% } %>
-              </td>
-            </tr>
-          <% } %>
-        </tbody>
-      </table>
-    </div>
-  </section>
-</div>
+  <% } %>
+</section>
 <%- include('partials/foot') %>

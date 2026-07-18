@@ -1,5 +1,5 @@
 import type { ActionRow, Db, InventoryRow, ItemRow, UserRow } from "../db.js";
-import { withTx } from "../db.js";
+import { CONSUMABLE_CATEGORIES, withTx } from "../db.js";
 import { now } from "../clock.js";
 import { GAME, SKILL_INFO, SKILL_TYPES, scaledMs, type SkillType } from "../config.js";
 import {
@@ -10,6 +10,14 @@ import {
 } from "./formulas.js";
 import { addMoney, capacityFor, clampToCapacity } from "./money.js";
 import { skillLevels } from "./stats.js";
+import { districtOf, getDistrict } from "./districts.js";
+import {
+  applyPromilleDelta,
+  fmtPromille,
+  moodLabel,
+  promilleOf,
+  trainingDurationFactor,
+} from "./promille.js";
 import { fmtDuration, fmtMoney } from "../util.js";
 
 export type Res = { ok: true; msg: string } | { ok: false; msg: string };
@@ -69,6 +77,10 @@ export function startTraining(db: Db, userId: number, skillRaw: unknown): Res {
     }
     const level = skillLevels(db, userId)[skill];
     const target = level + 1;
+    const maxLevel = GAME.SKILL_MAX_LEVEL[skill];
+    if (maxLevel !== undefined && target > maxLevel) {
+      return err(`${SKILL_INFO[skill].name} ist bereits auf der Maximalstufe ${maxLevel}.`);
+    }
     const cost = trainingCost(target);
     const user = getUser(db, userId)!;
     if (user.money < cost) {
@@ -76,14 +88,24 @@ export function startTraining(db: Db, userId: number, skillRaw: unknown): Res {
         `Zu wenig Geld: Stufe ${target} kostet ${fmtMoney(cost)}, du hast ${fmtMoney(user.money)}.`,
       );
     }
-    const durationMs = scaledMs(trainingDurationMinutes(target) * 60_000);
+    // Skill-Zeile sicherstellen (Alt-Accounts kennen neue Skills noch nicht).
+    db.prepare(
+      "INSERT OR IGNORE INTO skills (user_id, type, level) VALUES (?, ?, 0)",
+    ).run(userId, skill);
+    // Laune beeinflusst die Trainingsgeschwindigkeit (Kap. 3).
+    const moodFactor = trainingDurationFactor(promilleOf(user));
+    const durationMs = scaledMs(
+      Math.round(trainingDurationMinutes(target) * moodFactor) * 60_000,
+    );
     db.prepare("UPDATE users SET money = money - ? WHERE id = ?").run(cost, userId);
     db.prepare(
       `INSERT INTO trainings (user_id, skill_type, target_level, cost, started_at, ends_at)
        VALUES (?, ?, ?, ?, ?, ?)`,
     ).run(userId, skill, target, cost, now(), now() + durationMs);
+    const moodNote =
+      moodFactor < 1 ? " Deine gute Laune beschleunigt das Training!" : "";
     return ok(
-      `Weiterbildung „${SKILL_INFO[skill].name}" auf Stufe ${target} gestartet — dauert ${fmtDuration(durationMs)}.`,
+      `Weiterbildung „${SKILL_INFO[skill].name}" auf Stufe ${target} gestartet — dauert ${fmtDuration(durationMs)}.${moodNote}`,
     );
   });
 }
@@ -206,16 +228,23 @@ export function getItem(db: Db, itemId: number): ItemRow | undefined {
     | undefined;
 }
 
+function isConsumable(item: ItemRow): boolean {
+  return (CONSUMABLE_CATEGORIES as readonly string[]).includes(item.category);
+}
+
 export function buyItem(db: Db, userId: number, itemIdRaw: unknown): Res {
   const itemId = Number(itemIdRaw);
   if (!Number.isInteger(itemId)) return err("Ungültiger Gegenstand.");
   return withTx(db, () => {
     const item = getItem(db, itemId);
     if (!item) return err("Diesen Gegenstand gibt es nicht.");
-    const owned = db
-      .prepare("SELECT id FROM inventory WHERE user_id = ? AND item_id = ?")
-      .get(userId, itemId);
-    if (owned) return err(`„${item.name}" besitzt du schon.`);
+    const user = getUser(db, userId)!;
+    const existing = db
+      .prepare("SELECT id, quantity FROM inventory WHERE user_id = ? AND item_id = ?")
+      .get(userId, itemId) as unknown as { id: number; quantity: number } | undefined;
+    if (existing && !isConsumable(item)) {
+      return err(`„${item.name}" besitzt du schon.`);
+    }
     if (item.unlock_skill) {
       const levels = skillLevels(db, userId);
       const have = levels[item.unlock_skill as SkillType] ?? 0;
@@ -226,7 +255,14 @@ export function buyItem(db: Db, userId: number, itemIdRaw: unknown): Res {
         );
       }
     }
-    const user = getUser(db, userId)!;
+    if (item.min_district_tier) {
+      const district = districtOf(db, user);
+      if (district.tier < item.min_district_tier) {
+        return err(
+          `„${item.name}" gibt es nur in besseren Vierteln (ab Viertel-Stufe ${item.min_district_tier}) — zieh erst um.`,
+        );
+      }
+    }
     if (user.money < item.price) {
       return err(
         `Zu wenig Geld: „${item.name}" kostet ${fmtMoney(item.price)}.`,
@@ -236,6 +272,19 @@ export function buyItem(db: Db, userId: number, itemIdRaw: unknown): Res {
       item.price,
       userId,
     );
+    if (existing) {
+      db.prepare("UPDATE inventory SET quantity = quantity + 1 WHERE id = ?").run(
+        existing.id,
+      );
+      return ok(`„${item.name}" gekauft (jetzt ${existing.quantity + 1}× im Inventar).`);
+    }
+    if (isConsumable(item)) {
+      db.prepare(
+        `INSERT INTO inventory (user_id, item_id, is_active, acquired_at, quantity)
+         VALUES (?, ?, 0, ?, 1)`,
+      ).run(userId, itemId, now());
+      return ok(`„${item.name}" gekauft — liegt im Inventar (konsumieren nicht vergessen).`);
+    }
     const hasActiveSameCategory = db
       .prepare(
         `SELECT inventory.id FROM inventory
@@ -244,8 +293,8 @@ export function buyItem(db: Db, userId: number, itemIdRaw: unknown): Res {
       )
       .get(userId, item.category);
     db.prepare(
-      `INSERT INTO inventory (user_id, item_id, is_active, acquired_at)
-       VALUES (?, ?, ?, ?)`,
+      `INSERT INTO inventory (user_id, item_id, is_active, acquired_at, quantity)
+       VALUES (?, ?, ?, ?, 1)`,
     ).run(userId, itemId, hasActiveSameCategory ? 0 : 1, now());
     return ok(
       `„${item.name}" gekauft${hasActiveSameCategory ? " (liegt im Inventar — noch aktivieren!)" : " und direkt angelegt"}.`,
@@ -261,7 +310,7 @@ function getInventoryEntry(
   return db
     .prepare(
       `SELECT inventory.id, inventory.user_id, inventory.item_id, inventory.is_active,
-              inventory.acquired_at, items.*
+              inventory.acquired_at, inventory.quantity, items.*
        FROM inventory JOIN items ON items.id = inventory.item_id
        WHERE inventory.id = ? AND inventory.user_id = ?`,
     )
@@ -274,6 +323,9 @@ export function activateItem(db: Db, userId: number, invIdRaw: unknown): Res {
   return withTx(db, () => {
     const entry = getInventoryEntry(db, userId, invId);
     if (!entry) return err("Dieser Gegenstand liegt nicht in deinem Inventar.");
+    if (isConsumable(entry)) {
+      return err(`„${entry.name}" trägt man nicht — das konsumiert man.`);
+    }
     if (entry.is_active) return err(`„${entry.name}" ist schon aktiv.`);
     db.prepare(
       `UPDATE inventory SET is_active = 0
@@ -298,7 +350,11 @@ export function sellInventoryItem(db: Db, userId: number, invIdRaw: unknown): Re
     const entry = getInventoryEntry(db, userId, invId);
     if (!entry) return err("Dieser Gegenstand liegt nicht in deinem Inventar.");
     const resale = Math.floor(entry.price * GAME.ITEM_RESALE_FACTOR);
-    db.prepare("DELETE FROM inventory WHERE id = ?").run(invId);
+    if (entry.quantity > 1) {
+      db.prepare("UPDATE inventory SET quantity = quantity - 1 WHERE id = ?").run(invId);
+    } else {
+      db.prepare("DELETE FROM inventory WHERE id = ?").run(invId);
+    }
     let lostByCapacity = 0;
     if (entry.category === "container" && entry.is_active) {
       // Erst fällt die Kapazität weg, dann kommt der Erlös dazu.
@@ -310,6 +366,111 @@ export function sellInventoryItem(db: Db, userId: number, invIdRaw: unknown): Re
       msg += ` Dabei gingen ${fmtMoney(lostByCapacity + result.lost)} verloren, weil dein Behälter zu klein ist!`;
     }
     return ok(msg);
+  });
+}
+
+// -------------------------------------------------- Phase 2: Konsum & Stadtleben
+
+/** Trinken/Essen aus dem Inventar (Kap. 8/9): verändert den Promillepegel. */
+export function consumeItem(db: Db, userId: number, invIdRaw: unknown): Res {
+  const invId = Number(invIdRaw);
+  if (!Number.isInteger(invId)) return err("Ungültiger Gegenstand.");
+  return withTx(db, () => {
+    const entry = getInventoryEntry(db, userId, invId);
+    if (!entry) return err("Das liegt nicht in deinem Inventar.");
+    if (!isConsumable(entry)) return err(`„${entry.name}" kann man nicht essen oder trinken.`);
+    if (entry.quantity > 1) {
+      db.prepare("UPDATE inventory SET quantity = quantity - 1 WHERE id = ?").run(invId);
+    } else {
+      db.prepare("DELETE FROM inventory WHERE id = ?").run(invId);
+    }
+    const user = getUser(db, userId)!;
+    const result = applyPromilleDelta(db, user, entry.promille_delta);
+    if (result.hospital) {
+      return ok(
+        `„${entry.name}" war eine ganz schlechte Idee: Lebensgefahr! Der Rettungswagen bringt dich ins Krankenhaus. ` +
+          `Behandlung: ${fmtMoney(result.fee)}. Du wachst stocknüchtern wieder auf (0,0 ‰).`,
+      );
+    }
+    const verb = entry.category === "drink" ? "getrunken" : "gegessen";
+    return ok(
+      `„${entry.name}" ${verb} — Pegel jetzt ${fmtPromille(result.promille)}, Laune: ${moodLabel(result.promille)}.`,
+    );
+  });
+}
+
+/** Waschhaus (Kap. 8): günstig +20 Prozentpunkte, gründlich → 100 %. */
+export function washUser(db: Db, userId: number, optionRaw: unknown): Res {
+  const option = String(optionRaw);
+  if (option !== "guenstig" && option !== "gruendlich") {
+    return err("So wäscht hier niemand.");
+  }
+  return withTx(db, () => {
+    const user = getUser(db, userId)!;
+    if (user.cleanliness >= 100) {
+      return err("Du bist schon blitzsauber — spar dir das Geld.");
+    }
+    const cost = option === "guenstig" ? GAME.WASH_CHEAP_COST : GAME.WASH_FULL_COST;
+    if (user.money < cost) {
+      return err(`Zu wenig Geld: Diese Wäsche kostet ${fmtMoney(cost)}.`);
+    }
+    const next =
+      option === "guenstig"
+        ? Math.min(100, user.cleanliness + GAME.WASH_CHEAP_GAIN)
+        : 100;
+    db.prepare("UPDATE users SET money = money - ?, cleanliness = ? WHERE id = ?").run(
+      cost,
+      next,
+      userId,
+    );
+    return ok(
+      option === "guenstig"
+        ? `Katzenwäsche für ${fmtMoney(cost)} — Sauberkeit jetzt ${next} %.`
+        : `Vollprogramm mit Schaum für ${fmtMoney(cost)} — du glänzt: 100 % sauber.`,
+    );
+  });
+}
+
+/** Umzug in einen anderen Stadtteil (Kap. 8): kostet einmalig Umzugskosten. */
+export function moveToDistrict(db: Db, userId: number, districtIdRaw: unknown): Res {
+  const districtId = Number(districtIdRaw);
+  if (!Number.isInteger(districtId)) return err("Dieses Viertel gibt es nicht.");
+  return withTx(db, () => {
+    const user = getUser(db, userId)!;
+    const target = getDistrict(db, districtId);
+    if (!target) return err("Dieses Viertel gibt es nicht.");
+    if (user.district_id === target.id) return err(`Du wohnst schon am ${target.name}.`);
+    if (user.money < target.move_cost) {
+      return err(
+        `Der Umzug zum ${target.name} kostet ${fmtMoney(target.move_cost)} — so viel hast du nicht.`,
+      );
+    }
+    db.prepare("UPDATE users SET money = money - ?, district_id = ? WHERE id = ?").run(
+      target.move_cost,
+      target.id,
+      userId,
+    );
+    // Stadtteilgebundene Unterkunft verliert ihren Nutzen, wenn man wegzieht.
+    const activeHome = db
+      .prepare(
+        `SELECT inventory.id AS invId, items.name, items.min_district_tier
+         FROM inventory JOIN items ON items.id = inventory.item_id
+         WHERE inventory.user_id = ? AND inventory.is_active = 1 AND items.category = 'home'`,
+      )
+      .get(userId) as unknown as
+      | { invId: number; name: string; min_district_tier: number | null }
+      | undefined;
+    let homeNote = "";
+    if (
+      activeHome?.min_district_tier &&
+      activeHome.min_district_tier > target.tier
+    ) {
+      db.prepare("UPDATE inventory SET is_active = 0 WHERE id = ?").run(activeHome.invId);
+      homeNote = ` Deine Unterkunft „${activeHome.name}" liegt jetzt zu weit weg und bringt dir keinen Schutz mehr!`;
+    }
+    return ok(
+      `Umgezogen: Du lebst jetzt am ${target.name} (Sammel-Faktor ×${target.factor.toLocaleString("de-DE")}).${homeNote}`,
+    );
   });
 }
 
