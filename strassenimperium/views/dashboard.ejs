@@ -68,6 +68,18 @@
   </section>
 </div>
 
+<% if (news.length > 0) { %>
+  <section class="card">
+    <h2>📰 Neuigkeiten von der Straße</h2>
+    <ul class="timers">
+      <% for (const n of news) { %>
+        <li><a href="/forum/thema/<%= n.id %>"><%= n.title %></a>
+          <span class="muted small"><%= fmtDateTime(n.last_post_at) %></span></li>
+      <% } %>
+    </ul>
+  </section>
+<% } %>
+
 <section class="card">
   <h2>Letzte Ereignisse</h2>
   <% if (events.length === 0) { %>

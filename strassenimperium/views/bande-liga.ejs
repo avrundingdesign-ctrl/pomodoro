@@ -1,0 +1,42 @@
+<%- include('partials/head', { title, active }) %>
+<h1>Bandenliga</h1>
+<p class="muted">
+  Saison = Kalendermonat. Gewertet wird der Punkte-Zuwachs aller Mitglieder.
+  Am Saisonende steigen die besten <%= promote %> auf, die letzten <%= demote %> ab.
+  Prämien: <%= rewardText %>.
+</p>
+
+<section class="card">
+  <h2>Ligen</h2>
+  <p class="stack-h">
+    <% for (const [i, name] of leagues.entries()) { %>
+      <span class="badge <%= i === gang.league ? 'on' : '' %>"><%= name %> (<%= leagueCounts[i] ?? 0 %>)</span>
+    <% } %>
+  </p>
+</section>
+
+<section class="card">
+  <h2>Deine Liga: <%= leagues[gang.league] %></h2>
+  <% if (standings.length === 0) { %>
+    <p class="muted">Gähnende Leere in dieser Liga.</p>
+  <% } else { %>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Platz</th><th>Bande</th><th>Saison-Punkte</th><th>Gesamt</th><th>Kriegssiege</th></tr></thead>
+        <tbody>
+          <% for (const [i, s] of standings.entries()) { %>
+            <tr class="<%= s.id === gang.id ? 'me' : '' %>">
+              <td><%= i + 1 %></td>
+              <td><%= s.name %></td>
+              <td>+<%= s.seasonDelta %></td>
+              <td><%= s.total %></td>
+              <td><%= s.warWins %></td>
+            </tr>
+          <% } %>
+        </tbody>
+      </table>
+    </div>
+  <% } %>
+</section>
+<p><a href="/bande">← Zur Bande</a></p>
+<%- include('partials/foot') %>

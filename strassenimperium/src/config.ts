@@ -158,7 +158,64 @@ export const GAME = {
   // ------------------------------------------- Phase 3: Tägliche Rangpunkte (Kap. 12)
   /** Punkte für die Top 7 der Bestenliste, täglich (Platz 1 → 64 … Platz 7 → 1). */
   DAILY_RANK_POINTS: [64, 32, 16, 8, 4, 2, 1],
+
+  // ------------------------------------------------ Phase 4: Bandenkriege (Kap. 11)
+  /** Krieg endet bei diesem Punktestand … */
+  WAR_POINT_LIMIT: 10,
+  /** … oder nach dieser Laufzeit. */
+  WAR_DURATION_HOURS: 48,
+  /** Siegprämie in die Bandenkasse des Gewinners. */
+  WAR_WIN_TREASURY_BONUS: 10000,
+
+  // ------------------------------------------------- Phase 4: Bandenliga (Kap. 11/12)
+  /** Auf-/Absteiger pro Liga und Saison (Saison = Kalendermonat). */
+  LEAGUE_PROMOTE: 2,
+  LEAGUE_DEMOTE: 2,
+  /** Kassenprämien für die Top 3 jeder Liga am Saisonende. */
+  LEAGUE_REWARDS: [30000, 20000, 10000],
+
+  // ---------------------------------------------- Phase 4: Haustierkämpfe (Kap. 7.2)
+  /** Max. gleichzeitig offene Herausforderungen pro Spieler. */
+  PET_MAX_OPEN_CHALLENGES: 3,
+  /** Zufallsfaktor je Seite (0,9–1,1). */
+  PET_RANDOM_MIN: 0.9,
+  PET_RANDOM_SPAN: 0.2,
+  /** Unentschieden-Schwelle wie im Hauptkampf. */
+  PET_DRAW_MARGIN: 0.02,
+
+  // ------------------------------------------------------- Phase 4: Chat & Forum (Kap. 13)
+  CHAT_MAX_LENGTH: 300,
+  CHAT_MESSAGES_PER_MINUTE: 10,
+  CHAT_HISTORY_LIMIT: 50,
+  FORUM_TITLE_MAX: 100,
+  FORUM_POST_MAX: 5000,
+  FORUM_POSTS_PER_HOUR: 30,
 } as const;
+
+/** Bandenliga-Stufen (Kap. 11): Qualifikation → … → Diamant. */
+export const LEAGUES = [
+  "Qualifikation",
+  "Bronze",
+  "Silber",
+  "Gold",
+  "Platin",
+  "Diamant",
+] as const;
+
+/** Haltungen im Haustier-Wettkampf (Kap. 7.2). */
+export const PET_STANCES = ["offensiv", "defensiv", "neutral"] as const;
+export type PetStance = (typeof PET_STANCES)[number];
+
+/** Globale Forums-Kategorien (Kap. 13). */
+export const FORUM_CATEGORIES: Record<string, { name: string; blurb: string }> = {
+  ankuendigungen: {
+    name: "Ankündigungen",
+    blurb: "Neuigkeiten und Patchnotes von der Straße.",
+  },
+  allgemein: { name: "Allgemeines", blurb: "Alles zwischen Parkbank und Schlossblick." },
+  bandensuche: { name: "Bandensuche", blurb: "Banden suchen Mitglieder, Mitglieder suchen Banden." },
+  hilfe: { name: "Hilfe", blurb: "Fragen von Neulingen, Antworten von alten Hasen." },
+};
 
 /** Auszeichnungen (Kap. 12) in Stufen Bronze/Silber/Gold/Platin. */
 export const ACHIEVEMENT_TIER_NAMES = ["Bronze", "Silber", "Gold", "Platin"];

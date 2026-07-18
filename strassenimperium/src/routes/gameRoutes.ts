@@ -18,6 +18,7 @@ import {
   renewDonationCode,
 } from "../game/donation.js";
 import { moodLabel, promilleOf } from "../game/promille.js";
+import { latestAnnouncements } from "../game/community.js";
 import { fmtDuration, fmtMoney } from "../util.js";
 
 interface PendingAttackRow extends ActionRow {
@@ -116,6 +117,7 @@ export function gameRoutes(db: Db): Router {
       district: districtOf(db, user),
       promille,
       mood: moodLabel(promille),
+      news: latestAnnouncements(db),
     });
   });
 

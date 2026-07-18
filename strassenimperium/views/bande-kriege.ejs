@@ -1,0 +1,53 @@
+<%- include('partials/head', { title, active }) %>
+<h1>Bandenkriege — <%= gang.name %></h1>
+<p class="muted">
+  Jeder gewonnene Mitgliederkampf gegen die Feind-Bande zählt einen Punkt.
+  Der Krieg endet bei <%= pointLimit %> Punkten oder nach <%= durationHours %> Stunden.
+  Bisherige Kriegssiege: <strong><%= gang.war_wins %></strong>.
+</p>
+
+<% if (war) { %>
+  <section class="card incoming">
+    <h2>⚔️ Krieg läuft: <%= war.nameA %> gegen <%= war.nameB %></h2>
+    <p class="war-score">
+      <strong><%= war.nameA %></strong> <%= war.score_a %> : <%= war.score_b %> <strong><%= war.nameB %></strong>
+    </p>
+    <p class="muted">Endet in <span class="countdown" data-ends="<%= war.ends_at %>">…</span>
+      oder bei <%= war.point_limit %> Punkten. Ab auf die <a href="/kampf">Straße</a> — jeder Sieg zählt!</p>
+  </section>
+<% } else { %>
+  <section class="card">
+    <h2>Krieg erklären</h2>
+    <% if (role === 'member') { %>
+      <p class="muted">Kriege erklärt nur der Boss (oder Co-Boss).</p>
+    <% } else { %>
+      <form method="post" action="/bande/kriege/erklaeren" class="stack" style="max-width: 420px">
+        <input type="hidden" name="_csrf" value="<%= csrf %>">
+        <label>Gegnerische Bande
+          <input type="text" name="name" required placeholder="Bandenname">
+        </label>
+        <button class="btn btn-danger" type="submit">⚔️ Krieg erklären</button>
+      </form>
+    <% } %>
+  </section>
+<% } %>
+
+<section class="card">
+  <h2>Kriegs-Chronik</h2>
+  <% if (history.length === 0) { %>
+    <p class="muted">Noch kein Krieg geführt. Die Straße wartet.</p>
+  <% } else { %>
+    <ul class="log">
+      <% for (const w of history) { %>
+        <% const won = w.winner_gang_id === gang.id; const draw = w.winner_gang_id === null; %>
+        <li class="<%= draw ? 'draw' : won ? 'win' : 'loss' %>">
+          <%= w.name_a %> <%= w.score_a %> : <%= w.score_b %> <%= w.name_b %>
+          — <%= draw ? 'Unentschieden' : won ? 'gewonnen' : 'verloren' %>
+          <span class="muted small"><%= fmtDateTime(w.finished_at) %></span>
+        </li>
+      <% } %>
+    </ul>
+  <% } %>
+</section>
+<p><a href="/bande">← Zur Bande</a></p>
+<%- include('partials/foot') %>

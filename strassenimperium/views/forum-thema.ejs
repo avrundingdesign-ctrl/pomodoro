@@ -1,0 +1,21 @@
+<%- include('partials/head', { title, active }) %>
+<h1><%= thread.title %></h1>
+<p class="muted small">eröffnet von <%= thread.author_name %> · <%= fmtDateTime(thread.created_at) %></p>
+
+<% for (const p of posts) { %>
+  <section class="card forum-post">
+    <p class="muted small"><strong><%= p.author_name %></strong> · <%= fmtDateTime(p.created_at) %></p>
+    <div class="message-body"><%= p.body %></div>
+  </section>
+<% } %>
+
+<section class="card">
+  <h2>Antworten</h2>
+  <form method="post" action="/forum/thema/<%= thread.id %>/antworten" class="stack">
+    <input type="hidden" name="_csrf" value="<%= csrf %>">
+    <textarea name="text" rows="4" maxlength="<%= GAME.FORUM_POST_MAX %>" required placeholder="Dein Senf dazu …"></textarea>
+    <button class="btn btn-primary" type="submit">Antworten</button>
+  </form>
+</section>
+<p><a href="<%= backLink %>">← Zurück</a></p>
+<%- include('partials/foot') %>

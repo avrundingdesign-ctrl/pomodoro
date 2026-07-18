@@ -237,6 +237,23 @@ button.linklike:hover { color: var(--red); }
 .options label:hover { border-color: var(--accent); }
 .options input { margin-right: 0.5rem; }
 .pagination { display: flex; align-items: center; gap: 0.8rem; margin: 0.8rem 0 0; }
+/* Chat */
+.chat-box {
+  height: 22rem;
+  overflow-y: auto;
+  background: var(--panel2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.6rem 0.8rem;
+  margin-bottom: 0.6rem;
+}
+.chat-msg { padding: 0.15rem 0; border-bottom: 1px dashed rgba(47, 51, 61, 0.5); }
+.chat-msg:last-child { border-bottom: none; }
+.chat-form { display: flex; gap: 0.5rem; }
+.chat-form input[type="text"] { flex: 1; margin-top: 0; }
+.war-score { font-size: 1.4rem; }
+.forum-post { margin: 0.6rem 0; }
+
 /* Postfach & Formulare */
 tr.unread td { font-weight: 700; background: rgba(240, 168, 50, 0.05); }
 .message-body {

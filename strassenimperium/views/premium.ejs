@@ -1,0 +1,33 @@
+<%- include('partials/head', { title, active }) %>
+<h1>⭐ Premium</h1>
+<p class="muted">
+  Straßenimperium bleibt fair: <strong>Stärke kann man nicht kaufen.</strong>
+  Kein ATT, kein DEF, kein Geld gegen Echtgeld — die Rangliste gehört denen,
+  die dafür gesammelt, trainiert und gekämpft haben (Kap. 15 des Konzepts).
+</p>
+<div class="grid-2">
+  <section class="card">
+    <h2>Was Premium (später) bietet</h2>
+    <ul>
+      <li>Werbefreiheit</li>
+      <li>⭐-Abzeichen in Profil und Highscore</li>
+      <li>Eigenes Haustier-Icon & größerer Banden-Avatar</li>
+      <li>Exklusive Signatur-Optionen für den Spendenlink</li>
+      <li>Kein automatisches Löschen bei Inaktivität</li>
+      <li>Früher Zugriff auf Beta-Features</li>
+    </ul>
+  </section>
+  <section class="card">
+    <h2>Status</h2>
+    <% if (isPremium) { %>
+      <p>⭐ Du bist Unterstützer bis <strong><%= fmtDateTime(premiumUntil) %></strong> — danke!</p>
+    <% } else { %>
+      <p class="muted">
+        Der Premium-Verkauf ist noch nicht freigeschaltet — dieses MVP läuft ohne
+        Bezahlfunktion. Geplant: ein Teil der Einnahmen geht sichtbar an echte
+        Hilfsorganisationen für wohnungslose Menschen.
+      </p>
+    <% } %>
+  </section>
+</div>
+<%- include('partials/foot') %>

@@ -1,0 +1,14 @@
+<%- include('partials/head', { title, active }) %>
+<h1>Forum</h1>
+<p class="muted">Das schwarze Brett der Stadt: Kategorien → Themen → Beiträge.</p>
+<% for (const cat of categories) { %>
+  <section class="card">
+    <h2><a href="/forum/rubrik/<%= cat.key %>"><%= cat.name %></a></h2>
+    <p class="muted"><%= cat.blurb %></p>
+    <p class="muted small">
+      <%= cat.threads %> Thema<%= cat.threads === 1 ? '' : 'en' %>
+      <%= cat.latest ? `· zuletzt ${fmtDateTime(cat.latest)}` : '' %>
+    </p>
+  </section>
+<% } %>
+<%- include('partials/foot') %>

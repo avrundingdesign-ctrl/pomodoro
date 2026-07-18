@@ -32,6 +32,7 @@ export interface UserRow {
   bottles_total: number;
   crimes_done: number;
   donations_got: number;
+  premium_until: number;
 }
 
 export interface GangRow {
@@ -47,6 +48,39 @@ export interface GangRow {
   account: number;
   payout_day: string;
   payout_used: number;
+  league: number;
+  season: string;
+  season_start_points: number;
+  war_wins: number;
+}
+
+export interface GangWarRow {
+  id: number;
+  gang_a: number;
+  gang_b: number;
+  status: string;
+  point_limit: number;
+  ends_at: number;
+  score_a: number;
+  score_b: number;
+  winner_gang_id: number | null;
+  started_at: number;
+  finished_at: number | null;
+}
+
+export interface PetChallengeRow {
+  id: number;
+  owner_id: number;
+  pet_item_id: number;
+  stake: number;
+  stance: string;
+  password_hash: string | null;
+  status: string;
+  challenger_id: number | null;
+  challenger_pet_id: number | null;
+  winner_id: number | null;
+  created_at: number;
+  resolved_at: number | null;
 }
 
 export interface GangMemberRow {
@@ -368,6 +402,73 @@ export function migrate(db: Db): void {
       key   TEXT PRIMARY KEY,
       value TEXT NOT NULL
     );
+
+    CREATE TABLE IF NOT EXISTS gang_wars (
+      id             INTEGER PRIMARY KEY AUTOINCREMENT,
+      gang_a         INTEGER NOT NULL REFERENCES gangs(id) ON DELETE CASCADE,
+      gang_b         INTEGER NOT NULL REFERENCES gangs(id) ON DELETE CASCADE,
+      status         TEXT NOT NULL DEFAULT 'active',
+      point_limit    INTEGER NOT NULL,
+      ends_at        INTEGER NOT NULL,
+      score_a        INTEGER NOT NULL DEFAULT 0,
+      score_b        INTEGER NOT NULL DEFAULT 0,
+      winner_gang_id INTEGER,
+      started_at     INTEGER NOT NULL,
+      finished_at    INTEGER
+    );
+    CREATE INDEX IF NOT EXISTS idx_wars_active ON gang_wars (status, ends_at);
+
+    CREATE TABLE IF NOT EXISTS gang_alliances (
+      id          INTEGER PRIMARY KEY AUTOINCREMENT,
+      proposer_id INTEGER NOT NULL REFERENCES gangs(id) ON DELETE CASCADE,
+      other_id    INTEGER NOT NULL REFERENCES gangs(id) ON DELETE CASCADE,
+      status      TEXT NOT NULL DEFAULT 'proposed',
+      created_at  INTEGER NOT NULL
+    );
+
+    CREATE TABLE IF NOT EXISTS pet_challenges (
+      id                INTEGER PRIMARY KEY AUTOINCREMENT,
+      owner_id          INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      pet_item_id       INTEGER NOT NULL REFERENCES items(id),
+      stake             INTEGER NOT NULL,
+      stance            TEXT NOT NULL,
+      password_hash     TEXT,
+      status            TEXT NOT NULL DEFAULT 'open',
+      challenger_id     INTEGER REFERENCES users(id),
+      challenger_pet_id INTEGER REFERENCES items(id),
+      winner_id         INTEGER,
+      created_at        INTEGER NOT NULL,
+      resolved_at       INTEGER
+    );
+    CREATE INDEX IF NOT EXISTS idx_pet_challenges_open ON pet_challenges (status, created_at);
+
+    CREATE TABLE IF NOT EXISTS chat_messages (
+      id      INTEGER PRIMARY KEY AUTOINCREMENT,
+      user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      body    TEXT NOT NULL,
+      sent_at INTEGER NOT NULL
+    );
+    CREATE INDEX IF NOT EXISTS idx_chat_recent ON chat_messages (id DESC);
+
+    CREATE TABLE IF NOT EXISTS forum_threads (
+      id           INTEGER PRIMARY KEY AUTOINCREMENT,
+      gang_id      INTEGER REFERENCES gangs(id) ON DELETE CASCADE,
+      category     TEXT NOT NULL,
+      title        TEXT NOT NULL,
+      author_id    INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      created_at   INTEGER NOT NULL,
+      last_post_at INTEGER NOT NULL
+    );
+    CREATE INDEX IF NOT EXISTS idx_threads_cat ON forum_threads (gang_id, category, last_post_at DESC);
+
+    CREATE TABLE IF NOT EXISTS forum_posts (
+      id         INTEGER PRIMARY KEY AUTOINCREMENT,
+      thread_id  INTEGER NOT NULL REFERENCES forum_threads(id) ON DELETE CASCADE,
+      author_id  INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      body       TEXT NOT NULL,
+      created_at INTEGER NOT NULL
+    );
+    CREATE INDEX IF NOT EXISTS idx_posts_thread ON forum_posts (thread_id, created_at);
   `);
 
   // Idempotente Spalten-Migrationen (Phase 2 auf bestehenden Phase-1-Datenbanken).
@@ -395,6 +496,11 @@ export function migrate(db: Db): void {
   ensureColumn(db, "users", "bottles_total", "INTEGER NOT NULL DEFAULT 0");
   ensureColumn(db, "users", "crimes_done", "INTEGER NOT NULL DEFAULT 0");
   ensureColumn(db, "users", "donations_got", "INTEGER NOT NULL DEFAULT 0");
+  ensureColumn(db, "users", "premium_until", "INTEGER NOT NULL DEFAULT 0");
+  ensureColumn(db, "gangs", "league", "INTEGER NOT NULL DEFAULT 0");
+  ensureColumn(db, "gangs", "season", "TEXT NOT NULL DEFAULT ''");
+  ensureColumn(db, "gangs", "season_start_points", "INTEGER NOT NULL DEFAULT 0");
+  ensureColumn(db, "gangs", "war_wins", "INTEGER NOT NULL DEFAULT 0");
   db.exec(
     "UPDATE users SET donation_code = lower(hex(randomblob(8))) WHERE donation_code IS NULL",
   );

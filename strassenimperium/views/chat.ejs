@@ -1,0 +1,69 @@
+<%- include('partials/head', { title, active }) %>
+<h1>Live-Chat</h1>
+<p class="muted">Der Kanal der Straße — alle hören mit. Sei ruhig frech, aber nicht gemein.</p>
+<section class="card">
+  <div id="chat-box" class="chat-box">
+    <% for (const m of messages) { %>
+      <div class="chat-msg" data-id="<%= m.id %>">
+        <span class="muted small"><%= new Date(m.sent_at).toLocaleTimeString('de-DE', {hour:'2-digit',minute:'2-digit'}) %></span>
+        <strong><%= m.username %>:</strong> <%= m.body %>
+      </div>
+    <% } %>
+  </div>
+  <form id="chat-form" class="chat-form">
+    <input type="hidden" id="chat-csrf" value="<%= csrf %>">
+    <input type="text" id="chat-input" maxlength="<%= maxLength %>" placeholder="Sag was …" autocomplete="off">
+    <button class="btn btn-primary" type="submit">Senden</button>
+  </form>
+</section>
+<script>
+(function () {
+  var box = document.getElementById("chat-box");
+  var form = document.getElementById("chat-form");
+  var input = document.getElementById("chat-input");
+  var csrf = document.getElementById("chat-csrf").value;
+  function lastId() {
+    var msgs = box.querySelectorAll(".chat-msg");
+    return msgs.length ? Number(msgs[msgs.length - 1].getAttribute("data-id")) : 0;
+  }
+  function esc(s) {
+    var d = document.createElement("span");
+    d.textContent = s;
+    return d.innerHTML;
+  }
+  function append(list) {
+    list.forEach(function (m) {
+      if (box.querySelector('[data-id="' + m.id + '"]')) return;
+      var div = document.createElement("div");
+      div.className = "chat-msg";
+      div.setAttribute("data-id", m.id);
+      var time = new Date(m.ts).toLocaleTimeString("de-DE", { hour: "2-digit", minute: "2-digit" });
+      div.innerHTML = '<span class="muted small">' + time + '</span> <strong>' + esc(m.user) + ':</strong> ' + esc(m.body);
+      box.appendChild(div);
+    });
+    if (list.length) box.scrollTop = box.scrollHeight;
+  }
+  function poll() {
+    fetch("/chat/neu?seit=" + lastId(), { headers: { accept: "application/json" } })
+      .then(function (r) { return r.json(); })
+      .then(function (data) { append(data.messages || []); })
+      .catch(function () {});
+  }
+  form.addEventListener("submit", function (ev) {
+    ev.preventDefault();
+    var text = input.value.trim();
+    if (!text) return;
+    fetch("/chat/senden", {
+      method: "POST",
+      headers: { "content-type": "application/x-www-form-urlencoded", accept: "application/json" },
+      body: "text=" + encodeURIComponent(text) + "&_csrf=" + encodeURIComponent(csrf),
+    }).then(function (r) {
+      if (r.ok) { input.value = ""; poll(); }
+      else { r.json().then(function (d) { alert(d.msg || "Senden fehlgeschlagen"); }).catch(function(){}); }
+    });
+  });
+  box.scrollTop = box.scrollHeight;
+  setInterval(poll, 4000);
+})();
+</script>
+<%- include('partials/foot') %>

@@ -104,7 +104,7 @@ manuell gegen den laufenden Server zu fahren (curl/Playwright).
 - [x] **Phase 1 — Kern-Loop**
 - [x] **Phase 2 — Welt & Wirtschaft** (Stadtteile, Supermarkt/Waschhaus/Immobilien/Tierhandlung, Promille-/Sauberkeitssystem, Haustiere, dazu der Spendenlink aus Kap. 5 als Auszahlungskanal für Sauberkeit/Mitleid; nachgereicht: Verbrechen, Konzentrieren, Musikinstrumente, Bettelspots aus Kap. 5/6)
 - [x] **Phase 3 — Sozial & Wettbewerb** (Freundes-/Blockliste mit Online-Status, Postfach mit Archiv, Banden mit Kasse/Tageslimit/4 Gebäuden und Rollen, Banden-Highscore, Auszeichnungen in 4 Stufen mit täglichen Rangpunkten für die Top 7, Einstellungen mit Urlaubsmodus, Passwortwechsel und Auszeichnungs-Verschleierung)
-- [ ] Phase 4 — Endgame & Bindung (Bandenkriege, Liga, Haustierkämpfe, Chat, Forum, Premium)
+- [x] **Phase 4 — Endgame & Bindung** (Bandenkriege mit Punkte-/Zeitlimit und Siegprämie, Bündnisse, monatliche Bandenliga mit Auf-/Abstieg und Prämien, Haustier-Wettkämpfe mit Einsatz/Haltung und passwortgeschütztem Geldtransfer, Live-Chat mit Polling, globales Forum + Banden-Forum, News-Feed auf der Übersicht, Premium-Konzeptseite ohne Pay-to-Win)
 - [ ] Phase 5 — Wachstum (Mobile-Feinschliff, weitere Städte/Sprachen, Events)
 
 ## Rechtliches (Kap. 21, fürs Launch-To-do)

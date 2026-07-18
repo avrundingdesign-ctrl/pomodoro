@@ -1,0 +1,65 @@
+<%- include('partials/head', { title, active }) %>
+<h1>Bündnisse — <%= gang.name %></h1>
+<p class="muted">Verbündete Banden können einander keinen Krieg erklären.</p>
+
+<section class="card">
+  <h2>Bündnis anbieten</h2>
+  <% if (role !== 'admin') { %>
+    <p class="muted">Bündnisse schließt nur der Boss.</p>
+  <% } else { %>
+    <form method="post" action="/bande/buendnisse/anbieten" class="stack" style="max-width: 420px">
+      <input type="hidden" name="_csrf" value="<%= csrf %>">
+      <label>Bande
+        <input type="text" name="name" required>
+      </label>
+      <button class="btn btn-primary" type="submit">🤝 Anbieten</button>
+    </form>
+  <% } %>
+</section>
+
+<section class="card">
+  <h2>Bestehende Bündnisse & Angebote</h2>
+  <% if (alliances.length === 0) { %>
+    <p class="muted">Keine Bündnisse — ihr steht allein gegen die Stadt.</p>
+  <% } else { %>
+    <div class="table-wrap">
+      <table>
+        <tbody>
+          <% for (const a of alliances) { %>
+            <% const partner = a.proposer_id === myGangId ? a.other_name : a.proposer_name; %>
+            <tr>
+              <td><strong><%= partner %></strong></td>
+              <td>
+                <% if (a.status === 'active') { %>
+                  <span class="badge on">verbündet</span>
+                <% } else if (a.proposer_id === myGangId) { %>
+                  <span class="badge">Angebot verschickt</span>
+                <% } else { %>
+                  <span class="badge">Angebot erhalten</span>
+                <% } %>
+              </td>
+              <td>
+                <% if (role === 'admin' && a.status === 'proposed' && a.other_id === myGangId) { %>
+                  <form method="post" action="/bande/buendnisse/antworten" class="inline">
+                    <input type="hidden" name="_csrf" value="<%= csrf %>">
+                    <input type="hidden" name="id" value="<%= a.id %>">
+                    <button class="btn btn-sm btn-primary" name="antwort" value="annehmen" type="submit">Annehmen</button>
+                    <button class="btn btn-sm" name="antwort" value="ablehnen" type="submit">Ablehnen</button>
+                  </form>
+                <% } else if (role === 'admin' && a.status === 'active') { %>
+                  <form method="post" action="/bande/buendnisse/loesen" class="inline">
+                    <input type="hidden" name="_csrf" value="<%= csrf %>">
+                    <input type="hidden" name="id" value="<%= a.id %>">
+                    <button class="btn btn-sm btn-danger" type="submit">Lösen</button>
+                  </form>
+                <% } %>
+              </td>
+            </tr>
+          <% } %>
+        </tbody>
+      </table>
+    </div>
+  <% } %>
+</section>
+<p><a href="/bande">← Zur Bande</a></p>
+<%- include('partials/foot') %>

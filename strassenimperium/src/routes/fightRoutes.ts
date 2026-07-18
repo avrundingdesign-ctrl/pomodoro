@@ -1,8 +1,9 @@
 import { Router } from "express";
 import type { ActionRow, Db, UserRow } from "../db.js";
 import { requireAuth, setFlash } from "../auth.js";
-import { ACHIEVEMENT_TIER_NAMES, ACHIEVEMENTS, GAME } from "../config.js";
+import { ACHIEVEMENT_TIER_NAMES, ACHIEVEMENTS, GAME, PET_STANCES } from "../config.js";
 import { gangOf } from "../game/gangs.js";
+import * as pets from "../game/pets.js";
 import { attackRange } from "../game/formulas.js";
 import { effectiveStats, rankOf } from "../game/stats.js";
 import { fightDisplay, type FightRowNamed } from "../game/logtext.js";
@@ -61,6 +62,68 @@ export function fightRoutes(db: Db): Router {
       msg: result.msg,
     });
     res.redirect("/kampf");
+  });
+
+  // ------------------------------------------------- Haustierkämpfe (Kap. 7.2)
+  r.get("/kampf/haustier", (req, res) => {
+    const user = res.locals.user as UserRow;
+    res.render("haustierkampf", {
+      title: "Haustierkämpfe",
+      active: "kampf",
+      myPets: pets.ownedPets(db, user.id),
+      open: pets.openChallenges(db, user.id),
+      mine: pets.myChallenges(db, user.id),
+      history: pets.challengeHistory(db, user.id),
+      meId: user.id,
+      stances: PET_STANCES,
+      maxOpen: GAME.PET_MAX_OPEN_CHALLENGES,
+    });
+  });
+
+  r.post("/kampf/haustier/erstellen", (req, res) => {
+    const user = res.locals.user as UserRow;
+    const body = req.body as any;
+    const result = pets.createChallenge(
+      db,
+      user,
+      body.petId,
+      body.einsatz,
+      body.haltung,
+      body.passwort,
+    );
+    setFlash(db, res.locals.session.token, {
+      type: result.ok ? "ok" : "err",
+      msg: result.msg,
+    });
+    res.redirect("/kampf/haustier");
+  });
+
+  r.post("/kampf/haustier/annehmen", (req, res) => {
+    const user = res.locals.user as UserRow;
+    const body = req.body as any;
+    const result = pets.acceptChallenge(
+      db,
+      user,
+      body.id,
+      body.petId,
+      body.haltung,
+      body.passwort,
+    );
+    setFlash(db, res.locals.session.token, {
+      type: result.ok ? "ok" : "err",
+      msg: result.msg,
+    });
+    res.redirect("/kampf/haustier");
+  });
+
+  r.post("/kampf/haustier/zurueckziehen", (req, res) => {
+    const user = res.locals.user as UserRow;
+    const result = pets.cancelChallenge(db, user, (req.body as any).id);
+    setFlash(db, res.locals.session.token, {
+      type: result.ok ? "ok" : "err",
+      msg: result.msg,
+    });
+    res.redirect("/kampf/haustier");
   });
 
   // ------------------------------------------------------------- Highscore

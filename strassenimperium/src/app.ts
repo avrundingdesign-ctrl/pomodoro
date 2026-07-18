@@ -20,6 +20,7 @@ import { stadtRoutes } from "./routes/stadtRoutes.js";
 import { socialRoutes } from "./routes/socialRoutes.js";
 import { gangRoutes } from "./routes/gangRoutes.js";
 import { accountRoutes } from "./routes/accountRoutes.js";
+import { communityRoutes } from "./routes/communityRoutes.js";
 
 export function createApp(db: Db): express.Express {
   const app = express();
@@ -145,6 +146,7 @@ export function createApp(db: Db): express.Express {
   app.use(socialRoutes(db));
   app.use(gangRoutes(db));
   app.use(accountRoutes(db));
+  app.use(communityRoutes(db));
 
   app.use((req, res) => {
     res.status(404).render("error", {

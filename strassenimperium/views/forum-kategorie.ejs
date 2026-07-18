@@ -1,0 +1,42 @@
+<%- include('partials/head', { title, active }) %>
+<h1><%= categoryName %></h1>
+<p class="muted"><%= categoryBlurb %></p>
+
+<section class="card">
+  <h2>Neues Thema</h2>
+  <form method="post" action="<%= newThreadAction %>" class="stack">
+    <input type="hidden" name="_csrf" value="<%= csrf %>">
+    <label>Titel
+      <input type="text" name="titel" required minlength="3" maxlength="<%= GAME.FORUM_TITLE_MAX %>">
+    </label>
+    <label>Beitrag
+      <textarea name="text" rows="5" maxlength="<%= GAME.FORUM_POST_MAX %>" required></textarea>
+    </label>
+    <button class="btn btn-primary" type="submit">Thema eröffnen</button>
+  </form>
+</section>
+
+<section class="card">
+  <h2>Themen</h2>
+  <% if (threads.length === 0) { %>
+    <p class="muted">Noch kein Thema — mach den Anfang.</p>
+  <% } else { %>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Thema</th><th>Von</th><th>Beiträge</th><th>Zuletzt</th></tr></thead>
+        <tbody>
+          <% for (const t of threads) { %>
+            <tr>
+              <td><a href="/forum/thema/<%= t.id %>"><%= t.title %></a></td>
+              <td class="muted"><%= t.author_name %></td>
+              <td><%= t.post_count %></td>
+              <td class="muted"><%= fmtDateTime(t.last_post_at) %></td>
+            </tr>
+          <% } %>
+        </tbody>
+      </table>
+    </div>
+  <% } %>
+</section>
+<p><a href="<%= backLink %>">← <%= backLabel %></a></p>
+<%- include('partials/foot') %>

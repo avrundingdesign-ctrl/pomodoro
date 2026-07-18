@@ -9,6 +9,7 @@ import { districtOf } from "./districts.js";
 import { fightFactor, promilleOf } from "./promille.js";
 import { awardAchievements, grantDailyRankPoints } from "./achievements.js";
 import { gangIncomeFactor } from "./gangs.js";
+import { finishExpiredWars, recordWarFightWin, rolloverLeagueSeason } from "./wars.js";
 
 /**
  * Kern des Idle-Prinzips: Alle fälligen, noch nicht aufgelösten Timer
@@ -23,6 +24,8 @@ import { gangIncomeFactor } from "./gangs.js";
  */
 export function resolveAllDue(db: Db): void {
   grantDailyRankPoints(db);
+  rolloverLeagueSeason(db);
+  finishExpiredWars(db);
   const t = now();
   const dueTrainings = db
     .prepare(
@@ -209,12 +212,14 @@ function resolveFight(db: Db, action: ActionRow): void {
   pointsAttacker = applyPoints(attacker.id, pointsAttacker);
   pointsDefender = applyPoints(defender.id, pointsDefender);
 
-  // Siegzähler für Auszeichnungen (Kap. 12).
+  // Siegzähler für Auszeichnungen (Kap. 12) und Bandenkriegs-Wertung (Kap. 11).
   const winnerId =
     outcome === "win" ? attacker.id : outcome === "loss" ? defender.id : null;
   if (winnerId) {
     db.prepare("UPDATE users SET fights_won = fights_won + 1 WHERE id = ?").run(winnerId);
     awardAchievements(db, winnerId);
+    const loserId = winnerId === attacker.id ? defender.id : attacker.id;
+    recordWarFightWin(db, winnerId, loserId);
   }
 
   const fight = db

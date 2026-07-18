@@ -1,0 +1,124 @@
+<%- include('partials/head', { title, active }) %>
+<h1>Haustierkämpfe</h1>
+<p class="muted">
+  Stell dein Tier mit Einsatz und Haltung auf: <strong>offensiv</strong> zählt ATT,
+  <strong>defensiv</strong> DEF, <strong>neutral</strong> der Schnitt. Der Gewinner nimmt den
+  ganzen Topf. Mit Passwort wird die Herausforderung privat — so schickt man
+  gezielt Geld an eine bestimmte Person (max. <%= maxOpen %> offene gleichzeitig).
+</p>
+
+<div class="grid-2">
+  <section class="card">
+    <h2>Herausforderung aufstellen</h2>
+    <% if (myPets.length === 0) { %>
+      <p class="muted">Du hast kein Haustier. <a href="/stadt/tierhandlung">Die Tierhandlung</a> hilft.</p>
+    <% } else { %>
+      <form method="post" action="/kampf/haustier/erstellen" class="stack">
+        <input type="hidden" name="_csrf" value="<%= csrf %>">
+        <label>Haustier
+          <select name="petId">
+            <% for (const p of myPets) { %>
+              <option value="<%= p.id %>"><%= p.name %> (ATT <%= p.att_bonus %> / DEF <%= p.def_bonus %>)</option>
+            <% } %>
+          </select>
+        </label>
+        <label>Haltung
+          <select name="haltung">
+            <% for (const s of stances) { %><option value="<%= s %>"><%= s %></option><% } %>
+          </select>
+        </label>
+        <label>Einsatz in €
+          <input type="number" name="einsatz" min="0.01" step="0.01" required>
+        </label>
+        <label>Passwort <span class="muted">(optional — nur wer es kennt, kann annehmen)</span>
+          <input type="text" name="passwort">
+        </label>
+        <button class="btn btn-primary" type="submit">Aufstellen</button>
+      </form>
+    <% } %>
+  </section>
+
+  <section class="card">
+    <h2>Meine offenen Herausforderungen</h2>
+    <% if (mine.length === 0) { %>
+      <p class="muted">Keine offenen Wetten.</p>
+    <% } else { %>
+      <ul class="timers">
+        <% for (const c of mine) { %>
+          <li>
+            🐾 <strong><%= c.pet_name %></strong> (<%= c.stance %>) — Einsatz <%= fmtMoney(c.stake) %>
+            <%= c.password_hash ? '· 🔒 privat' : '' %>
+            <form method="post" action="/kampf/haustier/zurueckziehen" class="inline">
+              <input type="hidden" name="_csrf" value="<%= csrf %>">
+              <input type="hidden" name="id" value="<%= c.id %>">
+              <button class="btn btn-sm" type="submit">Zurückziehen</button>
+            </form>
+          </li>
+        <% } %>
+      </ul>
+    <% } %>
+  </section>
+</div>
+
+<section class="card">
+  <h2>Offene Herausforderungen</h2>
+  <% if (open.length === 0) { %>
+    <p class="muted">Gerade traut sich niemand. Stell du etwas auf!</p>
+  <% } else { %>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Von</th><th>Tier</th><th>Haltung</th><th>Einsatz</th><th></th></tr></thead>
+        <tbody>
+          <% for (const c of open) { %>
+            <tr>
+              <td><a href="/profil/<%= encodeURIComponent(c.owner_name) %>"><%= c.owner_name %></a></td>
+              <td><strong><%= c.pet_name %></strong> <span class="muted">(ATT <%= c.att_bonus %> / DEF <%= c.def_bonus %>)</span></td>
+              <td><%= c.stance %></td>
+              <td><%= fmtMoney(c.stake) %> <%= c.password_hash ? '🔒' : '' %></td>
+              <td>
+                <% if (myPets.length > 0) { %>
+                  <form method="post" action="/kampf/haustier/annehmen" class="inline stack-h">
+                    <input type="hidden" name="_csrf" value="<%= csrf %>">
+                    <input type="hidden" name="id" value="<%= c.id %>">
+                    <select name="petId">
+                      <% for (const p of myPets) { %><option value="<%= p.id %>"><%= p.name %></option><% } %>
+                    </select>
+                    <select name="haltung">
+                      <% for (const s of stances) { %><option value="<%= s %>"><%= s %></option><% } %>
+                    </select>
+                    <% if (c.password_hash) { %>
+                      <input type="text" name="passwort" placeholder="Passwort" required>
+                    <% } %>
+                    <button class="btn btn-sm btn-danger" type="submit">Annehmen</button>
+                  </form>
+                <% } else { %>
+                  <span class="badge">kein Haustier</span>
+                <% } %>
+              </td>
+            </tr>
+          <% } %>
+        </tbody>
+      </table>
+    </div>
+  <% } %>
+</section>
+
+<section class="card">
+  <h2>Letzte Kämpfe</h2>
+  <% if (history.length === 0) { %>
+    <p class="muted">Noch keine Tierkämpfe. Die Arena wartet.</p>
+  <% } else { %>
+    <ul class="log">
+      <% for (const h of history) { %>
+        <% const iWon = h.winner_id === meId; const draw = h.winner_id === null; %>
+        <li class="<%= draw ? 'draw' : iWon ? 'win' : 'loss' %>">
+          <%= h.pet_name %> (<%= h.owner_name %>) gegen <%= h.challenger_pet_name %> (<%= h.challenger_name %>)
+          um <%= fmtMoney(h.stake) %> — <%= draw ? 'unentschieden' : iWon ? 'dein Sieg' : 'verloren' %>
+          <span class="muted small"><%= fmtDateTime(h.resolved_at) %></span>
+        </li>
+      <% } %>
+    </ul>
+  <% } %>
+</section>
+<p><a href="/kampf">← Zum Kampf</a></p>
+<%- include('partials/foot') %>
