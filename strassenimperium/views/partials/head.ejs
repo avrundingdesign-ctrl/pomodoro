@@ -81,6 +81,11 @@
       <% } %>
     </div>
   <% } %>
+  <% if (locals.seasonEvent) { %>
+    <div class="event-banner" title="Saison-Event">
+      <strong><%= seasonEvent.name %></strong> — <%= seasonEvent.blurb %>
+    </div>
+  <% } %>
 </header>
 <main class="wrap">
 <% for (const f of (locals.flashes || [])) { %>

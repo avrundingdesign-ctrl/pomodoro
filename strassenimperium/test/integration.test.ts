@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import type { Server } from "node:http";
 import { openDb } from "../src/db.js";
 import { createApp } from "../src/app.js";
-import { kursCentsFor } from "../src/game/formulas.js";
+import { kursToday } from "../src/game/svc.js";
 import { GAME } from "../src/config.js";
 
 interface Ctx {
@@ -199,7 +199,7 @@ test("Spielfluss end-to-end: Registrieren → Training → Kampf → Sammeln →
   a = userRow(ctx, "tester_a");
   assert.ok(a.bottles > 0, "Sammeln muss Flaschen bringen");
 
-  const kurs = kursCentsFor(new Date());
+  const kurs = kursToday(); // inkl. eventuellem Saison-Event-Faktor
   const expected = Math.min(GAME.BASE_CAPACITY, a.money + a.bottles * kurs);
   const sell = await post(ctx, "/inventar/verkaufen", { _csrf: csrfA }, cookieA);
   assert.equal(sell.status, 302);

@@ -539,6 +539,8 @@ export function seedItems(db: Db): void {
     ["weapon_2", "weapon", "Stinkender Turnschuh", 2, 5, 0, 0, 1200, "angriff", 3, 0, 0, null],
     ["weapon_3", "weapon", "Alter Gehstock", 3, 9, 0, 0, 3500, "angriff", 6, 0, 0, null],
     ["weapon_4", "weapon", "Rostige Bratpfanne", 4, 15, 0, 0, 9000, "angriff", 10, 0, 0, null],
+    ["weapon_5", "weapon", "Kettenschloss", 5, 22, 0, 0, 25000, "angriff", 14, 0, 0, null],
+    ["weapon_6", "weapon", "Einkaufswagen-Rammbock", 6, 30, 0, 0, 60000, "angriff", 18, 0, 0, null],
     // Behälter (erhöhen die Geld-Kapazität; Überlauf geht verloren, Kap. 3/6)
     ["container_1", "container", "Plastiktüte", 1, 0, 0, 15000, 800, null, null, 0, 0, null],
     ["container_2", "container", "Einkaufsbeutel", 2, 0, 0, 40000, 3000, null, null, 0, 0, null],

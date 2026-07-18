@@ -29,7 +29,10 @@ Welt & Wirtschaft** — vollständig spielbar.
 | **Sauberkeit & Waschhaus** | Kap. 3/8 | Sammeln macht dreckig; Waschhaus mit Katzenwäsche (+20 %-Punkte) und Vollprogramm (100 %); Sauberkeit erhöht Spenden |
 | **Immobilienbüro** | Kap. 6/8 | 8 Unterkünfte (+DEF), freigeschaltet über Verteidigung, teils erst ab bestimmter Viertel-Stufe; Wegzug deaktiviert gebundene Unterkünfte |
 | **Tierhandlung & Haustiere** | Kap. 6 | 7 Haustiere (+ATT/+DEF + Mitleidswert), freigeschaltet über den neuen Skill Sozialkontakte (max. Stufe 10) |
-| **Betteln/Spendenlink** | Kap. 5/10/14 | Öffentlicher, erneuerbarer Spendenlink: jeder Klick Dritter zahlt aus (dedupliziert pro Quelle/Tag, Tagesdeckel); Betrag = Basis × Sauberkeit × Standort × Haustier-Mitleid |
+| **Betteln/Spendenlink** | Kap. 5/10/14 | Öffentlicher, erneuerbarer Spendenlink: jeder Klick Dritter zahlt aus (dedupliziert pro Quelle/Tag, Tagesdeckel); Betrag = Basis × Sauberkeit × Standort × Haustier-Mitleid × Bettelspot × Event |
+| **Verbrechen & Co.** | Kap. 5/6 | 6 gestaffelte Verbrechen (Geschick- + Unterkunfts-Gates, Strafen), Konzentrieren-Boost, Instrumente mit passivem 6-Std.-Einkommen, Bettelspots |
+| **Soziales & Banden** | Kap. 10/11 | Freunde/Blockliste, Postfach, Banden mit Kasse/Gebäuden/Rollen, Kriege, Bündnisse, Liga, Banden-Forum |
+| **Community & Meta** | Kap. 12–15 | Auszeichnungen + tägliche Rangpunkte, Urlaubsmodus, Live-Chat, Forum mit News-Feed, Premium-Konzept, Saison-Events |
 
 **Kern-Prinzip (Kap. 16, „Kritisch"):** Alle Timer und Belohnungen werden
 ausschließlich serverseitig berechnet. Fällige Trainings/Aktionen/Kämpfe werden
@@ -105,7 +108,34 @@ manuell gegen den laufenden Server zu fahren (curl/Playwright).
 - [x] **Phase 2 — Welt & Wirtschaft** (Stadtteile, Supermarkt/Waschhaus/Immobilien/Tierhandlung, Promille-/Sauberkeitssystem, Haustiere, dazu der Spendenlink aus Kap. 5 als Auszahlungskanal für Sauberkeit/Mitleid; nachgereicht: Verbrechen, Konzentrieren, Musikinstrumente, Bettelspots aus Kap. 5/6)
 - [x] **Phase 3 — Sozial & Wettbewerb** (Freundes-/Blockliste mit Online-Status, Postfach mit Archiv, Banden mit Kasse/Tageslimit/4 Gebäuden und Rollen, Banden-Highscore, Auszeichnungen in 4 Stufen mit täglichen Rangpunkten für die Top 7, Einstellungen mit Urlaubsmodus, Passwortwechsel und Auszeichnungs-Verschleierung)
 - [x] **Phase 4 — Endgame & Bindung** (Bandenkriege mit Punkte-/Zeitlimit und Siegprämie, Bündnisse, monatliche Bandenliga mit Auf-/Abstieg und Prämien, Haustier-Wettkämpfe mit Einsatz/Haltung und passwortgeschütztem Geldtransfer, Live-Chat mit Polling, globales Forum + Banden-Forum, News-Feed auf der Übersicht, Premium-Konzeptseite ohne Pay-to-Win)
-- [ ] Phase 5 — Wachstum (Mobile-Feinschliff, weitere Städte/Sprachen, Events)
+- [x] **Phase 5 — Wachstum** (datengetriebene Saison-Events mit Kurs-/Sammel-/Spenden-Multiplikatoren und Banner, Mobile-Feinschliff verifiziert ohne Horizontal-Overflow; weitere Städte/Sprachen als dokumentierter Ausbaupfad, s. u.)
+
+### Content-Umfang vs. MVP-Ziel (Kap. 19)
+
+| Kategorie | MVP-Ziel | Umgesetzt |
+|---|---|---|
+| Waffen | 6–8 | 6 |
+| Unterkünfte | 6–8 | 8 |
+| Instrumente | 4–5 | 5 |
+| Bettelspots | 4–5 | 4 |
+| Haustiere | 6–10 | 7 |
+| Stadtteile | 10–15 | 12 |
+| Städte/Sprachen | 1 | 1 (Deutsch) |
+
+Alle Inhalte sind Datenzeilen (`seedItems`/`seedDistricts` in `src/db.ts` bzw.
+`CRIMES`/`SEASONAL_EVENTS` in `src/config.ts`) — Erweiterung ohne neuen Code.
+
+### Ausbaupfade (bewusst offen)
+
+- **Weitere Städte:** `districts` bekommt eine `city_id` plus Städte-Tabelle;
+  Umzugslogik und Karte sind bereits faktor-/tier-getrieben.
+- **Sprachen:** Alle Texte liegen in Views/`config.ts`/Service-Meldungen —
+  Extraktion in ein Locale-Modul ist mechanisch.
+- **Chat-Upgrade:** Polling → WebSocket (z. B. socket.io) ist ein Transport-Tausch,
+  die Datenhaltung bleibt.
+- **Offen laut Konzept:** E-Mail-Verifizierung, Apotheke/Krankenversicherung,
+  Glücksspiele (Rubbellos/Lotto), Referral-Bonus beim Betteln, Melde-/Moderations-Queue,
+  echte Premium-Bezahlfunktion (aktuell Konzeptseite).
 
 ## Rechtliches (Kap. 21, fürs Launch-To-do)
 

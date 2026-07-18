@@ -92,6 +92,13 @@ h3 { font-size: 1rem; margin: 0.6rem 0 0.3rem; }
   .menu[open] > .dropdown { position: static; box-shadow: none; border: none; padding: 0.2rem 0 0.2rem 0.8rem; }
 }
 .chip.vacation { border-color: var(--blue); color: var(--blue); }
+.event-banner {
+  background: linear-gradient(90deg, rgba(240, 168, 50, 0.18), rgba(240, 168, 50, 0.05));
+  border-top: 1px solid var(--accent-dark);
+  padding: 0.35rem 1rem;
+  text-align: center;
+  font-size: 0.9rem;
+}
 .statusbar {
   max-width: 1000px;
   margin: 0 auto;

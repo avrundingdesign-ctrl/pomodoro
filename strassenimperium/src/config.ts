@@ -206,6 +206,44 @@ export const LEAGUES = [
 export const PET_STANCES = ["offensiv", "defensiv", "neutral"] as const;
 export type PetStance = (typeof PET_STANCES)[number];
 
+/**
+ * Saison-Events (Phase 5, Kap. 20): rein datengetrieben — Zeitfenster
+ * (MM-TT, jahresübergreifend erlaubt) plus Multiplikatoren auf Kurs,
+ * Sammelertrag und Spenden. Neue Events sind nur neue Einträge.
+ */
+export interface SeasonalEventDef {
+  key: string;
+  name: string;
+  blurb: string;
+  from: string; // "MM-TT"
+  to: string; // "MM-TT" (inklusive; darf über den Jahreswechsel gehen)
+  kursFactor: number;
+  collectFactor: number;
+  donationFactor: number;
+}
+export const SEASONAL_EVENTS: SeasonalEventDef[] = [
+  {
+    key: "pfandfestival",
+    name: "🍾 Flaschenpfand-Festival",
+    blurb: "Die Stadt feiert sich selbst — der Pfandkurs klettert um 50 %!",
+    from: "07-10",
+    to: "07-24",
+    kursFactor: 1.5,
+    collectFactor: 1,
+    donationFactor: 1,
+  },
+  {
+    key: "silvester",
+    name: "🎆 Silvester auf der Straße",
+    blurb: "Böller, Sektkorken, Spendierhosen: mehr Flaschen und großzügigere Spender.",
+    from: "12-27",
+    to: "01-02",
+    kursFactor: 1,
+    collectFactor: 1.25,
+    donationFactor: 1.5,
+  },
+];
+
 /** Globale Forums-Kategorien (Kap. 13). */
 export const FORUM_CATEGORIES: Record<string, { name: string; blurb: string }> = {
   ankuendigungen: {

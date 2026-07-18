@@ -22,6 +22,7 @@ import {
 import { addMoney, capacityFor, clampToCapacity } from "./money.js";
 import { effectiveStats, skillLevels } from "./stats.js";
 import { districtOf, getDistrict } from "./districts.js";
+import { eventFactors } from "./events.js";
 import { gangIncomeFactor, gangTrainingFactor } from "./gangs.js";
 import {
   applyPromilleDelta,
@@ -44,7 +45,8 @@ export function getUser(db: Db, id: number): UserRow | undefined {
 }
 
 export function kursToday(): number {
-  return kursCentsFor(new Date(now()));
+  // Saison-Events können den Tageskurs anheben (Phase 5).
+  return Math.round(kursCentsFor(new Date(now())) * eventFactors().kurs);
 }
 
 /** Laufende „körperliche" Aktion (Sammeln, Kampf oder Verbrechen) — max. eine zugleich. */

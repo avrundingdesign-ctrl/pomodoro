@@ -39,6 +39,15 @@ curl -s localhost:3210/uebersicht -H "Cookie: sid=…" | grep -o 'name="_csrf" v
 #   /aktionen/betteln/neuer-link
 # Öffentlich OHNE Login: GET /spende/<code> (Code steht in users.donation_code
 # bzw. auf /aktionen/betteln) — zahlt 1× pro Quelle/Tag aus.
+#
+# Phase 3/4:
+#   /bande/gruenden (name,password) · /beitreten · /kasse/einzahlen (betrag in €)
+#   /bande/kriege/erklaeren (name) — Kriegspunkte via gewonnene PvP-Kämpfe
+#   /kampf/haustier/erstellen (petId,einsatz,haltung,passwort) · /annehmen
+#   /nachrichten/neu (an,text) · /freunde/hinzufuegen (name,typ=friend|block)
+#   /chat/senden (text; Accept: application/json → JSON) · GET /chat/neu?seit=<id>
+#   /forum/rubrik/<cat>/neu (titel,text) · /forum/thema/<id>/antworten (text)
+#   /einstellungen/urlaub/start (tage) — blockt Angriffe in beide Richtungen
 ```
 
 Item-/Viertel-IDs für POSTs am schnellsten aus der DB holen

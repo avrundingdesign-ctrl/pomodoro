@@ -8,6 +8,7 @@ import { effectiveStats } from "./stats.js";
 import { districtOf } from "./districts.js";
 import { promilleOf } from "./promille.js";
 import { awardAchievements } from "./achievements.js";
+import { eventFactors } from "./events.js";
 import { gangIncomeFactor } from "./gangs.js";
 
 /**
@@ -29,7 +30,8 @@ export function donationAmountFor(db: Db, user: UserRow): number {
         cleanlinessFactor *
         district.factor *
         empathyFactor *
-        spotFactor,
+        spotFactor *
+        eventFactors().donation,
     ),
   );
 }

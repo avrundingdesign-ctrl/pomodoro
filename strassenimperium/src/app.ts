@@ -11,6 +11,7 @@ import { districtOf } from "./game/districts.js";
 import { fmtPromille, moodLabel, promilleOf } from "./game/promille.js";
 import { hashIp, recordDonationClick } from "./game/donation.js";
 import { unreadCount } from "./game/social.js";
+import { activeEvent } from "./game/events.js";
 import { fmtDateTime, fmtDuration, fmtMoney } from "./util.js";
 import { authRoutes } from "./routes/authRoutes.js";
 import { gameRoutes } from "./routes/gameRoutes.js";
@@ -56,6 +57,7 @@ export function createApp(db: Db): express.Express {
     res.locals.serverNow = now();
     res.locals.csrf = res.locals.session?.csrf ?? "";
     res.locals.flashes = [];
+    res.locals.seasonEvent = activeEvent();
     if (res.locals.user) {
       // Online-Status (Kap. 10): höchstens einmal pro Minute schreiben.
       const seen = res.locals.user as UserRow;

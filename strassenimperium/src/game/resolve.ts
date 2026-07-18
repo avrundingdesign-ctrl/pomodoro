@@ -6,6 +6,7 @@ import { collectYield, fightScores, lootAmount } from "./formulas.js";
 import { addMoney } from "./money.js";
 import { effectiveStats } from "./stats.js";
 import { districtOf } from "./districts.js";
+import { eventFactors } from "./events.js";
 import { fightFactor, promilleOf } from "./promille.js";
 import { awardAchievements, grantDailyRankPoints } from "./achievements.js";
 import { gangIncomeFactor } from "./gangs.js";
@@ -132,7 +133,10 @@ function resolveCollect(db: Db, action: ActionRow): void {
   if (!user) return;
   const stats = effectiveStats(db, action.user_id);
   const district = districtOf(db, user);
-  const bottles = collectYield(minutes, stats.skills.geschick, district.factor);
+  const bottles = Math.round(
+    collectYield(minutes, stats.skills.geschick, district.factor) *
+      eventFactors().collect,
+  );
   // Wühlen in Containern macht dreckig (Kap. 3: Sauberkeit sinkt beim Sammeln).
   const dirt = Math.max(1, Math.round((minutes / 60) * GAME.CLEANLINESS_LOSS_PER_HOUR));
   db.prepare(

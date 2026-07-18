@@ -19,6 +19,7 @@ import {
 } from "../game/donation.js";
 import { moodLabel, promilleOf } from "../game/promille.js";
 import { latestAnnouncements } from "../game/community.js";
+import { eventFactors } from "../game/events.js";
 import { fmtDuration, fmtMoney } from "../util.js";
 
 interface PendingAttackRow extends ActionRow {
@@ -179,8 +180,12 @@ export function gameRoutes(db: Db): Router {
     const action = svc.activePhysicalAction(db, user.id);
     const kurs = svc.kursToday();
     const district = districtOf(db, user);
+    const collectEventFactor = eventFactors().collect;
     const options = GAME.COLLECT_MINUTES.map((minutes) => {
-      const bottles = collectYield(minutes, stats.skills.geschick, district.factor);
+      const bottles = Math.round(
+        collectYield(minutes, stats.skills.geschick, district.factor) *
+          collectEventFactor,
+      );
       return {
         minutes,
         label: fmtDuration(minutes * 60_000),
