@@ -19,6 +19,8 @@ export interface UserRow {
   alcohol_pm: number;
   alcohol_at: number;
   donation_code: string;
+  music_collected_at: number;
+  last_concentrated_at: number;
 }
 
 export interface DistrictRow {
@@ -88,10 +90,19 @@ export interface ItemRow {
   empathy_bonus: number;
   promille_delta: number;
   min_district_tier: number | null;
+  income: number;
+  donation_bonus: number;
 }
 
 /** Kategorien, die man anlegt/aktiviert (genau 1 aktiv pro Kategorie). */
-export const EQUIP_CATEGORIES = ["weapon", "container", "home", "pet"] as const;
+export const EQUIP_CATEGORIES = [
+  "weapon",
+  "container",
+  "home",
+  "pet",
+  "instrument",
+  "spot",
+] as const;
 /** Kategorien, die man konsumiert (stapelbar, Menge im Inventar). */
 export const CONSUMABLE_CATEGORIES = ["drink", "food"] as const;
 
@@ -261,6 +272,10 @@ export function migrate(db: Db): void {
   ensureColumn(db, "items", "empathy_bonus", "INTEGER NOT NULL DEFAULT 0");
   ensureColumn(db, "items", "promille_delta", "REAL NOT NULL DEFAULT 0");
   ensureColumn(db, "items", "min_district_tier", "INTEGER");
+  ensureColumn(db, "items", "income", "INTEGER NOT NULL DEFAULT 0");
+  ensureColumn(db, "items", "donation_bonus", "INTEGER NOT NULL DEFAULT 0");
+  ensureColumn(db, "users", "music_collected_at", "INTEGER NOT NULL DEFAULT 0");
+  ensureColumn(db, "users", "last_concentrated_at", "INTEGER NOT NULL DEFAULT 0");
   db.exec(
     "UPDATE users SET donation_code = lower(hex(randomblob(8))) WHERE donation_code IS NULL",
   );
@@ -331,6 +346,25 @@ export function seedItems(db: Db): void {
     ["food_3", "food", "Erbseneintopf", 3, 0, 0, 0, 500, null, null, 0, -1.2, null],
   ];
   for (const row of items) insert.run(...row);
+
+  // Instrumente (passives Einkommen alle 6 Std., Kap. 6) & Bettelspots (Kap. 6).
+  const insertExtra = db.prepare(`
+    INSERT OR IGNORE INTO items
+      (key, category, name, tier, price, unlock_skill, unlock_level, income, donation_bonus)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+  `);
+  const extra: Array<[string, string, string, number, number, string, number, number, number]> = [
+    ["instr_1", "instrument", "Mundharmonika", 1, 600, "musik", 1, 60, 0],
+    ["instr_2", "instrument", "Blockflöte", 2, 1500, "musik", 2, 130, 0],
+    ["instr_3", "instrument", "Klampfe", 3, 4000, "musik", 3, 300, 0],
+    ["instr_4", "instrument", "Akkordeon", 4, 12000, "musik", 4, 800, 0],
+    ["instr_5", "instrument", "Drehleier", 5, 30000, "musik", 5, 1800, 0],
+    ["spot_1", "spot", "Fußgängerzone", 1, 1000, "bildung", 1, 0, 10],
+    ["spot_2", "spot", "U-Bahn-Eingang", 2, 3000, "bildung", 3, 0, 20],
+    ["spot_3", "spot", "Einkaufspassage", 3, 9000, "bildung", 5, 0, 35],
+    ["spot_4", "spot", "Domplatte", 4, 25000, "bildung", 8, 0, 50],
+  ];
+  for (const row of extra) insertExtra.run(...row);
   seedDistricts(db);
 }
 

@@ -1,0 +1,39 @@
+<%- include('partials/head', { title, active }) %>
+<h1>Konzentrieren</h1>
+<p class="muted">
+  Kurz sammeln, tief durchatmen: Ein Konzentrations-Schub verkürzt alle gerade
+  laufenden Weiterbildungen sofort um <strong><%= boostPercent %> %</strong> der
+  Restzeit (10 % je Konzentrations-Stufe).
+  <% if (!combinable) { %>
+    Ab Stufe <%= combinableAt %> klappt das sogar, während du unterwegs bist.
+  <% } else { %>
+    Deine Stufe erlaubt das sogar nebenbei — mitten im Sammeln oder Kampf.
+  <% } %>
+</p>
+
+<section class="card">
+  <% if (level < 1) { %>
+    <p class="muted">Du brauchst zuerst die Weiterbildung
+      <a href="/weiterbildung">„Konzentration“ (Stufe 1)</a>.</p>
+  <% } else if (running.length === 0) { %>
+    <p class="muted">Gerade läuft keine Weiterbildung. <a href="/weiterbildung">Starte erst eine</a>, dann lohnt sich das Konzentrieren.</p>
+  <% } else { %>
+    <h2>Laufende Weiterbildungen</h2>
+    <ul class="timers">
+      <% for (const t of running) { %>
+        <li>📖 <strong><%= skillInfo[t.skill_type].name %></strong> auf Stufe <%= t.target_level %> —
+          fertig in <span class="countdown" data-ends="<%= t.ends_at %>">…</span></li>
+      <% } %>
+    </ul>
+    <% if (readyAt) { %>
+      <p class="muted">Dein Kopf raucht noch: nächster Schub möglich in
+        <span class="countdown" data-ends="<%= readyAt %>">…</span>.</p>
+    <% } else { %>
+      <form method="post" action="/aktionen/konzentrieren">
+        <input type="hidden" name="_csrf" value="<%= csrf %>">
+        <button class="btn btn-primary" type="submit">Jetzt konzentrieren (−<%= boostPercent %> % Restzeit)</button>
+      </form>
+    <% } %>
+  <% } %>
+</section>
+<%- include('partials/foot') %>

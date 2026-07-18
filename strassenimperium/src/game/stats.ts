@@ -44,6 +44,8 @@ export interface EffectiveStats {
   container: ItemRow | null;
   home: ItemRow | null;
   pet: ItemRow | null;
+  instrument: ItemRow | null;
+  spot: ItemRow | null;
   attEff: number;
   defEff: number;
   capacity: number;
@@ -59,12 +61,16 @@ export function effectiveStats(db: Db, userId: number): EffectiveStats {
   const container = activeContainer(db, userId);
   const home = activeItemOf(db, userId, "home");
   const pet = activeItemOf(db, userId, "pet");
+  const instrument = activeItemOf(db, userId, "instrument");
+  const spot = activeItemOf(db, userId, "spot");
   return {
     skills,
     weapon,
     container,
     home,
     pet,
+    instrument,
+    spot,
     attEff: skills.angriff + (weapon?.att_bonus ?? 0) + (pet?.att_bonus ?? 0),
     defEff:
       skills.verteidigung +

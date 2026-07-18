@@ -80,8 +80,20 @@ export interface Flash {
 }
 
 export function setFlash(db: Db, token: string, flash: Flash): void {
+  const row = db
+    .prepare("SELECT flash FROM sessions WHERE token = ?")
+    .get(token) as unknown as { flash: string | null } | undefined;
+  let flashes: Flash[] = [];
+  if (row?.flash) {
+    try {
+      flashes = JSON.parse(row.flash) as Flash[];
+    } catch {
+      flashes = [];
+    }
+  }
+  flashes.push(flash);
   db.prepare("UPDATE sessions SET flash = ? WHERE token = ?").run(
-    JSON.stringify([flash]),
+    JSON.stringify(flashes.slice(-3)),
     token,
   );
 }

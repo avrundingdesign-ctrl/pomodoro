@@ -1,7 +1,7 @@
 import { Router, type Response } from "express";
 import type { Db, ItemRow, UserRow } from "../db.js";
 import { requireAuth, setFlash } from "../auth.js";
-import { SKILL_INFO, type SkillType } from "../config.js";
+import { GAME, SKILL_INFO, type SkillType } from "../config.js";
 import { districtOf, listDistricts } from "../game/districts.js";
 import { skillLevels } from "../game/stats.js";
 import * as svc from "../game/svc.js";
@@ -40,6 +40,10 @@ function effectText(item: ItemRow): string {
       return `+${item.promille_delta.toLocaleString("de-DE")} ‰`;
     case "food":
       return `${item.promille_delta.toLocaleString("de-DE")} ‰`;
+    case "instrument":
+      return `+${fmtMoney(item.income)} alle ${GAME.MUSIC_PAYOUT_HOURS} Std.`;
+    case "spot":
+      return `+${item.donation_bonus} % Spenden`;
     default:
       return "";
   }
@@ -196,6 +200,28 @@ export function stadtRoutes(db: Db): Router {
     });
   });
 
+  r.get("/stadt/musikladen", (req, res) => {
+    renderShop(db, res, {
+      path: "/stadt/musikladen",
+      title: "Musikladen",
+      blurb:
+        "Straßenmusik zahlt sich aus: Das aktive Instrument bringt alle 6 Stunden Geld — auch während du offline bist.",
+      categories: ["instrument"],
+      hint: "Freischaltung über den Musik-Skill. Es zählt das aktivierte Instrument.",
+    });
+  });
+
+  r.get("/stadt/bettelspots", (req, res) => {
+    renderShop(db, res, {
+      path: "/stadt/bettelspots",
+      title: "Bettelspots",
+      blurb:
+        "Die richtige Ecke macht den Unterschied: Ein aktiver Bettelspot erhöht jede Spende über deinen Spendenlink.",
+      categories: ["spot"],
+      hint: "Freischaltung über die Bildungsstufe — wer lesen kann, findet die besten Plätze.",
+    });
+  });
+
   r.post("/stadt/kaufen", (req, res) => {
     const user = res.locals.user as UserRow;
     const body = req.body as any;
@@ -211,6 +237,8 @@ export function stadtRoutes(db: Db): Router {
       "/stadt/immobilien",
       "/stadt/tierhandlung",
       "/stadt/zubehoer",
+      "/stadt/musikladen",
+      "/stadt/bettelspots",
     ];
     res.redirect(allowed.includes(back) ? back : "/stadt");
   });

@@ -3,6 +3,7 @@
 <p class="muted">
   Trainings laufen im Hintergrund weiter — auch wenn du ausgeloggt bist.
   <strong><%= slotsFree %></strong> von <%= GAME.MAX_PARALLEL_TRAININGS %> Trainingsplätzen frei.
+  Mit <a href="/aktionen/konzentrieren">Konzentrieren</a> verkürzt du laufende Trainings.
 </p>
 
 <% if (trainings.length > 0) { %>
@@ -30,7 +31,7 @@
             <td><strong><%= o.name %></strong></td>
             <td><%= o.level %></td>
             <td class="muted"><%= o.effect %></td>
-            <td>Stufe <%= o.target %>: <%= fmtMoney(o.cost) %>, <%= fmtDuration(o.durationMs) %></td>
+            <td><%= o.maxed ? '—' : `Stufe ${o.target}: ${fmtMoney(o.cost)}, ${fmtDuration(o.durationMs)}` %></td>
             <td>
               <% if (o.blocked) { %>
                 <span class="badge"><%= o.blocked %></span>

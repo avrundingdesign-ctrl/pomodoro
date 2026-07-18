@@ -35,6 +35,10 @@ function ownedEffectText(item: ItemRow): string {
       return `+${item.promille_delta.toLocaleString("de-DE")} ‰`;
     case "food":
       return `${item.promille_delta.toLocaleString("de-DE")} ‰`;
+    case "instrument":
+      return `+${fmtMoney(item.income)} alle ${GAME.MUSIC_PAYOUT_HOURS} Std.`;
+    case "spot":
+      return `+${item.donation_bonus} % Spenden`;
     default:
       return "";
   }

@@ -107,16 +107,73 @@ export const GAME = {
   DONATION_DAILY_CAP: 50,
 
   // --------------------------------------------------- Phase 2: Skill-Stufenlimits
-  /** Stufenlimits (Kap. 4): Sozialkontakte ist gedeckelt, Kampfskills nicht. */
-  SKILL_MAX_LEVEL: { sozial: 10 } as Partial<Record<string, number>>,
+  /** Stufenlimits (Kap. 4): Nebenskills sind gedeckelt, Kampfskills nicht. */
+  SKILL_MAX_LEVEL: {
+    sozial: 10,
+    bildung: 8,
+    musik: 5,
+    konzentration: 4,
+  } as Partial<Record<string, number>>,
+
+  // ------------------------------------------------ Schritt A: Konzentrieren (Kap. 5)
+  /** Beschleunigung laufender Weiterbildungen pro Konzentrations-Stufe. */
+  KONZ_BOOST_PER_LEVEL: 0.1,
+  /** Cooldown zwischen zwei Konzentrations-Schüben (Stunden). */
+  KONZ_COOLDOWN_HOURS: 6,
+  /** Ab dieser Stufe auch während Sammeln/Kampf nutzbar (Kap. 5). */
+  KONZ_COMBINABLE_AT: 3,
+
+  // ---------------------------------------------- Schritt A: Straßenmusik (Kap. 4/6)
+  /** Instrumente zahlen alle 6 Stunden aus (Kap. 6). */
+  MUSIC_PAYOUT_HOURS: 6,
 } as const;
 
-export type SkillType = "angriff" | "verteidigung" | "geschick" | "sozial";
+/**
+ * Verbrechen (Kap. 5): gestaffelt von klein bis groß. Höhere Stufen erfordern
+ * mehr Geschick UND eine teurere Unterkunft; die Strafe bei Fehlschlag wächst
+ * mit der Verbrechensgröße. Erfolgschance steigt mit überschüssigem Geschick.
+ */
+export interface CrimeDef {
+  key: string;
+  name: string;
+  minGeschick: number;
+  /** Mindest-Stufe der AKTIVEN Unterkunft („teurer Wohnort"). 0 = egal. */
+  minHomeTier: number;
+  minutes: number;
+  baseChance: number;
+  lootMin: number;
+  lootMax: number;
+  fine: number;
+}
+export const CRIMES: CrimeDef[] = [
+  { key: "automat", name: "Kaugummiautomat knacken", minGeschick: 1, minHomeTier: 0, minutes: 15, baseChance: 0.75, lootMin: 150, lootMax: 400, fine: 200 },
+  { key: "lieferwagen", name: "Lieferwagen „entladen“", minGeschick: 3, minHomeTier: 0, minutes: 30, baseChance: 0.65, lootMin: 500, lootMax: 1200, fine: 600 },
+  { key: "kiosk", name: "Kiosk-Kasse „ausleihen“", minGeschick: 6, minHomeTier: 2, minutes: 60, baseChance: 0.55, lootMin: 1500, lootMax: 4000, fine: 2000 },
+  { key: "buero", name: "Büro-Einbruch", minGeschick: 10, minHomeTier: 3, minutes: 120, baseChance: 0.45, lootMin: 5000, lootMax: 12000, fine: 6000 },
+  { key: "juwelier", name: "Juwelier ausräumen", minGeschick: 15, minHomeTier: 5, minutes: 240, baseChance: 0.35, lootMin: 15000, lootMax: 40000, fine: 20000 },
+  { key: "bank", name: "Bank überfallen", minGeschick: 22, minHomeTier: 6, minutes: 480, baseChance: 0.25, lootMin: 60000, lootMax: 150000, fine: 80000 },
+];
+/** Zusätzliche Erfolgschance pro Geschick-Stufe über der Anforderung. */
+export const CRIME_SKILL_BONUS = 0.02;
+/** Obergrenze der Erfolgschance. */
+export const CRIME_MAX_CHANCE = 0.9;
+
+export type SkillType =
+  | "angriff"
+  | "verteidigung"
+  | "geschick"
+  | "sozial"
+  | "bildung"
+  | "musik"
+  | "konzentration";
 export const SKILL_TYPES: SkillType[] = [
   "angriff",
   "verteidigung",
   "geschick",
   "sozial",
+  "bildung",
+  "musik",
+  "konzentration",
 ];
 
 export const SKILL_INFO: Record<
@@ -140,5 +197,18 @@ export const SKILL_INFO: Record<
   sozial: {
     name: "Sozialkontakte",
     effect: "Schaltet Haustiere frei (max. Stufe 10).",
+  },
+  bildung: {
+    name: "Bildungsstufe",
+    effect: "Schaltet Bettelspots frei — bessere Standorte, mehr Spenden (max. Stufe 8).",
+  },
+  musik: {
+    name: "Musik",
+    effect: "Schaltet Instrumente frei — passives Einkommen alle 6 Stunden (max. Stufe 5).",
+  },
+  konzentration: {
+    name: "Konzentration",
+    effect:
+      "Schaltet „Konzentrieren“ frei: beschleunigt laufende Weiterbildungen, ab Stufe 3 sogar nebenbei (max. Stufe 4).",
   },
 };

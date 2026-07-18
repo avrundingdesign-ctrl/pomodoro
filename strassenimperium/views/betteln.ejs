@@ -30,6 +30,7 @@
       <tr><th>Sauberkeit</th><td><%= breakdown.cleanliness %> % <span class="muted">→ ×<%= breakdown.cleanlinessFactor.toLocaleString('de-DE', {maximumFractionDigits: 2}) %></span> <a href="/stadt/waschhaus">→ Waschhaus</a></td></tr>
       <tr><th>Standort</th><td><%= breakdown.district.name %> <span class="muted">→ ×<%= breakdown.district.factor.toLocaleString('de-DE') %></span></td></tr>
       <tr><th>Haustier</th><td><%= breakdown.pet ? `${breakdown.pet.name} (Mitleid +${breakdown.pet.empathy_bonus})` : 'keins' %> <span class="muted">→ ×<%= breakdown.empathyFactor.toLocaleString('de-DE', {maximumFractionDigits: 2}) %></span></td></tr>
+      <tr><th>Bettelspot</th><td><%= breakdown.spot ? breakdown.spot.name : 'keiner' %> <span class="muted">→ ×<%= breakdown.spotFactor.toLocaleString('de-DE', {maximumFractionDigits: 2}) %></span> <a href="/stadt/bettelspots">→ Spots</a></td></tr>
       <tr><th><strong>Pro Klick</strong></th><td><strong><%= fmtMoney(breakdown.perClick) %></strong></td></tr>
     </table>
   </section>

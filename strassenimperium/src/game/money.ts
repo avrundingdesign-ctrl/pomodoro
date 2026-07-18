@@ -37,7 +37,9 @@ export function addMoney(db: Db, userId: number, amount: number): AddMoneyResult
     .prepare("SELECT money FROM users WHERE id = ?")
     .get(userId) as unknown as Pick<UserRow, "money">;
   const cap = capacityFor(db, userId);
-  const target = Math.min(cap, user.money + amount);
+  // Nie reduzieren: Läge der Kontostand (durch was auch immer) über der
+  // Kapazität, verfällt nur der Neuzugang — Bestand bleibt unangetastet.
+  const target = Math.max(user.money, Math.min(cap, user.money + amount));
   const added = Math.max(0, target - user.money);
   const lost = Math.max(0, amount - added);
   db.prepare("UPDATE users SET money = ? WHERE id = ?").run(target, userId);

@@ -1,7 +1,7 @@
 import type { ActionRow, Db, TrainingRow, UserRow } from "../db.js";
 import { withTx } from "../db.js";
 import { now } from "../clock.js";
-import { GAME } from "../config.js";
+import { CRIME_MAX_CHANCE, CRIME_SKILL_BONUS, CRIMES, GAME } from "../config.js";
 import { collectYield, fightScores, lootAmount } from "./formulas.js";
 import { addMoney } from "./money.js";
 import { effectiveStats } from "./stats.js";
@@ -70,7 +70,45 @@ function resolveAction(db: Db, action: ActionRow): void {
     if (claimed.changes === 0) return;
     if (action.type === "sammeln") resolveCollect(db, action);
     else if (action.type === "kampf") resolveFight(db, action);
+    else if (action.type === "verbrechen") resolveCrime(db, action);
   });
+}
+
+function resolveCrime(db: Db, action: ActionRow): void {
+  const payload = JSON.parse(action.payload ?? "{}") as { key?: string };
+  const crime = CRIMES.find((c) => c.key === payload.key);
+  const user = db
+    .prepare("SELECT * FROM users WHERE id = ?")
+    .get(action.user_id) as unknown as UserRow | undefined;
+  if (!crime || !user) {
+    db.prepare("UPDATE actions SET result = ? WHERE id = ?").run(
+      JSON.stringify({ cancelled: true }),
+      action.id,
+    );
+    return;
+  }
+  const geschick = effectiveStats(db, user.id).skills.geschick;
+  const chance = Math.min(
+    CRIME_MAX_CHANCE,
+    crime.baseChance + CRIME_SKILL_BONUS * Math.max(0, geschick - crime.minGeschick),
+  );
+  if (Math.random() < chance) {
+    const loot =
+      crime.lootMin + Math.floor(Math.random() * (crime.lootMax - crime.lootMin + 1));
+    const result = addMoney(db, user.id, loot);
+    db.prepare("UPDATE actions SET result = ? WHERE id = ?").run(
+      JSON.stringify({ success: true, loot, kept: result.added, lost: result.lost }),
+      action.id,
+    );
+  } else {
+    // Erwischt: Strafe wächst mit der Verbrechensgröße (Kap. 5).
+    const fine = Math.min(user.money, crime.fine);
+    db.prepare("UPDATE users SET money = money - ? WHERE id = ?").run(fine, user.id);
+    db.prepare("UPDATE actions SET result = ? WHERE id = ?").run(
+      JSON.stringify({ success: false, fine }),
+      action.id,
+    );
+  }
 }
 
 function resolveCollect(db: Db, action: ActionRow): void {

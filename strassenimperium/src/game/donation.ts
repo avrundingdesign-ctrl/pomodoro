@@ -19,10 +19,15 @@ export function donationAmountFor(db: Db, user: UserRow): number {
   const district = districtOf(db, user);
   const cleanlinessFactor = 0.4 + 0.012 * user.cleanliness; // 0,4–1,6
   const empathyFactor = 1 + 0.04 * (stats.pet?.empathy_bonus ?? 0);
+  const spotFactor = 1 + (stats.spot?.donation_bonus ?? 0) / 100;
   return Math.max(
     1,
     Math.round(
-      GAME.DONATION_BASE_CENTS * cleanlinessFactor * district.factor * empathyFactor,
+      GAME.DONATION_BASE_CENTS *
+        cleanlinessFactor *
+        district.factor *
+        empathyFactor *
+        spotFactor,
     ),
   );
 }
@@ -107,6 +112,8 @@ export function donationBreakdown(db: Db, user: UserRow) {
     district,
     pet: stats.pet,
     empathyFactor: 1 + 0.04 * (stats.pet?.empathy_bonus ?? 0),
+    spot: stats.spot,
+    spotFactor: 1 + (stats.spot?.donation_bonus ?? 0) / 100,
     perClick: donationAmountFor(db, user),
     promille: promilleOf(user),
   };

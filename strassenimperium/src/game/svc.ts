@@ -1,7 +1,18 @@
 import type { ActionRow, Db, InventoryRow, ItemRow, UserRow } from "../db.js";
 import { CONSUMABLE_CATEGORIES, withTx } from "../db.js";
 import { now } from "../clock.js";
-import { GAME, SKILL_INFO, SKILL_TYPES, scaledMs, type SkillType } from "../config.js";
+import {
+  CRIME_MAX_CHANCE,
+  CRIME_SKILL_BONUS,
+  CRIMES,
+  GAME,
+  SKILL_INFO,
+  SKILL_TYPES,
+  TIME_SCALE,
+  scaledMs,
+  type CrimeDef,
+  type SkillType,
+} from "../config.js";
 import {
   attackRange,
   kursCentsFor,
@@ -9,7 +20,7 @@ import {
   trainingDurationMinutes,
 } from "./formulas.js";
 import { addMoney, capacityFor, clampToCapacity } from "./money.js";
-import { skillLevels } from "./stats.js";
+import { effectiveStats, skillLevels } from "./stats.js";
 import { districtOf, getDistrict } from "./districts.js";
 import {
   applyPromilleDelta,
@@ -35,12 +46,13 @@ export function kursToday(): number {
   return kursCentsFor(new Date(now()));
 }
 
-/** Laufende „körperliche" Aktion (Sammeln oder Kampf) — max. eine zugleich. */
+/** Laufende „körperliche" Aktion (Sammeln, Kampf oder Verbrechen) — max. eine zugleich. */
 export function activePhysicalAction(db: Db, userId: number): ActionRow | null {
   const row = db
     .prepare(
       `SELECT * FROM actions
-       WHERE user_id = ? AND resolved_at IS NULL AND type IN ('sammeln','kampf')
+       WHERE user_id = ? AND resolved_at IS NULL
+         AND type IN ('sammeln','kampf','verbrechen')
        ORDER BY ends_at ASC LIMIT 1`,
     )
     .get(userId) as unknown as ActionRow | undefined;
@@ -123,7 +135,9 @@ export function startCollect(db: Db, userId: number, minutesRaw: unknown): Res {
       return err(
         busy.type === "sammeln"
           ? "Du bist schon unterwegs und sammelst."
-          : "Du bist gerade in einen Kampf verwickelt.",
+          : busy.type === "verbrechen"
+            ? "Du drehst gerade ein anderes Ding."
+            : "Du bist gerade in einen Kampf verwickelt.",
       );
     }
     const durationMs = scaledMs(minutes * 60_000);
@@ -204,7 +218,9 @@ export function startAttack(db: Db, attackerId: number, defenderIdRaw: unknown):
       return err(
         busy.type === "sammeln"
           ? "Du bist gerade unterwegs und sammelst — erst zurückkommen, dann prügeln."
-          : "Du bist bereits in einen Kampf verwickelt.",
+          : busy.type === "verbrechen"
+            ? "Du drehst gerade ein Ding — erst die Finger frei kriegen."
+            : "Du bist bereits in einen Kampf verwickelt.",
       );
     }
     const check = canAttack(db, attacker, defender);
@@ -296,6 +312,13 @@ export function buyItem(db: Db, userId: number, itemIdRaw: unknown): Res {
       `INSERT INTO inventory (user_id, item_id, is_active, acquired_at, quantity)
        VALUES (?, ?, ?, ?, 1)`,
     ).run(userId, itemId, hasActiveSameCategory ? 0 : 1, now());
+    if (!hasActiveSameCategory && item.category === "instrument") {
+      // Auto-Aktivierung beim Kauf: Straßenmusik-Uhr sofort starten.
+      db.prepare("UPDATE users SET music_collected_at = ? WHERE id = ?").run(
+        now(),
+        userId,
+      );
+    }
     return ok(
       `„${item.name}" gekauft${hasActiveSameCategory ? " (liegt im Inventar — noch aktivieren!)" : " und direkt angelegt"}.`,
     );
@@ -332,6 +355,13 @@ export function activateItem(db: Db, userId: number, invIdRaw: unknown): Res {
        WHERE user_id = ? AND item_id IN (SELECT id FROM items WHERE category = ?)`,
     ).run(userId, entry.category);
     db.prepare("UPDATE inventory SET is_active = 1 WHERE id = ?").run(invId);
+    if (entry.category === "instrument") {
+      // Die Straßenmusik-Uhr startet mit der Aktivierung.
+      db.prepare("UPDATE users SET music_collected_at = ? WHERE id = ?").run(
+        now(),
+        userId,
+      );
+    }
     let msg = `„${entry.name}" aktiviert.`;
     if (entry.category === "container") {
       const lost = clampToCapacity(db, userId);
@@ -366,6 +396,139 @@ export function sellInventoryItem(db: Db, userId: number, invIdRaw: unknown): Re
       msg += ` Dabei gingen ${fmtMoney(lostByCapacity + result.lost)} verloren, weil dein Behälter zu klein ist!`;
     }
     return ok(msg);
+  });
+}
+
+// ------------------------------------------------------ Schritt A: Verbrechen
+
+export function crimeByKey(key: unknown): CrimeDef | undefined {
+  return CRIMES.find((c) => c.key === String(key));
+}
+
+/** Erfolgschance eines Verbrechens für einen Geschick-Wert (Kap. 5). */
+export function crimeChance(crime: CrimeDef, geschick: number): number {
+  return Math.min(
+    CRIME_MAX_CHANCE,
+    crime.baseChance + CRIME_SKILL_BONUS * Math.max(0, geschick - crime.minGeschick),
+  );
+}
+
+export function crimeRequirementCheck(
+  db: Db,
+  userId: number,
+  crime: CrimeDef,
+): Res {
+  const stats = effectiveStats(db, userId);
+  if (stats.skills.geschick < crime.minGeschick) {
+    return err(`Dafür brauchst du Geschicklichkeit ${crime.minGeschick}.`);
+  }
+  if (crime.minHomeTier > 0 && (stats.home?.tier ?? 0) < crime.minHomeTier) {
+    return err(
+      `Für diesen Coup brauchst du eine Unterkunft ab Stufe ${crime.minHomeTier} — Hehler verhandeln nur mit Leuten mit fester Adresse.`,
+    );
+  }
+  return ok("");
+}
+
+export function startCrime(db: Db, userId: number, keyRaw: unknown): Res {
+  const crime = crimeByKey(keyRaw);
+  if (!crime) return err("Dieses Verbrechen kennt hier niemand.");
+  return withTx(db, () => {
+    const busy = activePhysicalAction(db, userId);
+    if (busy) return err("Du bist gerade anderweitig unterwegs.");
+    const check = crimeRequirementCheck(db, userId, crime);
+    if (!check.ok) return check;
+    const durationMs = scaledMs(crime.minutes * 60_000);
+    db.prepare(
+      `INSERT INTO actions (user_id, type, payload, started_at, ends_at)
+       VALUES (?, 'verbrechen', ?, ?, ?)`,
+    ).run(userId, JSON.stringify({ key: crime.key }), now(), now() + durationMs);
+    return ok(
+      `Du ziehst los: „${crime.name}“ — Ergebnis in ${fmtDuration(durationMs)}. Halt die Ohren steif.`,
+    );
+  });
+}
+
+// --------------------------------------------------- Schritt A: Konzentrieren
+
+export function concentrate(db: Db, userId: number): Res {
+  return withTx(db, () => {
+    const level = skillLevels(db, userId).konzentration;
+    if (level < 1) {
+      return err("Dafür brauchst du die Weiterbildung „Konzentration“ (Stufe 1).");
+    }
+    const user = getUser(db, userId)!;
+    const cooldownMs = scaledMs(GAME.KONZ_COOLDOWN_HOURS * 3_600_000);
+    const readyAt = user.last_concentrated_at + cooldownMs;
+    if (readyAt > now()) {
+      return err("Dein Kopf raucht noch — Konzentrieren geht erst wieder später.");
+    }
+    if (level < GAME.KONZ_COMBINABLE_AT && activePhysicalAction(db, userId)) {
+      return err(
+        `Unterwegs kannst du dich noch nicht konzentrieren — das klappt erst ab Konzentration ${GAME.KONZ_COMBINABLE_AT}.`,
+      );
+    }
+    const running = db
+      .prepare(
+        "SELECT id, ends_at FROM trainings WHERE user_id = ? AND resolved_at IS NULL AND ends_at > ?",
+      )
+      .all(userId, now()) as unknown as Array<{ id: number; ends_at: number }>;
+    if (running.length === 0) {
+      return err("Es läuft gerade keine Weiterbildung, die du beschleunigen könntest.");
+    }
+    const factor = GAME.KONZ_BOOST_PER_LEVEL * level;
+    for (const t of running) {
+      const remaining = t.ends_at - now();
+      db.prepare("UPDATE trainings SET ends_at = ends_at - ? WHERE id = ?").run(
+        Math.floor(remaining * factor),
+        t.id,
+      );
+    }
+    db.prepare("UPDATE users SET last_concentrated_at = ? WHERE id = ?").run(
+      now(),
+      userId,
+    );
+    return ok(
+      `Tief durchgeatmet und konzentriert: ${running.length} Weiterbildung${running.length > 1 ? "en" : ""} um ${Math.round(factor * 100)} % verkürzt.`,
+    );
+  });
+}
+
+// -------------------------------------------------- Schritt A: Straßenmusik
+
+/**
+ * Passives Instrument-Einkommen (Kap. 6): alle 6 Stunden ein „Auftritt".
+ * Lazy beim Seitenaufruf des Besitzers abgerechnet — auch offline
+ * angesammelte Perioden werden nachgezahlt.
+ */
+export function collectMusicIncome(
+  db: Db,
+  userId: number,
+): { periods: number; added: number; lost: number } | null {
+  return withTx(db, () => {
+    const user = getUser(db, userId)!;
+    const stats = effectiveStats(db, userId);
+    if (!stats.instrument || stats.instrument.income <= 0) return null;
+    const periodRealMs = Math.max(
+      1000,
+      Math.round((GAME.MUSIC_PAYOUT_HOURS * 3_600_000) / TIME_SCALE),
+    );
+    if (user.music_collected_at <= 0) {
+      db.prepare("UPDATE users SET music_collected_at = ? WHERE id = ?").run(
+        now(),
+        userId,
+      );
+      return null;
+    }
+    const periods = Math.floor((now() - user.music_collected_at) / periodRealMs);
+    if (periods < 1) return null;
+    const gross = periods * stats.instrument.income;
+    const result = addMoney(db, userId, gross);
+    db.prepare("UPDATE users SET music_collected_at = music_collected_at + ? WHERE id = ?").run(
+      periods * periodRealMs,
+      userId,
+    );
+    return { periods, added: result.added, lost: result.lost };
   });
 }
 

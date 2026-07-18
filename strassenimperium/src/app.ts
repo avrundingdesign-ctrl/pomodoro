@@ -3,10 +3,10 @@ import type { Db, UserRow } from "./db.js";
 import { PUBLIC_DIR, VIEWS_DIR } from "./paths.js";
 import { GAME, TIME_SCALE } from "./config.js";
 import { now } from "./clock.js";
-import { attachSession, csrfProtect, takeFlashes } from "./auth.js";
+import { attachSession, csrfProtect, setFlash, takeFlashes } from "./auth.js";
 import { resolveAllDue } from "./game/resolve.js";
 import { effectiveStats, rankOf } from "./game/stats.js";
-import { kursToday } from "./game/svc.js";
+import { collectMusicIncome, kursToday } from "./game/svc.js";
 import { districtOf } from "./game/districts.js";
 import { fmtPromille, moodLabel, promilleOf } from "./game/promille.js";
 import { hashIp, recordDonationClick } from "./game/donation.js";
@@ -52,6 +52,13 @@ export function createApp(db: Db): express.Express {
     res.locals.csrf = res.locals.session?.csrf ?? "";
     res.locals.flashes = [];
     if (res.locals.user) {
+      // Straßenmusik-Einnahmen lazy abrechnen, bevor Status & Flashes gelesen werden.
+      const music = collectMusicIncome(db, (res.locals.user as UserRow).id);
+      if (music && music.periods > 0 && res.locals.session) {
+        let msg = `🎶 Straßenmusik: ${music.periods} Auftritt${music.periods > 1 ? "e" : ""}, +${fmtMoney(music.added)}.`;
+        if (music.lost > 0) msg += ` ${fmtMoney(music.lost)} passten nicht in deinen Behälter!`;
+        setFlash(db, res.locals.session.token, { type: "ok", msg });
+      }
       const fresh = db
         .prepare("SELECT * FROM users WHERE id = ?")
         .get((res.locals.user as UserRow).id) as unknown as UserRow;

@@ -1,7 +1,8 @@
 import { Router } from "express";
 import type { ActionRow, Db, UserRow } from "../db.js";
 import { requireAuth, setFlash } from "../auth.js";
-import { GAME, SKILL_INFO, SKILL_TYPES, scaledMs } from "../config.js";
+import { CRIMES, GAME, SKILL_INFO, SKILL_TYPES, scaledMs } from "../config.js";
+import { now as nowMs } from "../clock.js";
 import {
   collectYield,
   trainingCost,
@@ -17,7 +18,7 @@ import {
   renewDonationCode,
 } from "../game/donation.js";
 import { moodLabel, promilleOf } from "../game/promille.js";
-import { fmtDuration } from "../util.js";
+import { fmtDuration, fmtMoney } from "../util.js";
 
 interface PendingAttackRow extends ActionRow {
   defender_name: string | null;
@@ -42,11 +43,11 @@ export function gameRoutes(db: Db): Router {
         ? svc.incomingAttacks(db, user.id)
         : null;
 
-    // Letzte Ereignisse: aufgelöste Sammelaktionen + Kämpfe, gemischt.
+    // Letzte Ereignisse: aufgelöste Sammel-/Verbrechensaktionen + Kämpfe, gemischt.
     const recentActions = db
       .prepare(
         `SELECT * FROM actions
-         WHERE user_id = ? AND resolved_at IS NOT NULL AND type = 'sammeln'
+         WHERE user_id = ? AND resolved_at IS NOT NULL AND type IN ('sammeln', 'verbrechen')
          ORDER BY resolved_at DESC LIMIT 4`,
       )
       .all(user.id) as unknown as ActionRow[];
@@ -61,11 +62,38 @@ export function gameRoutes(db: Db): Router {
       )
       .all(user.id, user.id) as unknown as FightRowNamed[];
     const events: LogEntry[] = [
-      ...recentActions.map((a) => {
+      ...recentActions.map((a): LogEntry => {
+        const ts = a.resolved_at ?? a.ends_at;
+        if (a.type === "verbrechen") {
+          const r = JSON.parse(a.result ?? "{}") as {
+            success?: boolean;
+            kept?: number;
+            lost?: number;
+            fine?: number;
+          };
+          const payload = JSON.parse(a.payload ?? "{}") as { key?: string };
+          const name = CRIMES.find((c) => c.key === payload.key)?.name ?? "Verbrechen";
+          if (r.success) {
+            const overflow =
+              (r.lost ?? 0) > 0
+                ? ` (${fmtMoney(r.lost ?? 0)} passten nicht in den Behälter)`
+                : "";
+            return {
+              ts,
+              cls: "win",
+              text: `„${name}“ geglückt: +${fmtMoney(r.kept ?? 0)}${overflow}.`,
+            };
+          }
+          return {
+            ts,
+            cls: "loss",
+            text: `„${name}“ ging schief — erwischt! Strafe: ${fmtMoney(r.fine ?? 0)}.`,
+          };
+        }
         const result = JSON.parse(a.result ?? "{}") as { bottles?: number; minutes?: number };
         return {
-          ts: a.resolved_at ?? a.ends_at,
-          cls: "draw" as const,
+          ts,
+          cls: "draw",
           text: `Sammeln (${fmtDuration((result.minutes ?? 0) * 60_000)}): ${result.bottles ?? 0} Pfandflaschen mitgebracht.`,
         };
       }),
@@ -100,11 +128,14 @@ export function gameRoutes(db: Db): Router {
     const offers = SKILL_TYPES.map((type) => {
       const level = stats.skills[type];
       const target = level + 1;
+      const maxLevel = GAME.SKILL_MAX_LEVEL[type];
+      const maxed = maxLevel !== undefined && target > maxLevel;
       const cost = trainingCost(target);
       const durationMs = scaledMs(trainingDurationMinutes(target) * 60_000);
       const alreadyRunning = trainings.some((t) => t.skill_type === type);
       let blocked: string | null = null;
-      if (alreadyRunning) blocked = "läuft bereits";
+      if (maxed) blocked = `Maximalstufe ${maxLevel}`;
+      else if (alreadyRunning) blocked = "läuft bereits";
       else if (slotsFree <= 0) blocked = "kein Platz frei";
       else if (user.money < cost) blocked = "zu teuer";
       return {
@@ -113,6 +144,7 @@ export function gameRoutes(db: Db): Router {
         effect: SKILL_INFO[type].effect,
         level,
         target,
+        maxed,
         cost,
         durationMs,
         blocked,
@@ -174,6 +206,70 @@ export function gameRoutes(db: Db): Router {
       msg: result.msg,
     });
     res.redirect(result.ok ? "/uebersicht" : "/aktionen/sammeln");
+  });
+
+  // -------------------------------------------------------------- Verbrechen
+  r.get("/aktionen/verbrechen", (req, res) => {
+    const user = res.locals.user as UserRow;
+    const stats = effectiveStats(db, user.id);
+    const action = svc.activePhysicalAction(db, user.id);
+    const crimes = CRIMES.map((c) => {
+      const check = svc.crimeRequirementCheck(db, user.id, c);
+      return {
+        ...c,
+        chance: Math.round(svc.crimeChance(c, stats.skills.geschick) * 100),
+        durationLabel: fmtDuration(c.minutes * 60_000),
+        blocked: check.ok ? null : check.msg,
+      };
+    });
+    res.render("verbrechen", {
+      title: "Verbrechen",
+      active: "verbrechen",
+      action,
+      crimes,
+      geschick: stats.skills.geschick,
+      homeTier: stats.home?.tier ?? 0,
+    });
+  });
+
+  r.post("/aktionen/verbrechen/start", (req, res) => {
+    const user = res.locals.user as UserRow;
+    const result = svc.startCrime(db, user.id, (req.body as any).key);
+    setFlash(db, res.locals.session.token, {
+      type: result.ok ? "ok" : "err",
+      msg: result.msg,
+    });
+    res.redirect(result.ok ? "/uebersicht" : "/aktionen/verbrechen");
+  });
+
+  // ----------------------------------------------------------- Konzentrieren
+  r.get("/aktionen/konzentrieren", (req, res) => {
+    const user = res.locals.user as UserRow;
+    const stats = effectiveStats(db, user.id);
+    const level = stats.skills.konzentration;
+    const cooldownMs = scaledMs(GAME.KONZ_COOLDOWN_HOURS * 3_600_000);
+    const readyAt = user.last_concentrated_at + cooldownMs;
+    res.render("konzentrieren", {
+      title: "Konzentrieren",
+      active: "weiterbildung",
+      level,
+      boostPercent: Math.round(GAME.KONZ_BOOST_PER_LEVEL * level * 100),
+      combinable: level >= GAME.KONZ_COMBINABLE_AT,
+      combinableAt: GAME.KONZ_COMBINABLE_AT,
+      readyAt: readyAt > nowMs() ? readyAt : null,
+      running: svc.activeTrainings(db, user.id),
+      skillInfo: SKILL_INFO,
+    });
+  });
+
+  r.post("/aktionen/konzentrieren", (req, res) => {
+    const user = res.locals.user as UserRow;
+    const result = svc.concentrate(db, user.id);
+    setFlash(db, res.locals.session.token, {
+      type: result.ok ? "ok" : "err",
+      msg: result.msg,
+    });
+    res.redirect("/aktionen/konzentrieren");
   });
 
   // ---------------------------------------------------- Betteln / Spendenlink

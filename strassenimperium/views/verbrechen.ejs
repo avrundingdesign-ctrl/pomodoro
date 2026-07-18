@@ -1,0 +1,60 @@
+<%- include('partials/head', { title, active }) %>
+<h1>Verbrechen</h1>
+<p class="muted">
+  Vom Kaugummiautomaten bis zum großen Ding: mehr Risiko, mehr Beute — und bei
+  Fehlschlag eine saftige Strafe. Deine Geschicklichkeit (Stufe <%= geschick %>)
+  erhöht die Erfolgschance; die großen Coups verlangen zusätzlich eine gute
+  Unterkunft (deine: Stufe <%= homeTier %>).
+</p>
+
+<% if (action) { %>
+  <section class="card">
+    <h2>Du bist unterwegs</h2>
+    <p>
+      <% if (action.type === 'verbrechen') { %>
+        Das Ding läuft gerade — Ergebnis in <span class="countdown" data-ends="<%= action.ends_at %>">…</span>.
+      <% } else { %>
+        Du bist gerade beschäftigt (<%= action.type === 'sammeln' ? 'Sammeln' : 'Kampf' %>) —
+        fertig in <span class="countdown" data-ends="<%= action.ends_at %>">…</span>.
+      <% } %>
+    </p>
+  </section>
+<% } %>
+
+<section class="card">
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>Coup</th><th>Dauer</th><th>Chance</th><th>Beute</th><th>Strafe</th><th></th></tr>
+      </thead>
+      <tbody>
+        <% for (const c of crimes) { %>
+          <tr>
+            <td>
+              <strong><%= c.name %></strong>
+              <div class="muted small">ab Geschick <%= c.minGeschick %><%= c.minHomeTier > 0 ? ` · Unterkunft Stufe ${c.minHomeTier}` : '' %></div>
+            </td>
+            <td><%= c.durationLabel %></td>
+            <td><%= c.chance %> %</td>
+            <td class="muted"><%= fmtMoney(c.lootMin) %>–<%= fmtMoney(c.lootMax) %></td>
+            <td class="muted"><%= fmtMoney(c.fine) %></td>
+            <td>
+              <% if (c.blocked) { %>
+                <span class="badge" title="<%= c.blocked %>">🔒 gesperrt</span>
+              <% } else if (action) { %>
+                <span class="badge">beschäftigt</span>
+              <% } else { %>
+                <form method="post" action="/aktionen/verbrechen/start" class="inline">
+                  <input type="hidden" name="_csrf" value="<%= csrf %>">
+                  <input type="hidden" name="key" value="<%= c.key %>">
+                  <button class="btn btn-sm btn-danger" type="submit">Durchziehen</button>
+                </form>
+              <% } %>
+            </td>
+          </tr>
+        <% } %>
+      </tbody>
+    </table>
+  </div>
+</section>
+<%- include('partials/foot') %>
