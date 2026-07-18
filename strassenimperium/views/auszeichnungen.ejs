@@ -1,0 +1,24 @@
+<%- include('partials/head', { title, active }) %>
+<h1>Auszeichnungen</h1>
+<p class="muted">
+  Meilensteine in Bronze, Silber, Gold und Platin. Deine täglichen Rangpunkte:
+  <strong><%= rankPoints %></strong> (die Top 7 der Bestenliste bekommen jeden Tag 64/32/16/8/4/2/1).
+  Sichtbarkeit im Profil: <strong><%= showAchievements ? 'öffentlich' : 'verborgen' %></strong>
+  (<a href="/einstellungen">ändern</a>).
+</p>
+<% for (const row of rows) { %>
+  <section class="card">
+    <h2><%= row.def.name %></h2>
+    <p class="muted small">Fortschritt: <%= row.progress.toLocaleString('de-DE') %> <%= row.def.unit %></p>
+    <div class="tier-row">
+      <% for (const t of row.tiers) { %>
+        <div class="tier <%= t.unlockedAt ? 'unlocked tier-' + t.tier : '' %>" title="<%= t.threshold.toLocaleString('de-DE') %> <%= row.def.unit %>">
+          <div class="tier-name"><%= t.tierName %></div>
+          <div class="muted small"><%= t.threshold.toLocaleString('de-DE') %></div>
+          <div class="small"><%= t.unlockedAt ? '✔ ' + new Date(t.unlockedAt).toLocaleDateString('de-DE') : '—' %></div>
+        </div>
+      <% } %>
+    </div>
+  </section>
+<% } %>
+<%- include('partials/foot') %>

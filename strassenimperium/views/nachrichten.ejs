@@ -1,0 +1,42 @@
+<%- include('partials/head', { title, active }) %>
+<h1>Postfach</h1>
+<p class="stack-h">
+  <a class="btn <%= box === 'eingang' ? 'btn-primary' : '' %>" href="/nachrichten?box=eingang">Eingang</a>
+  <a class="btn <%= box === 'gesendet' ? 'btn-primary' : '' %>" href="/nachrichten?box=gesendet">Gesendet</a>
+  <a class="btn <%= box === 'archiv' ? 'btn-primary' : '' %>" href="/nachrichten?box=archiv">Archiv</a>
+  <a class="btn" href="/nachrichten/neu">✉️ Neue Nachricht</a>
+</p>
+<section class="card">
+  <% if (messages.length === 0) { %>
+    <p class="muted">Hier liegt nichts. Nicht mal Werbung.</p>
+  <% } else { %>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th><%= box === 'gesendet' ? 'An' : 'Von' %></th><th>Nachricht</th><th>Datum</th><th></th></tr></thead>
+        <tbody>
+          <% for (const m of messages) { %>
+            <% const unread = m.recipient_id === meId && !m.read_at; %>
+            <tr class="<%= unread ? 'unread' : '' %>">
+              <td><%= box === 'gesendet' ? m.recipient_name : m.sender_name %></td>
+              <td><a href="/nachrichten/<%= m.id %>"><%= m.body.length > 60 ? m.body.slice(0, 60) + '…' : m.body %></a></td>
+              <td class="muted"><%= fmtDateTime(m.sent_at) %></td>
+              <td>
+                <% if (box !== 'archiv') { %>
+                  <form method="post" action="/nachrichten/<%= m.id %>/archivieren" class="inline">
+                    <input type="hidden" name="_csrf" value="<%= csrf %>">
+                    <button class="btn btn-sm" type="submit" title="Archivieren">🗄️</button>
+                  </form>
+                <% } %>
+                <form method="post" action="/nachrichten/<%= m.id %>/loeschen" class="inline">
+                  <input type="hidden" name="_csrf" value="<%= csrf %>">
+                  <button class="btn btn-sm btn-danger" type="submit" title="Löschen">🗑️</button>
+                </form>
+              </td>
+            </tr>
+          <% } %>
+        </tbody>
+      </table>
+    </div>
+  <% } %>
+</section>
+<%- include('partials/foot') %>

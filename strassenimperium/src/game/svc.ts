@@ -22,6 +22,7 @@ import {
 import { addMoney, capacityFor, clampToCapacity } from "./money.js";
 import { effectiveStats, skillLevels } from "./stats.js";
 import { districtOf, getDistrict } from "./districts.js";
+import { gangIncomeFactor, gangTrainingFactor } from "./gangs.js";
 import {
   applyPromilleDelta,
   fmtPromille,
@@ -104,10 +105,11 @@ export function startTraining(db: Db, userId: number, skillRaw: unknown): Res {
     db.prepare(
       "INSERT OR IGNORE INTO skills (user_id, type, level) VALUES (?, ?, 0)",
     ).run(userId, skill);
-    // Laune beeinflusst die Trainingsgeschwindigkeit (Kap. 3).
+    // Laune (Kap. 3) und Bandentraining (Kap. 11) beeinflussen die Dauer.
     const moodFactor = trainingDurationFactor(promilleOf(user));
+    const gangFactor = gangTrainingFactor(db, userId);
     const durationMs = scaledMs(
-      Math.round(trainingDurationMinutes(target) * moodFactor) * 60_000,
+      Math.round(trainingDurationMinutes(target) * moodFactor * gangFactor) * 60_000,
     );
     db.prepare("UPDATE users SET money = money - ? WHERE id = ?").run(cost, userId);
     db.prepare(
@@ -156,7 +158,8 @@ export function sellBottles(db: Db, userId: number): Res {
     const user = getUser(db, userId)!;
     if (user.bottles <= 0) return err("Du hast keine Pfandflaschen im Beutel.");
     const kurs = kursToday();
-    const proceeds = user.bottles * kurs;
+    // Bandenkonto-Bonus auf Einnahmen (Kap. 11).
+    const proceeds = Math.round(user.bottles * kurs * gangIncomeFactor(db, userId));
     const result = addMoney(db, userId, proceeds);
     db.prepare("UPDATE users SET bottles = 0 WHERE id = ?").run(userId);
     let msg = `${user.bottles} Flaschen zum Tageskurs von ${kurs} Cent verkauft: +${fmtMoney(result.added)}.`;
@@ -192,6 +195,13 @@ export function canAttack(
 ): Res {
   if (attacker.id === defender.id) {
     return err("Du kannst dich nicht selbst überfallen.");
+  }
+  // Urlaubsmodus (Kap. 14): weder angreifen noch angegriffen werden.
+  if (isOnVacation(attacker)) {
+    return err("Du bist im Urlaub — keine Überfälle, Erholung ist Erholung.");
+  }
+  if (isOnVacation(defender)) {
+    return err(`${defender.username} ist im Urlaub und damit geschützt.`);
   }
   const range = attackRange(attacker.points);
   if (defender.points < range.min || defender.points > range.max) {
@@ -399,6 +409,55 @@ export function sellInventoryItem(db: Db, userId: number, invIdRaw: unknown): Re
   });
 }
 
+// ------------------------------------------------ Phase 3: Urlaubsmodus (Kap. 14)
+
+export function isOnVacation(user: Pick<UserRow, "vacation_until">): boolean {
+  return user.vacation_until > now();
+}
+
+function currentMonthKey(): string {
+  return new Date(now()).toISOString().slice(0, 7);
+}
+
+export function vacationDaysLeft(user: UserRow): number {
+  if (user.vacation_month !== currentMonthKey()) return GAME.VACATION_DAYS_PER_MONTH;
+  return Math.max(0, GAME.VACATION_DAYS_PER_MONTH - user.vacation_days_used);
+}
+
+export function startVacation(db: Db, userId: number, daysRaw: unknown): Res {
+  const days = Number(daysRaw);
+  if (!Number.isInteger(days) || days < 1) return err("Ungültige Tagesanzahl.");
+  return withTx(db, () => {
+    const user = getUser(db, userId)!;
+    if (isOnVacation(user)) return err("Du bist doch schon im Urlaub.");
+    const left = vacationDaysLeft(user);
+    if (days > left) {
+      return err(`Diesen Monat hast du nur noch ${left} Urlaubstag${left === 1 ? "" : "e"}.`);
+    }
+    if (activePhysicalAction(db, userId)) {
+      return err("Erst die laufende Aktion beenden, dann ab in die Hängematte.");
+    }
+    const month = currentMonthKey();
+    const used = user.vacation_month === month ? user.vacation_days_used : 0;
+    db.prepare(
+      `UPDATE users SET vacation_until = ?, vacation_month = ?, vacation_days_used = ?
+       WHERE id = ?`,
+    ).run(now() + scaledMs(days * 24 * 3_600_000), month, used + days, userId);
+    return ok(
+      `Ab in den Urlaub: ${days} Tag${days === 1 ? "" : "e"} unangreifbar — aber auch ohne Überfälle und mit halbem Nebeneinkommen.`,
+    );
+  });
+}
+
+export function endVacation(db: Db, userId: number): Res {
+  return withTx(db, () => {
+    const user = getUser(db, userId)!;
+    if (!isOnVacation(user)) return err("Du bist gar nicht im Urlaub.");
+    db.prepare("UPDATE users SET vacation_until = ? WHERE id = ?").run(now(), userId);
+    return ok("Zurück auf der Straße — verbrauchte Urlaubstage gibt es nicht zurück.");
+  });
+}
+
 // ------------------------------------------------------ Schritt A: Verbrechen
 
 export function crimeByKey(key: unknown): CrimeDef | undefined {
@@ -522,7 +581,13 @@ export function collectMusicIncome(
     }
     const periods = Math.floor((now() - user.music_collected_at) / periodRealMs);
     if (periods < 1) return null;
-    const gross = periods * stats.instrument.income;
+    // Bandenkonto erhöht, Urlaub halbiert das passive Einkommen (Kap. 11/14).
+    let gross = Math.round(
+      periods * stats.instrument.income * gangIncomeFactor(db, userId),
+    );
+    if (isOnVacation(user)) {
+      gross = Math.round(gross * GAME.VACATION_INCOME_FACTOR);
+    }
     const result = addMoney(db, userId, gross);
     db.prepare("UPDATE users SET music_collected_at = music_collected_at + ? WHERE id = ?").run(
       periods * periodRealMs,
@@ -651,10 +716,10 @@ export function attackableTargets(db: Db, me: UserRow, limit = 20): TargetView[]
   const rows = db
     .prepare(
       `SELECT id, username, points FROM users
-       WHERE id != ? AND points BETWEEN ? AND ?
+       WHERE id != ? AND points BETWEEN ? AND ? AND vacation_until <= ?
        ORDER BY ABS(points - ?) ASC, id ASC LIMIT ?`,
     )
-    .all(me.id, range.min, range.max, me.points, limit) as unknown as Array<{
+    .all(me.id, range.min, range.max, now(), me.points, limit) as unknown as Array<{
     id: number;
     username: string;
     points: number;

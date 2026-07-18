@@ -102,8 +102,8 @@ manuell gegen den laufenden Server zu fahren (curl/Playwright).
 ## Roadmap-Status
 
 - [x] **Phase 1 — Kern-Loop**
-- [x] **Phase 2 — Welt & Wirtschaft** (Stadtteile, Supermarkt/Waschhaus/Immobilien/Tierhandlung, Promille-/Sauberkeitssystem, Haustiere, dazu der Spendenlink aus Kap. 5 als Auszahlungskanal für Sauberkeit/Mitleid)
-- [ ] Phase 3 — Sozial & Wettbewerb (Freunde, Nachrichten, Banden-Basis, Auszeichnungen)
+- [x] **Phase 2 — Welt & Wirtschaft** (Stadtteile, Supermarkt/Waschhaus/Immobilien/Tierhandlung, Promille-/Sauberkeitssystem, Haustiere, dazu der Spendenlink aus Kap. 5 als Auszahlungskanal für Sauberkeit/Mitleid; nachgereicht: Verbrechen, Konzentrieren, Musikinstrumente, Bettelspots aus Kap. 5/6)
+- [x] **Phase 3 — Sozial & Wettbewerb** (Freundes-/Blockliste mit Online-Status, Postfach mit Archiv, Banden mit Kasse/Tageslimit/4 Gebäuden und Rollen, Banden-Highscore, Auszeichnungen in 4 Stufen mit täglichen Rangpunkten für die Top 7, Einstellungen mit Urlaubsmodus, Passwortwechsel und Auszeichnungs-Verschleierung)
 - [ ] Phase 4 — Endgame & Bindung (Bandenkriege, Liga, Haustierkämpfe, Chat, Forum, Premium)
 - [ ] Phase 5 — Wachstum (Mobile-Feinschliff, weitere Städte/Sprachen, Events)
 

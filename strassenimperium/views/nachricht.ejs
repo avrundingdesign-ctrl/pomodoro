@@ -1,0 +1,16 @@
+<%- include('partials/head', { title, active }) %>
+<section class="card">
+  <h1>Nachricht von <%= message.sender_name %></h1>
+  <p class="muted small">
+    An <%= message.recipient_name %> · <%= fmtDateTime(message.sent_at) %>
+    <%= message.read_at ? `· gelesen ${fmtDateTime(message.read_at)}` : '' %>
+  </p>
+  <div class="message-body"><%= message.body %></div>
+  <p class="stack-h">
+    <% if (message.sender_id !== meId) { %>
+      <a class="btn btn-primary" href="/nachrichten/neu?an=<%= encodeURIComponent(message.sender_name) %>">Antworten</a>
+    <% } %>
+    <a class="btn" href="/nachrichten">← Zum Postfach</a>
+  </p>
+</section>
+<%- include('partials/foot') %>

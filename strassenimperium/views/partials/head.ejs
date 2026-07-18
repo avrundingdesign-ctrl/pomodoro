@@ -14,21 +14,43 @@
     <% if (locals.user) { %>
       <nav class="nav">
         <%
-          const NAV = [
-            ["uebersicht", "Übersicht", "/uebersicht"],
-            ["weiterbildung", "Weiterbildung", "/weiterbildung"],
+          const a = locals.active;
+          const aktionen = [
             ["sammeln", "Sammeln", "/aktionen/sammeln"],
             ["betteln", "Betteln", "/aktionen/betteln"],
             ["verbrechen", "Verbrechen", "/aktionen/verbrechen"],
-            ["stadt", "Stadt", "/stadt"],
-            ["inventar", "Inventar", "/inventar"],
-            ["kampf", "Kampf", "/kampf"],
+          ];
+          const unread = locals.status ? status.unreadMessages : 0;
+          const community = [
             ["highscore", "Highscore", "/highscore"],
+            ["nachrichten", unread > 0 ? `Nachrichten (${unread})` : "Nachrichten", "/nachrichten"],
+            ["freunde", "Freunde", "/freunde"],
+            ["auszeichnungen", "Auszeichnungen", "/auszeichnungen"],
           ];
         %>
-        <% for (const [key, label, href] of NAV) { %>
-          <a href="<%= href %>" class="<%= locals.active === key ? 'on' : '' %>"><%= label %></a>
-        <% } %>
+        <a href="/uebersicht" class="<%= a === 'uebersicht' ? 'on' : '' %>">Übersicht</a>
+        <details class="menu" <%= aktionen.some(([k]) => k === a) ? 'open' : '' %>>
+          <summary class="<%= aktionen.some(([k]) => k === a) ? 'on' : '' %>">Aktionen</summary>
+          <div class="dropdown">
+            <% for (const [key, label, href] of aktionen) { %>
+              <a href="<%= href %>" class="<%= a === key ? 'on' : '' %>"><%= label %></a>
+            <% } %>
+          </div>
+        </details>
+        <a href="/weiterbildung" class="<%= a === 'weiterbildung' ? 'on' : '' %>">Weiterbildung</a>
+        <a href="/stadt" class="<%= a === 'stadt' ? 'on' : '' %>">Stadt</a>
+        <a href="/inventar" class="<%= a === 'inventar' ? 'on' : '' %>">Inventar</a>
+        <a href="/kampf" class="<%= a === 'kampf' ? 'on' : '' %>">Kampf</a>
+        <a href="/bande" class="<%= a === 'bande' ? 'on' : '' %>">Bande</a>
+        <details class="menu" <%= community.some(([k]) => k === a) ? 'open' : '' %>>
+          <summary class="<%= community.some(([k]) => k === a) ? 'on' : '' %> <%= unread > 0 ? 'attention' : '' %>">Community<%= unread > 0 ? ' ✉️' : '' %></summary>
+          <div class="dropdown">
+            <% for (const [key, label, href] of community) { %>
+              <a href="<%= href %>" class="<%= a === key ? 'on' : '' %>"><%= label %></a>
+            <% } %>
+          </div>
+        </details>
+        <a href="/einstellungen" class="<%= a === 'einstellungen' ? 'on' : '' %>" title="Einstellungen">⚙️</a>
         <form method="post" action="/logout" class="inline">
           <input type="hidden" name="_csrf" value="<%= csrf %>">
           <button class="linklike" type="submit" title="Abmelden">Abmelden</button>
@@ -51,6 +73,9 @@
       <span class="chip" title="Sauberkeit">🧼 <%= status.cleanliness %> %</span>
       <span class="chip" title="Promillepegel — Laune: <%= status.mood %>">🍺 <%= status.promilleLabel %></span>
       <span class="chip" title="Punkte und Highscore-Rang">🏆 <%= status.points %> Pkt. <span class="muted">· Rang <%= status.rank %></span></span>
+      <% if (status.onVacation) { %>
+        <span class="chip vacation" title="Urlaubsmodus: unangreifbar, halbes Nebeneinkommen">🏖️ Urlaub bis <%= fmtDateTime(status.vacationUntil) %></span>
+      <% } %>
     </div>
   <% } %>
 </header>

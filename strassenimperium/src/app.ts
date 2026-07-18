@@ -10,12 +10,16 @@ import { collectMusicIncome, kursToday } from "./game/svc.js";
 import { districtOf } from "./game/districts.js";
 import { fmtPromille, moodLabel, promilleOf } from "./game/promille.js";
 import { hashIp, recordDonationClick } from "./game/donation.js";
+import { unreadCount } from "./game/social.js";
 import { fmtDateTime, fmtDuration, fmtMoney } from "./util.js";
 import { authRoutes } from "./routes/authRoutes.js";
 import { gameRoutes } from "./routes/gameRoutes.js";
 import { inventoryRoutes } from "./routes/inventoryRoutes.js";
 import { fightRoutes } from "./routes/fightRoutes.js";
 import { stadtRoutes } from "./routes/stadtRoutes.js";
+import { socialRoutes } from "./routes/socialRoutes.js";
+import { gangRoutes } from "./routes/gangRoutes.js";
+import { accountRoutes } from "./routes/accountRoutes.js";
 
 export function createApp(db: Db): express.Express {
   const app = express();
@@ -52,6 +56,14 @@ export function createApp(db: Db): express.Express {
     res.locals.csrf = res.locals.session?.csrf ?? "";
     res.locals.flashes = [];
     if (res.locals.user) {
+      // Online-Status (Kap. 10): höchstens einmal pro Minute schreiben.
+      const seen = res.locals.user as UserRow;
+      if (seen.last_seen_at < Date.now() - 60_000) {
+        db.prepare("UPDATE users SET last_seen_at = ? WHERE id = ?").run(
+          Date.now(),
+          seen.id,
+        );
+      }
       // Straßenmusik-Einnahmen lazy abrechnen, bevor Status & Flashes gelesen werden.
       const music = collectMusicIncome(db, (res.locals.user as UserRow).id);
       if (music && music.periods > 0 && res.locals.session) {
@@ -80,6 +92,9 @@ export function createApp(db: Db): express.Express {
         promilleLabel: fmtPromille(promille),
         mood: moodLabel(promille),
         districtName: districtOf(db, fresh).name,
+        unreadMessages: unreadCount(db, fresh.id),
+        onVacation: fresh.vacation_until > now(),
+        vacationUntil: fresh.vacation_until,
       };
       if (res.locals.session) {
         res.locals.flashes = takeFlashes(db, res.locals.session.token);
@@ -127,6 +142,9 @@ export function createApp(db: Db): express.Express {
   app.use(inventoryRoutes(db));
   app.use(fightRoutes(db));
   app.use(stadtRoutes(db));
+  app.use(socialRoutes(db));
+  app.use(gangRoutes(db));
+  app.use(accountRoutes(db));
 
   app.use((req, res) => {
     res.status(404).render("error", {

@@ -7,6 +7,8 @@ import { addMoney } from "./money.js";
 import { effectiveStats } from "./stats.js";
 import { districtOf } from "./districts.js";
 import { fightFactor, promilleOf } from "./promille.js";
+import { awardAchievements, grantDailyRankPoints } from "./achievements.js";
+import { gangIncomeFactor } from "./gangs.js";
 
 /**
  * Kern des Idle-Prinzips: Alle fälligen, noch nicht aufgelösten Timer
@@ -20,6 +22,7 @@ import { fightFactor, promilleOf } from "./promille.js";
  * ein Worker dieselben Funktionen aufrufen kann.
  */
 export function resolveAllDue(db: Db): void {
+  grantDailyRankPoints(db);
   const t = now();
   const dueTrainings = db
     .prepare(
@@ -55,10 +58,10 @@ function resolveTraining(db: Db, training: TrainingRow): void {
        WHERE user_id = ? AND type = ?`,
     ).run(training.target_level, training.user_id, training.skill_type);
     // Punkte für abgeschlossene Weiterbildungen (Kap. 3)
-    db.prepare("UPDATE users SET points = points + ? WHERE id = ?").run(
-      training.target_level,
-      training.user_id,
-    );
+    db.prepare(
+      "UPDATE users SET points = points + ?, trainings_done = trainings_done + 1 WHERE id = ?",
+    ).run(training.target_level, training.user_id);
+    awardAchievements(db, training.user_id);
   });
 }
 
@@ -93,13 +96,19 @@ function resolveCrime(db: Db, action: ActionRow): void {
     crime.baseChance + CRIME_SKILL_BONUS * Math.max(0, geschick - crime.minGeschick),
   );
   if (Math.random() < chance) {
-    const loot =
-      crime.lootMin + Math.floor(Math.random() * (crime.lootMax - crime.lootMin + 1));
+    // Bandenkonto-Bonus wirkt auch auf Beute aus Verbrechen (Kap. 11: Einnahmen).
+    const loot = Math.round(
+      (crime.lootMin +
+        Math.floor(Math.random() * (crime.lootMax - crime.lootMin + 1))) *
+        gangIncomeFactor(db, user.id),
+    );
     const result = addMoney(db, user.id, loot);
+    db.prepare("UPDATE users SET crimes_done = crimes_done + 1 WHERE id = ?").run(user.id);
     db.prepare("UPDATE actions SET result = ? WHERE id = ?").run(
       JSON.stringify({ success: true, loot, kept: result.added, lost: result.lost }),
       action.id,
     );
+    awardAchievements(db, user.id);
   } else {
     // Erwischt: Strafe wächst mit der Verbrechensgröße (Kap. 5).
     const fine = Math.min(user.money, crime.fine);
@@ -124,12 +133,14 @@ function resolveCollect(db: Db, action: ActionRow): void {
   // Wühlen in Containern macht dreckig (Kap. 3: Sauberkeit sinkt beim Sammeln).
   const dirt = Math.max(1, Math.round((minutes / 60) * GAME.CLEANLINESS_LOSS_PER_HOUR));
   db.prepare(
-    "UPDATE users SET bottles = bottles + ?, cleanliness = MAX(0, cleanliness - ?) WHERE id = ?",
-  ).run(bottles, dirt, action.user_id);
+    `UPDATE users SET bottles = bottles + ?, bottles_total = bottles_total + ?,
+       cleanliness = MAX(0, cleanliness - ?) WHERE id = ?`,
+  ).run(bottles, bottles, dirt, action.user_id);
   db.prepare("UPDATE actions SET result = ? WHERE id = ?").run(
     JSON.stringify({ bottles, minutes, dirt }),
     action.id,
   );
+  awardAchievements(db, action.user_id);
 }
 
 function resolveFight(db: Db, action: ActionRow): void {
@@ -197,6 +208,14 @@ function resolveFight(db: Db, action: ActionRow): void {
   };
   pointsAttacker = applyPoints(attacker.id, pointsAttacker);
   pointsDefender = applyPoints(defender.id, pointsDefender);
+
+  // Siegzähler für Auszeichnungen (Kap. 12).
+  const winnerId =
+    outcome === "win" ? attacker.id : outcome === "loss" ? defender.id : null;
+  if (winnerId) {
+    db.prepare("UPDATE users SET fights_won = fights_won + 1 WHERE id = ?").run(winnerId);
+    awardAchievements(db, winnerId);
+  }
 
   const fight = db
     .prepare(

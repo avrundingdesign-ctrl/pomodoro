@@ -1,6 +1,7 @@
 import type { Db, ItemRow, UserRow } from "../db.js";
-import { SKILL_TYPES, type SkillType } from "../config.js";
+import { GAME, SKILL_TYPES, type SkillType } from "../config.js";
 import { activeContainer, capacityFor } from "./money.js";
+import { gangOf } from "./gangs.js";
 
 export type SkillLevels = Record<SkillType, number>;
 
@@ -63,6 +64,16 @@ export function effectiveStats(db: Db, userId: number): EffectiveStats {
   const pet = activeItemOf(db, userId, "pet");
   const instrument = activeItemOf(db, userId, "instrument");
   const spot = activeItemOf(db, userId, "spot");
+  // Bandengebäude verstärken alle Mitglieder prozentual (Kap. 11).
+  const membership = gangOf(db, userId);
+  const armoryFactor = 1 + GAME.GANG_ARMORY_ATT_PER_LEVEL * (membership?.gang.armory ?? 0);
+  const houseFactor = 1 + GAME.GANG_HOUSE_DEF_PER_LEVEL * (membership?.gang.house ?? 0);
+  const attBase = skills.angriff + (weapon?.att_bonus ?? 0) + (pet?.att_bonus ?? 0);
+  const defBase =
+    skills.verteidigung +
+    (weapon?.def_bonus ?? 0) +
+    (home?.def_bonus ?? 0) +
+    (pet?.def_bonus ?? 0);
   return {
     skills,
     weapon,
@@ -71,12 +82,8 @@ export function effectiveStats(db: Db, userId: number): EffectiveStats {
     pet,
     instrument,
     spot,
-    attEff: skills.angriff + (weapon?.att_bonus ?? 0) + (pet?.att_bonus ?? 0),
-    defEff:
-      skills.verteidigung +
-      (weapon?.def_bonus ?? 0) +
-      (home?.def_bonus ?? 0) +
-      (pet?.def_bonus ?? 0),
+    attEff: Math.round(attBase * armoryFactor),
+    defEff: Math.round(defBase * houseFactor),
     capacity: capacityFor(db, userId),
   };
 }

@@ -126,7 +126,64 @@ export const GAME = {
   // ---------------------------------------------- Schritt A: Straßenmusik (Kap. 4/6)
   /** Instrumente zahlen alle 6 Stunden aus (Kap. 6). */
   MUSIC_PAYOUT_HOURS: 6,
+
+  // ------------------------------------------------------- Phase 3: Banden (Kap. 11)
+  /** Gründungskosten einer Bande (Geld-Sink). */
+  GANG_FOUND_COST: 5000,
+  /** Max. Ausbaustufe je Bandengebäude. */
+  GANG_BUILDING_MAX: 5,
+  /** Basiskosten Stufe 1; jede weitere Stufe ×3 (aus der Bandenkasse). */
+  GANG_BUILDING_BASE_COST: 20000,
+  /** Effekte pro Stufe (Kap. 11). */
+  GANG_ARMORY_ATT_PER_LEVEL: 0.05,
+  GANG_HOUSE_DEF_PER_LEVEL: 0.05,
+  GANG_TRAINING_SPEED_PER_LEVEL: 0.04,
+  GANG_ACCOUNT_INCOME_PER_LEVEL: 0.03,
+  /** Tageslimit der Kassen-Auszahlung: Basis × 2^Bandenkonto-Stufe. */
+  GANG_PAYOUT_BASE_LIMIT: 10000,
+
+  // ----------------------------------------------------- Phase 3: Soziales (Kap. 10)
+  /** Online-Anzeige: zuletzt gesehen vor weniger als … Minuten (Echtzeit). */
+  ONLINE_WINDOW_MINUTES: 5,
+  /** Nachrichten-Limit pro Stunde (Spam-Bremse). */
+  MESSAGES_PER_HOUR: 30,
+  MESSAGE_MAX_LENGTH: 2000,
+
+  // ------------------------------------------------- Phase 3: Urlaubsmodus (Kap. 14)
+  /** Urlaubstage pro Kalendermonat. */
+  VACATION_DAYS_PER_MONTH: 5,
+  /** Passives Einkommen (Musik/Spenden) im Urlaub: Faktor. */
+  VACATION_INCOME_FACTOR: 0.5,
+
+  // ------------------------------------------- Phase 3: Tägliche Rangpunkte (Kap. 12)
+  /** Punkte für die Top 7 der Bestenliste, täglich (Platz 1 → 64 … Platz 7 → 1). */
+  DAILY_RANK_POINTS: [64, 32, 16, 8, 4, 2, 1],
 } as const;
+
+/** Auszeichnungen (Kap. 12) in Stufen Bronze/Silber/Gold/Platin. */
+export const ACHIEVEMENT_TIER_NAMES = ["Bronze", "Silber", "Gold", "Platin"];
+export interface AchievementDef {
+  type: string;
+  name: string;
+  /** users-Spalte, die den Fortschritt zählt. */
+  metric:
+    | "fights_won"
+    | "trainings_done"
+    | "bottles_total"
+    | "crimes_done"
+    | "donations_got"
+    | "rank_points";
+  thresholds: [number, number, number, number];
+  unit: string;
+}
+export const ACHIEVEMENTS: AchievementDef[] = [
+  { type: "kaempfer", name: "Straßenkämpfer", metric: "fights_won", thresholds: [10, 50, 250, 1000], unit: "Kampfsiege" },
+  { type: "streber", name: "Bildungshungrig", metric: "trainings_done", thresholds: [5, 25, 100, 250], unit: "Weiterbildungen" },
+  { type: "sammler", name: "Pfandbaron", metric: "bottles_total", thresholds: [100, 1000, 10000, 100000], unit: "Flaschen" },
+  { type: "ganove", name: "Ganovenehre", metric: "crimes_done", thresholds: [10, 50, 200, 500], unit: "geglückte Coups" },
+  { type: "liebling", name: "Publikumsliebling", metric: "donations_got", thresholds: [10, 100, 1000, 5000], unit: "Spenden" },
+  { type: "elite", name: "Stadtprominenz", metric: "rank_points", thresholds: [10, 100, 500, 2000], unit: "Rangpunkte" },
+];
 
 /**
  * Verbrechen (Kap. 5): gestaffelt von klein bis groß. Höhere Stufen erfordern

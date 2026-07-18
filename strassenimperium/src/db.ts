@@ -21,6 +21,52 @@ export interface UserRow {
   donation_code: string;
   music_collected_at: number;
   last_concentrated_at: number;
+  last_seen_at: number;
+  rank_points: number;
+  show_achievements: number;
+  vacation_until: number;
+  vacation_days_used: number;
+  vacation_month: string;
+  fights_won: number;
+  trainings_done: number;
+  bottles_total: number;
+  crimes_done: number;
+  donations_got: number;
+}
+
+export interface GangRow {
+  id: number;
+  name: string;
+  password_hash: string;
+  founder_id: number;
+  created_at: number;
+  treasury: number;
+  armory: number;
+  house: number;
+  training: number;
+  account: number;
+  payout_day: string;
+  payout_used: number;
+}
+
+export interface GangMemberRow {
+  gang_id: number;
+  user_id: number;
+  role: string; // 'admin' | 'coadmin' | 'member'
+  joined_at: number;
+}
+
+export interface MessageRow {
+  id: number;
+  sender_id: number;
+  recipient_id: number;
+  body: string;
+  sent_at: number;
+  read_at: number | null;
+  sender_archived: number;
+  recipient_archived: number;
+  sender_deleted: number;
+  recipient_deleted: number;
 }
 
 export interface DistrictRow {
@@ -260,6 +306,68 @@ export function migrate(db: Db): void {
       UNIQUE (user_id, ip_hash, day)
     );
     CREATE INDEX IF NOT EXISTS idx_donations_user_day ON donation_clicks (user_id, day);
+
+    CREATE TABLE IF NOT EXISTS friends (
+      id            INTEGER PRIMARY KEY AUTOINCREMENT,
+      user_id       INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      other_user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      type          TEXT NOT NULL,
+      note          TEXT NOT NULL DEFAULT '',
+      created_at    INTEGER NOT NULL,
+      UNIQUE (user_id, other_user_id, type)
+    );
+
+    CREATE TABLE IF NOT EXISTS messages (
+      id                 INTEGER PRIMARY KEY AUTOINCREMENT,
+      sender_id          INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      recipient_id       INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      body               TEXT NOT NULL,
+      sent_at            INTEGER NOT NULL,
+      read_at            INTEGER,
+      sender_archived    INTEGER NOT NULL DEFAULT 0,
+      recipient_archived INTEGER NOT NULL DEFAULT 0,
+      sender_deleted     INTEGER NOT NULL DEFAULT 0,
+      recipient_deleted  INTEGER NOT NULL DEFAULT 0
+    );
+    CREATE INDEX IF NOT EXISTS idx_messages_inbox ON messages (recipient_id, sent_at);
+    CREATE INDEX IF NOT EXISTS idx_messages_sent ON messages (sender_id, sent_at);
+
+    CREATE TABLE IF NOT EXISTS gangs (
+      id            INTEGER PRIMARY KEY AUTOINCREMENT,
+      name          TEXT NOT NULL UNIQUE COLLATE NOCASE,
+      password_hash TEXT NOT NULL,
+      founder_id    INTEGER NOT NULL REFERENCES users(id),
+      created_at    INTEGER NOT NULL,
+      treasury      INTEGER NOT NULL DEFAULT 0,
+      armory        INTEGER NOT NULL DEFAULT 0,
+      house         INTEGER NOT NULL DEFAULT 0,
+      training      INTEGER NOT NULL DEFAULT 0,
+      account       INTEGER NOT NULL DEFAULT 0,
+      payout_day    TEXT NOT NULL DEFAULT '',
+      payout_used   INTEGER NOT NULL DEFAULT 0
+    );
+
+    CREATE TABLE IF NOT EXISTS gang_members (
+      gang_id   INTEGER NOT NULL REFERENCES gangs(id) ON DELETE CASCADE,
+      user_id   INTEGER NOT NULL UNIQUE REFERENCES users(id) ON DELETE CASCADE,
+      role      TEXT NOT NULL DEFAULT 'member',
+      joined_at INTEGER NOT NULL
+    );
+    CREATE INDEX IF NOT EXISTS idx_gang_members_gang ON gang_members (gang_id);
+
+    CREATE TABLE IF NOT EXISTS achievements (
+      id          INTEGER PRIMARY KEY AUTOINCREMENT,
+      user_id     INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      type        TEXT NOT NULL,
+      tier        INTEGER NOT NULL,
+      unlocked_at INTEGER NOT NULL,
+      UNIQUE (user_id, type, tier)
+    );
+
+    CREATE TABLE IF NOT EXISTS meta (
+      key   TEXT PRIMARY KEY,
+      value TEXT NOT NULL
+    );
   `);
 
   // Idempotente Spalten-Migrationen (Phase 2 auf bestehenden Phase-1-Datenbanken).
@@ -276,6 +384,17 @@ export function migrate(db: Db): void {
   ensureColumn(db, "items", "donation_bonus", "INTEGER NOT NULL DEFAULT 0");
   ensureColumn(db, "users", "music_collected_at", "INTEGER NOT NULL DEFAULT 0");
   ensureColumn(db, "users", "last_concentrated_at", "INTEGER NOT NULL DEFAULT 0");
+  ensureColumn(db, "users", "last_seen_at", "INTEGER NOT NULL DEFAULT 0");
+  ensureColumn(db, "users", "rank_points", "INTEGER NOT NULL DEFAULT 0");
+  ensureColumn(db, "users", "show_achievements", "INTEGER NOT NULL DEFAULT 1");
+  ensureColumn(db, "users", "vacation_until", "INTEGER NOT NULL DEFAULT 0");
+  ensureColumn(db, "users", "vacation_days_used", "INTEGER NOT NULL DEFAULT 0");
+  ensureColumn(db, "users", "vacation_month", "TEXT NOT NULL DEFAULT ''");
+  ensureColumn(db, "users", "fights_won", "INTEGER NOT NULL DEFAULT 0");
+  ensureColumn(db, "users", "trainings_done", "INTEGER NOT NULL DEFAULT 0");
+  ensureColumn(db, "users", "bottles_total", "INTEGER NOT NULL DEFAULT 0");
+  ensureColumn(db, "users", "crimes_done", "INTEGER NOT NULL DEFAULT 0");
+  ensureColumn(db, "users", "donations_got", "INTEGER NOT NULL DEFAULT 0");
   db.exec(
     "UPDATE users SET donation_code = lower(hex(randomblob(8))) WHERE donation_code IS NULL",
   );

@@ -58,6 +58,40 @@ h3 { font-size: 1rem; margin: 0.6rem 0 0.3rem; }
 .nav a { color: var(--text); padding: 0.15rem 0; border-bottom: 2px solid transparent; }
 .nav a:hover { text-decoration: none; color: var(--accent); }
 .nav a.on { color: var(--accent); border-bottom-color: var(--accent); }
+
+/* Aufklapp-Menüs in der Navigation (ohne JS, touch-tauglich) */
+.menu { position: relative; }
+.menu summary {
+  cursor: pointer;
+  list-style: none;
+  color: var(--text);
+  padding: 0.15rem 0;
+  border-bottom: 2px solid transparent;
+}
+.menu summary::-webkit-details-marker { display: none; }
+.menu summary::after { content: " ▾"; font-size: 0.75em; color: var(--muted); }
+.menu summary:hover { color: var(--accent); }
+.menu summary.on { color: var(--accent); border-bottom-color: var(--accent); }
+.menu summary.attention { color: var(--accent); }
+.menu[open] > .dropdown {
+  position: absolute;
+  top: 100%;
+  left: -0.6rem;
+  z-index: 30;
+  min-width: 11rem;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.4rem 0.6rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.5);
+}
+@media (max-width: 800px) {
+  .menu[open] > .dropdown { position: static; box-shadow: none; border: none; padding: 0.2rem 0 0.2rem 0.8rem; }
+}
+.chip.vacation { border-color: var(--blue); color: var(--blue); }
 .statusbar {
   max-width: 1000px;
   margin: 0 auto;
@@ -203,6 +237,61 @@ button.linklike:hover { color: var(--red); }
 .options label:hover { border-color: var(--accent); }
 .options input { margin-right: 0.5rem; }
 .pagination { display: flex; align-items: center; gap: 0.8rem; margin: 0.8rem 0 0; }
+/* Postfach & Formulare */
+tr.unread td { font-weight: 700; background: rgba(240, 168, 50, 0.05); }
+.message-body {
+  white-space: pre-wrap;
+  background: var(--panel2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.8rem 1rem;
+  margin: 0.6rem 0;
+}
+textarea, select {
+  width: 100%;
+  padding: 0.5rem 0.7rem;
+  margin-top: 0.25rem;
+  background: var(--panel2);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  font: inherit;
+}
+textarea:focus, select:focus { outline: 2px solid var(--accent); border-color: var(--accent); }
+input[type="number"] {
+  width: 100%;
+  padding: 0.5rem 0.7rem;
+  margin-top: 0.25rem;
+  background: var(--panel2);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  font: inherit;
+}
+.notiz-form { display: flex; gap: 0.3rem; align-items: center; }
+.notiz-form input[type="text"] { margin-top: 0; min-width: 8rem; }
+
+/* Auszeichnungs-Stufen */
+.tier-row { display: flex; flex-wrap: wrap; gap: 0.6rem; }
+.tier {
+  flex: 1 1 8rem;
+  text-align: center;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.5rem 0.4rem;
+  opacity: 0.55;
+}
+.tier.unlocked { opacity: 1; }
+.tier-name { font-weight: 700; }
+.tier-1.unlocked { border-color: #b07a4b; }
+.tier-1.unlocked .tier-name { color: #cd9a68; }
+.tier-2.unlocked { border-color: #9ea6b0; }
+.tier-2.unlocked .tier-name { color: #c0c8d2; }
+.tier-3.unlocked { border-color: var(--accent); }
+.tier-3.unlocked .tier-name { color: var(--accent); }
+.tier-4.unlocked { border-color: #7ed3e0; }
+.tier-4.unlocked .tier-name { color: #7ed3e0; }
+
 code.donation-link {
   display: block;
   background: var(--panel2);

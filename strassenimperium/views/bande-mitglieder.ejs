@@ -1,0 +1,45 @@
+<%- include('partials/head', { title, active }) %>
+<h1>Mitglieder — <%= gang.name %></h1>
+<section class="card">
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Name</th><th>Rang</th><th>Punkte</th><th>Status</th><th>Dabei seit</th><th></th></tr></thead>
+      <tbody>
+        <% for (const m of members) { %>
+          <tr>
+            <td><a href="/profil/<%= encodeURIComponent(m.username) %>"><%= m.username %></a><%= m.id === meId ? ' (du)' : '' %></td>
+            <td><%= m.role === 'admin' ? '👑 Boss' : m.role === 'coadmin' ? '⭐ Co-Boss' : 'Mitglied' %></td>
+            <td><%= m.points %></td>
+            <td><span class="badge <%= m.online ? 'on' : '' %>"><%= m.online ? 'online' : 'offline' %></span></td>
+            <td class="muted"><%= new Date(m.joined_at).toLocaleDateString('de-DE') %></td>
+            <td>
+              <% if (m.id !== meId) { %>
+                <% if (role === 'admin') { %>
+                  <form method="post" action="/bande/mitglieder/aktion" class="inline">
+                    <input type="hidden" name="_csrf" value="<%= csrf %>">
+                    <input type="hidden" name="userId" value="<%= m.id %>">
+                    <% if (m.role === 'member') { %>
+                      <button class="btn btn-sm" name="aktion" value="promote" type="submit">Zum Co-Boss</button>
+                    <% } else if (m.role === 'coadmin') { %>
+                      <button class="btn btn-sm" name="aktion" value="demote" type="submit">Degradieren</button>
+                    <% } %>
+                    <button class="btn btn-sm" name="aktion" value="transfer" type="submit" title="Bande übertragen">👑 Übertragen</button>
+                    <button class="btn btn-sm btn-danger" name="aktion" value="kick" type="submit">Rauswerfen</button>
+                  </form>
+                <% } else if (role === 'coadmin' && m.role === 'member') { %>
+                  <form method="post" action="/bande/mitglieder/aktion" class="inline">
+                    <input type="hidden" name="_csrf" value="<%= csrf %>">
+                    <input type="hidden" name="userId" value="<%= m.id %>">
+                    <button class="btn btn-sm btn-danger" name="aktion" value="kick" type="submit">Rauswerfen</button>
+                  </form>
+                <% } %>
+              <% } %>
+            </td>
+          </tr>
+        <% } %>
+      </tbody>
+    </table>
+  </div>
+</section>
+<p><a href="/bande">← Zur Bande</a></p>
+<%- include('partials/foot') %>

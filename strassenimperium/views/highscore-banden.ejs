@@ -1,0 +1,28 @@
+<%- include('partials/head', { title, active }) %>
+<h1>Highscore</h1>
+<p class="stack-h">
+  <a class="btn" href="/highscore">Spieler</a>
+  <a class="btn btn-primary" href="/highscore?typ=banden">Banden</a>
+</p>
+<section class="card">
+  <% if (rows.length === 0) { %>
+    <p class="muted">Noch keine Banden — <a href="/bande">gründe die erste</a>.</p>
+  <% } else { %>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Rang</th><th>Bande</th><th>Mitglieder</th><th>Punkte</th></tr></thead>
+        <tbody>
+          <% for (const [i, g] of rows.entries()) { %>
+            <tr class="<%= g.id === myGangId ? 'me' : '' %>">
+              <td><%= i + 1 %></td>
+              <td><%= g.name %></td>
+              <td><%= g.members %></td>
+              <td><%= g.points %></td>
+            </tr>
+          <% } %>
+        </tbody>
+      </table>
+    </div>
+  <% } %>
+</section>
+<%- include('partials/foot') %>

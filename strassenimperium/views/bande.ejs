@@ -1,0 +1,47 @@
+<%- include('partials/head', { title, active }) %>
+<h1>🏴 <%= gang.name %></h1>
+<p class="muted">
+  Dein Rang: <strong><%= role === 'admin' ? 'Boss' : role === 'coadmin' ? 'Co-Boss' : 'Mitglied' %></strong>
+  · <%= memberCount %> Mitglied<%= memberCount === 1 ? '' : 'er' %>
+  · <%= points %> Banden-Punkte
+</p>
+<div class="grid-2">
+  <section class="card">
+    <h2>💰 Bandenkasse</h2>
+    <p><strong><%= fmtMoney(gang.treasury) %></strong> im gemeinsamen Topf.</p>
+    <p><a class="btn" href="/bande/kasse">Zur Kasse</a></p>
+  </section>
+  <section class="card">
+    <h2>🏗️ Bandeneigentum</h2>
+    <p class="muted small">
+      Waffenkammer <%= gang.armory %>/5 · Bandenhaus <%= gang.house %>/5 ·
+      Training <%= gang.training %>/5 · Konto <%= gang.account %>/5
+    </p>
+    <p><a class="btn" href="/bande/eigentum">Ausbauen</a></p>
+  </section>
+  <section class="card">
+    <h2>👥 Mitglieder</h2>
+    <p class="muted small">Wer gehört dazu, wer ist online, wer fliegt raus?</p>
+    <p><a class="btn" href="/bande/mitglieder">Zur Liste</a></p>
+  </section>
+  <section class="card">
+    <h2>🏆 Banden-Highscore</h2>
+    <p class="muted small">Die Summe der Mitglieder-Punkte zählt.</p>
+    <p><a class="btn" href="/highscore?typ=banden">Rangliste</a></p>
+  </section>
+</div>
+<section class="card">
+  <h2>Verlassen</h2>
+  <p class="muted small">
+    <% if (role === 'admin' && memberCount > 1) { %>
+      Als Boss musst du die Bande erst übertragen (Mitglieder-Seite), bevor du gehst.
+    <% } else if (role === 'admin') { %>
+      Du bist allein — wenn du gehst, löst sich die Bande auf und die Kasse verfällt.
+    <% } %>
+  </p>
+  <form method="post" action="/bande/verlassen" class="inline">
+    <input type="hidden" name="_csrf" value="<%= csrf %>">
+    <button class="btn btn-danger" type="submit">Bande verlassen</button>
+  </form>
+</section>
+<%- include('partials/foot') %>

@@ -1,0 +1,62 @@
+<%- include('partials/head', { title, active }) %>
+<h1>Einstellungen</h1>
+
+<div class="grid-2">
+  <section class="card">
+    <h2>🏖️ Urlaubsmodus</h2>
+    <p class="muted small">
+      Im Urlaub kannst du weder angreifen noch angegriffen werden — dafür bringen
+      Straßenmusik und Spendenlink nur die Hälfte. <%= vacationDaysPerMonth %> Tage pro Monat.
+    </p>
+    <% if (onVacation) { %>
+      <p>Du bist im Urlaub bis <strong><%= fmtDateTime(vacationUntil) %></strong>.</p>
+      <form method="post" action="/einstellungen/urlaub/ende">
+        <input type="hidden" name="_csrf" value="<%= csrf %>">
+        <button class="btn" type="submit">Urlaub abbrechen</button>
+      </form>
+    <% } else if (vacationDaysLeft > 0) { %>
+      <form method="post" action="/einstellungen/urlaub/start" class="stack">
+        <input type="hidden" name="_csrf" value="<%= csrf %>">
+        <label>Tage (noch <%= vacationDaysLeft %> übrig diesen Monat)
+          <input type="number" name="tage" min="1" max="<%= vacationDaysLeft %>" value="1" required>
+        </label>
+        <button class="btn btn-primary" type="submit">Ab in die Hängematte</button>
+      </form>
+    <% } else { %>
+      <p class="muted">Dein Urlaubskontingent für diesen Monat ist aufgebraucht.</p>
+    <% } %>
+  </section>
+
+  <section class="card">
+    <h2>🏅 Auszeichnungs-Anzeige</h2>
+    <p class="muted small">
+      Verbirg deine Auszeichnungen im öffentlichen Profil, um deine Stärke zu
+      verschleiern (Kap. 10 — Sicherheitsfunktion).
+    </p>
+    <form method="post" action="/einstellungen/anzeige">
+      <input type="hidden" name="_csrf" value="<%= csrf %>">
+      <input type="hidden" name="show_achievements" value="<%= showAchievements ? '0' : '1' %>">
+      <button class="btn" type="submit">
+        <%= showAchievements ? 'Auszeichnungen verbergen' : 'Auszeichnungen öffentlich zeigen' %>
+      </button>
+    </form>
+  </section>
+</div>
+
+<section class="card">
+  <h2>🔑 Passwort ändern</h2>
+  <form method="post" action="/einstellungen/passwort" class="stack" style="max-width: 420px">
+    <input type="hidden" name="_csrf" value="<%= csrf %>">
+    <label>Aktuelles Passwort
+      <input type="password" name="aktuell" required>
+    </label>
+    <label>Neues Passwort <span class="muted">(mind. 8 Zeichen)</span>
+      <input type="password" name="neu" required>
+    </label>
+    <label>Neues Passwort wiederholen
+      <input type="password" name="neu2" required>
+    </label>
+    <button class="btn btn-primary" type="submit">Passwort ändern</button>
+  </form>
+</section>
+<%- include('partials/foot') %>

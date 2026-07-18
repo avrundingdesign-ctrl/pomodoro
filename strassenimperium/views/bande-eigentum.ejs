@@ -1,0 +1,38 @@
+<%- include('partials/head', { title, active }) %>
+<h1>Bandeneigentum — <%= gang.name %></h1>
+<p class="muted">
+  Ausbauten kosten aus der <a href="/bande/kasse">Bandenkasse</a>
+  (<strong><%= fmtMoney(gang.treasury) %></strong>) und wirken für alle Mitglieder.
+</p>
+<section class="card">
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Gebäude</th><th>Stufe</th><th>Effekt pro Stufe</th><th>Nächster Ausbau</th><th></th></tr></thead>
+      <tbody>
+        <% for (const b of buildings) { %>
+          <tr>
+            <td><strong><%= b.name %></strong></td>
+            <td><%= b.level %>/<%= b.max %></td>
+            <td class="muted"><%= b.effect %></td>
+            <td><%= b.nextCost === null ? '—' : fmtMoney(b.nextCost) %></td>
+            <td>
+              <% if (b.nextCost === null) { %>
+                <span class="badge on">voll ausgebaut</span>
+              <% } else if (role === 'member') { %>
+                <span class="badge">nur Boss/Co-Boss</span>
+              <% } else { %>
+                <form method="post" action="/bande/eigentum/ausbauen" class="inline">
+                  <input type="hidden" name="_csrf" value="<%= csrf %>">
+                  <input type="hidden" name="gebaeude" value="<%= b.key %>">
+                  <button class="btn btn-sm btn-primary" type="submit" <%= gang.treasury >= b.nextCost ? '' : 'disabled' %>>Ausbauen</button>
+                </form>
+              <% } %>
+            </td>
+          </tr>
+        <% } %>
+      </tbody>
+    </table>
+  </div>
+</section>
+<p><a href="/bande">← Zur Bande</a></p>
+<%- include('partials/foot') %>

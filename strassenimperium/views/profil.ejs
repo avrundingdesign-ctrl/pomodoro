@@ -1,11 +1,27 @@
 <%- include('partials/head', { title, active }) %>
 <div class="card auth-card">
-  <h1><%= them.username %></h1>
+  <h1><%= them.username %> <%= themOnVacation ? '🏖️' : '' %></h1>
   <table class="stats">
     <tr><th>Rang</th><td><%= themRank %></td></tr>
     <tr><th>Punkte</th><td><%= them.points %></td></tr>
+    <tr><th>Bande</th><td><%= themGang ? themGang.name : '—' %></td></tr>
     <tr><th>Auf der Straße seit</th><td><%= new Date(them.created_at).toLocaleDateString('de-DE') %></td></tr>
+    <% if (themOnVacation) { %>
+      <tr><th>Status</th><td>🏖️ im Urlaub (geschützt)</td></tr>
+    <% } %>
   </table>
+  <% if (achievements !== null && achievements.length > 0) { %>
+    <p class="stack-h">
+      <% for (const a of achievements) { %>
+        <span class="badge" title="<%= a.name %>"><%= a.tierName %>: <%= a.name %></span>
+      <% } %>
+    </p>
+  <% } else if (achievements === null) { %>
+    <p class="muted small">Auszeichnungen verborgen — dieser Charakter bleibt lieber unterschätzt.</p>
+  <% } %>
+  <% if (!isMe) { %>
+    <p><a class="btn btn-sm" href="/nachrichten/neu?an=<%= encodeURIComponent(them.username) %>">✉️ Nachricht schreiben</a></p>
+  <% } %>
   <% if (isMe) { %>
     <p class="muted">Das bist du. Sieh zu, dass die Zahlen größer werden.</p>
   <% } else if (canAttackNow) { %>

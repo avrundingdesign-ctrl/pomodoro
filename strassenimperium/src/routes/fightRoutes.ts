@@ -1,7 +1,8 @@
 import { Router } from "express";
 import type { ActionRow, Db, UserRow } from "../db.js";
 import { requireAuth, setFlash } from "../auth.js";
-import { GAME } from "../config.js";
+import { ACHIEVEMENT_TIER_NAMES, ACHIEVEMENTS, GAME } from "../config.js";
+import { gangOf } from "../game/gangs.js";
 import { attackRange } from "../game/formulas.js";
 import { effectiveStats, rankOf } from "../game/stats.js";
 import { fightDisplay, type FightRowNamed } from "../game/logtext.js";
@@ -65,6 +66,32 @@ export function fightRoutes(db: Db): Router {
   // ------------------------------------------------------------- Highscore
   r.get("/highscore", (req, res) => {
     const user = res.locals.user as UserRow;
+    if (String((req.query as any).typ) === "banden") {
+      const gangRows = db
+        .prepare(
+          `SELECT gangs.id, gangs.name,
+                  COUNT(gang_members.user_id) AS members,
+                  COALESCE(SUM(users.points), 0) AS points
+           FROM gangs
+           LEFT JOIN gang_members ON gang_members.gang_id = gangs.id
+           LEFT JOIN users ON users.id = gang_members.user_id
+           GROUP BY gangs.id
+           ORDER BY points DESC, gangs.id ASC LIMIT 50`,
+        )
+        .all() as unknown as Array<{
+        id: number;
+        name: string;
+        members: number;
+        points: number;
+      }>;
+      const myGang = gangOf(db, user.id);
+      return res.render("highscore-banden", {
+        title: "Banden-Highscore",
+        active: "highscore",
+        rows: gangRows,
+        myGangId: myGang?.gang.id ?? null,
+      });
+    }
     const pageSize = 25;
     const total = (
       db.prepare("SELECT COUNT(*) AS n FROM users").get() as unknown as { n: number }
@@ -112,11 +139,31 @@ export function fightRoutes(db: Db): Router {
     }
     const busy = svc.activePhysicalAction(db, me.id);
     const check = me.id === them.id ? null : svc.canAttack(db, me, them);
+    // Auszeichnungen: höchste Stufe je Typ, nur wenn öffentlich (Kap. 10/12).
+    const achievements =
+      them.show_achievements === 1
+        ? (db
+            .prepare(
+              `SELECT type, MAX(tier) AS tier FROM achievements
+               WHERE user_id = ? GROUP BY type`,
+            )
+            .all(them.id) as unknown as Array<{ type: string; tier: number }>)
+            .map((a) => {
+              const def = ACHIEVEMENTS.find((d) => d.type === a.type);
+              return def
+                ? { name: def.name, tierName: ACHIEVEMENT_TIER_NAMES[a.tier - 1] }
+                : null;
+            })
+            .filter((a): a is { name: string; tierName: string } => a !== null)
+        : null;
     res.render("profil", {
       title: `Profil von ${them.username}`,
       active: "kampf",
       them,
       themRank: rankOf(db, them),
+      themGang: gangOf(db, them.id)?.gang ?? null,
+      themOnVacation: svc.isOnVacation(them),
+      achievements,
       isMe: me.id === them.id,
       canAttackNow: check !== null && check.ok && !busy,
       attackBlockReason:

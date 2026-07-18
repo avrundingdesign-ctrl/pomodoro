@@ -78,7 +78,8 @@ test("Verbrechen: Gates (Geschick + Unterkunft), Chance-Formel, Auflösung", (t)
   const after = fresh(db, user.id).money;
   if (r.success) {
     assert.ok(r.loot >= automat.lootMin && r.loot <= automat.lootMax);
-    assert.equal(after, Math.min(GAME.BASE_CAPACITY, before + r.kept));
+    assert.equal(r.kept + r.lost, r.loot, "Beute = behalten + Überlauf");
+    assert.equal(after, before + r.kept, "addMoney kürzt nie den Bestand");
   } else {
     assert.equal(r.fine, Math.min(before, automat.fine));
     assert.equal(after, before - r.fine);

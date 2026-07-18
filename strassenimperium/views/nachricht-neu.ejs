@@ -1,0 +1,17 @@
+<%- include('partials/head', { title, active }) %>
+<section class="card auth-card">
+  <h1>Neue Nachricht</h1>
+  <% if (error) { %><div class="flash err"><%= error %></div><% } %>
+  <form method="post" action="/nachrichten/neu" class="stack">
+    <input type="hidden" name="_csrf" value="<%= csrf %>">
+    <label>An (Spielername)
+      <input type="text" name="an" value="<%= an %>" required>
+    </label>
+    <label>Nachricht <span class="muted">(max. <%= GAME.MESSAGE_MAX_LENGTH %> Zeichen)</span>
+      <textarea name="text" rows="7" maxlength="<%= GAME.MESSAGE_MAX_LENGTH %>" required><%= body %></textarea>
+    </label>
+    <button class="btn btn-primary" type="submit">Abschicken</button>
+  </form>
+  <p><a href="/nachrichten">← Zum Postfach</a></p>
+</section>
+<%- include('partials/foot') %>

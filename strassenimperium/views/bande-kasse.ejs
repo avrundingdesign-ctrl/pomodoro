@@ -1,0 +1,43 @@
+<%- include('partials/head', { title, active }) %>
+<h1>Bandenkasse — <%= gang.name %></h1>
+<p class="muted">
+  Kassenstand: <strong><%= fmtMoney(gang.treasury) %></strong> ·
+  Tageslimit für Auszahlungen: <strong><%= fmtMoney(limit) %></strong>
+  (heute schon <%= fmtMoney(usedToday) %> ausgezahlt — Bandenkonto-Ausbau erhöht das Limit).
+</p>
+<div class="grid-2">
+  <section class="card">
+    <h2>Einzahlen</h2>
+    <p class="muted small">Jedes Mitglied kann einzahlen. Rückgabe? Nur über den Boss.</p>
+    <form method="post" action="/bande/kasse/einzahlen" class="stack">
+      <input type="hidden" name="_csrf" value="<%= csrf %>">
+      <label>Betrag in €
+        <input type="number" name="betrag" min="0.01" step="0.01" required placeholder="z. B. 5,00">
+      </label>
+      <button class="btn btn-primary" type="submit">In die Kasse legen</button>
+    </form>
+  </section>
+  <section class="card">
+    <h2>Auszahlen</h2>
+    <% if (role === 'member') { %>
+      <p class="muted">Nur Boss und Co-Bosse dürfen an Mitglieder auszahlen.</p>
+    <% } else { %>
+      <form method="post" action="/bande/kasse/auszahlen" class="stack">
+        <input type="hidden" name="_csrf" value="<%= csrf %>">
+        <label>An Mitglied
+          <select name="mitglied">
+            <% for (const m of members) { %>
+              <option value="<%= m.id %>"><%= m.username %></option>
+            <% } %>
+          </select>
+        </label>
+        <label>Betrag in €
+          <input type="number" name="betrag" min="0.01" step="0.01" required>
+        </label>
+        <button class="btn btn-primary" type="submit">Auszahlen</button>
+      </form>
+    <% } %>
+  </section>
+</div>
+<p><a href="/bande">← Zur Bande</a></p>
+<%- include('partials/foot') %>

@@ -1,0 +1,38 @@
+<%- include('partials/head', { title, active }) %>
+<h1>Bande</h1>
+<p class="muted">
+  Allein bist du eine Randnotiz, mit Bande eine Schlagzeile: gemeinsame Kasse,
+  Gebäude mit Boni für alle und bald Bandenkriege um den Ruhm der Straße.
+</p>
+<div class="grid-2">
+  <section class="card">
+    <h2>Bande gründen</h2>
+    <p class="muted">Kostet <%= fmtMoney(foundCost) %> Startkapital — du wirst Boss.</p>
+    <form method="post" action="/bande/gruenden" class="stack">
+      <input type="hidden" name="_csrf" value="<%= csrf %>">
+      <label>Bandenname
+        <input type="text" name="name" required minlength="3" maxlength="30">
+      </label>
+      <label>Banden-Passwort <span class="muted">(zum Beitreten)</span>
+        <input type="text" name="password" required minlength="4">
+      </label>
+      <button class="btn btn-primary" type="submit">Gründen</button>
+    </form>
+  </section>
+  <section class="card">
+    <h2>Bande beitreten</h2>
+    <p class="muted">Name und Passwort bekommst du vom Boss.</p>
+    <form method="post" action="/bande/beitreten" class="stack">
+      <input type="hidden" name="_csrf" value="<%= csrf %>">
+      <label>Bandenname
+        <input type="text" name="name" required>
+      </label>
+      <label>Banden-Passwort
+        <input type="text" name="password" required>
+      </label>
+      <button class="btn btn-primary" type="submit">Beitreten</button>
+    </form>
+  </section>
+</div>
+<p class="muted"><a href="/highscore?typ=banden">→ Banden-Highscore ansehen</a></p>
+<%- include('partials/foot') %>

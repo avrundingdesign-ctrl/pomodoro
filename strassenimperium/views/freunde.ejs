@@ -1,0 +1,92 @@
+<%- include('partials/head', { title, active }) %>
+<h1>Freunde & Blockliste</h1>
+
+<div class="grid-2">
+  <section class="card">
+    <h2>Freund hinzufügen</h2>
+    <form method="post" action="/freunde/hinzufuegen" class="stack">
+      <input type="hidden" name="_csrf" value="<%= csrf %>">
+      <input type="hidden" name="typ" value="friend">
+      <label>Spielername
+        <input type="text" name="name" required placeholder="Wen kennst du von der Straße?">
+      </label>
+      <button class="btn btn-primary" type="submit">Hinzufügen</button>
+    </form>
+  </section>
+  <section class="card">
+    <h2>Jemanden blockieren</h2>
+    <p class="muted small">Blockierte können dir keine Nachrichten mehr schicken.</p>
+    <form method="post" action="/freunde/hinzufuegen" class="stack">
+      <input type="hidden" name="_csrf" value="<%= csrf %>">
+      <input type="hidden" name="typ" value="block">
+      <label>Spielername
+        <input type="text" name="name" required>
+      </label>
+      <button class="btn btn-danger" type="submit">Blockieren</button>
+    </form>
+  </section>
+</div>
+
+<section class="card">
+  <h2>Freundesliste (<%= friends.length %>)</h2>
+  <% if (friends.length === 0) { %>
+    <p class="muted">Noch niemand hier. Die Straße ist rau, aber nicht ohne Herz.</p>
+  <% } else { %>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Name</th><th>Status</th><th>Notiz</th><th></th></tr></thead>
+        <tbody>
+          <% for (const f of friends) { %>
+            <tr>
+              <td><a href="/profil/<%= encodeURIComponent(f.username) %>"><%= f.username %></a></td>
+              <td><span class="badge <%= f.online ? 'on' : '' %>"><%= f.online ? 'online' : 'offline' %></span></td>
+              <td>
+                <form method="post" action="/freunde/notiz" class="inline notiz-form">
+                  <input type="hidden" name="_csrf" value="<%= csrf %>">
+                  <input type="hidden" name="id" value="<%= f.id %>">
+                  <input type="text" name="note" value="<%= f.note %>" placeholder="Notiz …" maxlength="200">
+                  <button class="btn btn-sm" type="submit">💾</button>
+                </form>
+              </td>
+              <td>
+                <a class="btn btn-sm" href="/nachrichten/neu?an=<%= encodeURIComponent(f.username) %>">✉️ Schreiben</a>
+                <form method="post" action="/freunde/entfernen" class="inline">
+                  <input type="hidden" name="_csrf" value="<%= csrf %>">
+                  <input type="hidden" name="id" value="<%= f.id %>">
+                  <button class="btn btn-sm btn-danger" type="submit">Entfernen</button>
+                </form>
+              </td>
+            </tr>
+          <% } %>
+        </tbody>
+      </table>
+    </div>
+  <% } %>
+</section>
+
+<section class="card">
+  <h2>Blockliste (<%= blocked.length %>)</h2>
+  <% if (blocked.length === 0) { %>
+    <p class="muted">Niemand blockiert. Entweder bist du sehr geduldig oder sehr neu.</p>
+  <% } else { %>
+    <div class="table-wrap">
+      <table>
+        <tbody>
+          <% for (const b of blocked) { %>
+            <tr>
+              <td><%= b.username %></td>
+              <td>
+                <form method="post" action="/freunde/entfernen" class="inline">
+                  <input type="hidden" name="_csrf" value="<%= csrf %>">
+                  <input type="hidden" name="id" value="<%= b.id %>">
+                  <button class="btn btn-sm" type="submit">Entblockieren</button>
+                </form>
+              </td>
+            </tr>
+          <% } %>
+        </tbody>
+      </table>
+    </div>
+  <% } %>
+</section>
+<%- include('partials/foot') %>

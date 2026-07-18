@@ -7,6 +7,8 @@ import { addMoney } from "./money.js";
 import { effectiveStats } from "./stats.js";
 import { districtOf } from "./districts.js";
 import { promilleOf } from "./promille.js";
+import { awardAchievements } from "./achievements.js";
+import { gangIncomeFactor } from "./gangs.js";
 
 /**
  * Betteln per Spendenlink (Kap. 5/10): Jeder Klick eines Dritten zahlt einen
@@ -73,7 +75,11 @@ export function recordDonationClick(
     if (inserted.changes === 0) {
       return { paid: false, amount: 0, reason: "duplicate" as const };
     }
-    const amount = donationAmountFor(db, user);
+    // Bandenkonto erhöht, Urlaubsmodus halbiert die Einnahme (Kap. 11/14).
+    let amount = Math.round(donationAmountFor(db, user) * gangIncomeFactor(db, user.id));
+    if (user.vacation_until > now()) {
+      amount = Math.max(1, Math.round(amount * GAME.VACATION_INCOME_FACTOR));
+    }
     const added = addMoney(db, user.id, amount).added;
     db.prepare("UPDATE donation_clicks SET amount = ? WHERE user_id = ? AND ip_hash = ? AND day = ?").run(
       added,
@@ -81,6 +87,8 @@ export function recordDonationClick(
       ipHash,
       day,
     );
+    db.prepare("UPDATE users SET donations_got = donations_got + 1 WHERE id = ?").run(user.id);
+    awardAchievements(db, user.id);
     return { paid: true, amount: added, reason: "ok" as const };
   });
 }
