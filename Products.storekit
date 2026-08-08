@@ -1,83 +1,77 @@
 {
-  "identifier" : "F0C05B1E-0000-4000-8000-000000000001",
-  "nonRenewingSubscriptions" : [
-
-  ],
-  "products" : [
+  "identifier": "F0C05B1E-0000-4000-8000-000000000001",
+  "nonRenewingSubscriptions": [],
+  "products": [
     {
-      "displayPrice" : "2.99",
-      "familyShareable" : false,
-      "internalID" : "F0C05B1E-0000-4000-8000-0000000000A1",
-      "localizations" : [
+      "displayPrice": "2.99",
+      "familyShareable": false,
+      "internalID": "F0C05B1E-0000-4000-8000-0000000000A1",
+      "localizations": [
         {
-          "description" : "Vier Hauptwerke des Impressionismus als neues Set.",
-          "displayName" : "Impressionen",
-          "locale" : "de_DE"
+          "description": "Vier Hauptwerke des Impressionismus als neues Set.",
+          "displayName": "Impressionen",
+          "locale": "de_DE"
         },
         {
-          "description" : "Four masterworks of Impressionism as a new set.",
-          "displayName" : "Impressionen",
-          "locale" : "en_US"
+          "description": "Four masterworks of Impressionism as a new set.",
+          "displayName": "Impressions",
+          "locale": "en_US"
         }
       ],
-      "productID" : "com.focuspiece.app.pack.impressionen",
-      "referenceName" : "Pack Impressionen",
-      "type" : "NonConsumable"
+      "productID": "com.focuspiece.app.pack.impressionen",
+      "referenceName": "Pack Impressionen",
+      "type": "NonConsumable"
     },
     {
-      "displayPrice" : "2.99",
-      "familyShareable" : false,
-      "internalID" : "F0C05B1E-0000-4000-8000-0000000000A2",
-      "localizations" : [
+      "displayPrice": "2.99",
+      "familyShareable": false,
+      "internalID": "F0C05B1E-0000-4000-8000-0000000000A2",
+      "localizations": [
         {
-          "description" : "Vermeer und Rembrandt: vier Werke des Goldenen Zeitalters.",
-          "displayName" : "Goldenes Zeitalter",
-          "locale" : "de_DE"
+          "description": "Vermeer und Rembrandt: vier Werke des Goldenen Zeitalters.",
+          "displayName": "Goldenes Zeitalter",
+          "locale": "de_DE"
         },
         {
-          "description" : "Vermeer and Rembrandt: four works of the Dutch Golden Age.",
-          "displayName" : "Goldenes Zeitalter",
-          "locale" : "en_US"
+          "description": "Vermeer and Rembrandt: four works of the Dutch Golden Age.",
+          "displayName": "Dutch Golden Age",
+          "locale": "en_US"
         }
       ],
-      "productID" : "com.focuspiece.app.pack.goldenes_zeitalter",
-      "referenceName" : "Pack Goldenes Zeitalter",
-      "type" : "NonConsumable"
+      "productID": "com.focuspiece.app.pack.goldenes_zeitalter",
+      "referenceName": "Pack Goldenes Zeitalter",
+      "type": "NonConsumable"
     },
     {
-      "displayPrice" : "2.99",
-      "familyShareable" : false,
-      "internalID" : "F0C05B1E-0000-4000-8000-0000000000A3",
-      "localizations" : [
+      "displayPrice": "2.99",
+      "familyShareable": false,
+      "internalID": "F0C05B1E-0000-4000-8000-0000000000A3",
+      "localizations": [
         {
-          "description" : "Vier Nächte der Kunstgeschichte, vom Abendlicht bis zum Sternenhimmel.",
-          "displayName" : "Nachtstücke",
-          "locale" : "de_DE"
+          "description": "Vier Nächte der Kunstgeschichte, vom Abendlicht bis zum Sternenhimmel.",
+          "displayName": "Nachtstücke",
+          "locale": "de_DE"
         },
         {
-          "description" : "Four nights of art history, from evening light to starry skies.",
-          "displayName" : "Nachtstücke",
-          "locale" : "en_US"
+          "description": "Four nights of art history, from evening light to starry skies.",
+          "displayName": "Nocturnes",
+          "locale": "en_US"
         }
       ],
-      "productID" : "com.focuspiece.app.pack.nachtstuecke",
-      "referenceName" : "Pack Nachtstuecke",
-      "type" : "NonConsumable"
+      "productID": "com.focuspiece.app.pack.nachtstuecke",
+      "referenceName": "Pack Nachtstuecke",
+      "type": "NonConsumable"
     }
   ],
-  "settings" : {
-    "_failTransactionsEnabled" : false,
-    "_locale" : "de_DE",
-    "_storefront" : "DEU",
-    "_storeKitErrors" : [
-
-    ]
+  "settings": {
+    "_failTransactionsEnabled": false,
+    "_locale": "de_DE",
+    "_storefront": "DEU",
+    "_storeKitErrors": []
   },
-  "subscriptionGroups" : [
-
-  ],
-  "version" : {
-    "major" : 3,
-    "minor" : 0
+  "subscriptionGroups": [],
+  "version": {
+    "major": 3,
+    "minor": 0
   }
 }

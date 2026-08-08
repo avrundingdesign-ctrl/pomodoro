@@ -167,7 +167,7 @@ private struct ActiveSessionView: View {
                 readyTimerBlock(caption: initialCaption)
             case .roundReady:
                 Spacer().frame(height: 30)
-                readyTimerBlock(caption: "Die Pause ist vorbei — weiter geht's.")
+                readyTimerBlock(caption: String(localized: "Die Pause ist vorbei — weiter geht's."))
             default:
                 progressBar.padding(.top, 26)
                 if session.totalRounds > 1 {
@@ -202,16 +202,17 @@ private struct ActiveSessionView: View {
     private var headerTitle: String {
         switch screen {
         case .initialReady:
-            return "Neue Session"
+            return String(localized: "Neue Session")
         case .breakReady:
-            return "Pause"
+            return String(localized: "Pause")
         case .roundReady:
             return session.roundLabel
         case .active:
             switch session.phase {
-            case .focus:      return session.totalRounds > 1 ? session.roundLabel : "Fokus"
-            case .shortBreak: return "Pause"
-            case .longBreak:  return "Lange Pause"
+            case .focus:      return session.totalRounds > 1 ? session.roundLabel
+                                                             : String(localized: "Fokus")
+            case .shortBreak: return String(localized: "Pause")
+            case .longBreak:  return String(localized: "Lange Pause")
             }
         }
     }
@@ -238,12 +239,13 @@ private struct ActiveSessionView: View {
     private var statusText: String {
         let prefix: String
         if session.state == .paused {
-            prefix = "PAUSIERT"
+            prefix = String(localized: "PAUSIERT")
         } else {
             switch session.phase {
-            case .focus:      prefix = session.progress >= 0.7 ? "FAST GESCHAFFT" : "FOKUS LÄUFT"
-            case .shortBreak: prefix = "KURZE PAUSE"
-            case .longBreak:  prefix = "LANGE PAUSE"
+            case .focus:      prefix = session.progress >= 0.7 ? String(localized: "FAST GESCHAFFT")
+                                                               : String(localized: "FOKUS LÄUFT")
+            case .shortBreak: prefix = String(localized: "KURZE PAUSE")
+            case .longBreak:  prefix = String(localized: "LANGE PAUSE")
             }
         }
         return "\(prefix) · \(session.revealedLabel)"
@@ -291,8 +293,8 @@ private struct ActiveSessionView: View {
 
     private var initialCaption: String {
         session.totalRounds > 1
-            ? "Minuten Fokus · \(session.totalRounds) Runden"
-            : "Minuten ungestörter Fokus"
+            ? String(localized: "Minuten Fokus · \(session.totalRounds) Runden")
+            : String(localized: "Minuten ungestörter Fokus")
     }
 
     // Ready states show the timer under the card.

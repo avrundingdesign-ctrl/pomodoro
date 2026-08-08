@@ -83,9 +83,9 @@ final class SessionModel: ObservableObject {
         return min(Self.tileCount, Int(floor(progress * Double(Self.tileCount))))
     }
     /// "9 VON 20 TEILEN"
-    var revealedLabel: String { "\(revealedCount) VON \(Self.tileCount) TEILEN" }
+    var revealedLabel: String { String(localized: "\(revealedCount) VON \(Self.tileCount) TEILEN") }
     /// "Runde 2 von 4"
-    var roundLabel: String { "Runde \(round) von \(totalRounds)" }
+    var roundLabel: String { String(localized: "Runde \(round) von \(totalRounds)") }
 
     var timeString: String {
         let m = remainingSeconds / 60, s = remainingSeconds % 60
@@ -209,17 +209,17 @@ final class SessionModel: ObservableObject {
         let title: String, body: String
         switch phase {
         case .focus where completedRounds + 1 >= totalRounds:
-            title = "Session vollendet"
-            body = "Dein Werk ist vollständig enthüllt — komm zurück und betrachte es."
+            title = String(localized: "Session vollendet")
+            body = String(localized: "Dein Werk ist vollständig enthüllt — komm zurück und betrachte es.")
         case .focus:
-            title = "Runde \(round) geschafft"
-            body = "Gönn dir \(shortBreakMinutes) Minuten Pause — dein Werk nimmt Gestalt an."
+            title = String(localized: "Runde \(round) geschafft")
+            body = String(localized: "Gönn dir \(shortBreakMinutes) Minuten Pause — dein Werk nimmt Gestalt an.")
         case .shortBreak:
-            title = "Pause vorbei"
-            body = "Bereit für Runde \(round + 1) von \(totalRounds)? Dein Werk wartet."
+            title = String(localized: "Pause vorbei")
+            body = String(localized: "Bereit für Runde \(round + 1) von \(totalRounds)? Dein Werk wartet.")
         case .longBreak:
-            title = "Pause beendet"
-            body = "Gut erholt — dein Werk hängt bereits in der Galerie."
+            title = String(localized: "Pause beendet")
+            body = String(localized: "Gut erholt — dein Werk hängt bereits in der Galerie.")
         }
         NotificationManager.shared.scheduleSessionEnd(after: seconds, title: title, body: body)
     }

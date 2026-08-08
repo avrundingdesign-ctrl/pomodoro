@@ -95,10 +95,10 @@ struct PaywallView: View {
                 app.applyPurchasedProducts(store.purchasedProductIDs)
                 restoring = false
                 message = store.purchasedProductIDs.isEmpty
-                    ? PaywallMessage(title: "Keine Käufe gefunden",
-                                     text: "Mit dieser Apple-ID wurden noch keine Sets gekauft.")
-                    : PaywallMessage(title: "Käufe wiederhergestellt",
-                                     text: "Deine Sets sind wieder Teil der Sammlung.")
+                    ? PaywallMessage(title: String(localized: "Keine Käufe gefunden"),
+                                     text: String(localized: "Mit dieser Apple-ID wurden noch keine Sets gekauft."))
+                    : PaywallMessage(title: String(localized: "Käufe wiederhergestellt"),
+                                     text: String(localized: "Deine Sets sind wieder Teil der Sammlung."))
             }
         }
         .accessibilityIdentifier("paywall.restore")
@@ -130,18 +130,18 @@ struct PaywallView: View {
         case .success:
             app.applyPurchasedProducts(store.purchasedProductIDs)
             message = PaywallMessage(
-                title: "Freigeschaltet",
-                text: "„\(pack.title)“ gehört jetzt zu deiner Sammlung. Fokussiere, um die Werke zu enthüllen.")
+                title: String(localized: "Freigeschaltet"),
+                text: String(localized: "„\(pack.title)“ gehört jetzt zu deiner Sammlung. Fokussiere, um die Werke zu enthüllen."))
         case .pending:
             message = PaywallMessage(
-                title: "Kauf ausstehend",
-                text: "Der Kauf wartet auf eine Bestätigung (z. B. „Bitten, um zu kaufen“). Die Werke erscheinen automatisch, sobald er genehmigt ist.")
+                title: String(localized: "Kauf ausstehend"),
+                text: String(localized: "Der Kauf wartet auf eine Bestätigung (z. B. „Bitten, um zu kaufen“). Die Werke erscheinen automatisch, sobald er genehmigt ist."))
         case .cancelled:
             break
         case .failed:
             message = PaywallMessage(
-                title: "Kauf fehlgeschlagen",
-                text: "Der Kauf konnte nicht abgeschlossen werden. Bitte versuch es später erneut.")
+                title: String(localized: "Kauf fehlgeschlagen"),
+                text: String(localized: "Der Kauf konnte nicht abgeschlossen werden. Bitte versuch es später erneut."))
         }
     }
 }
@@ -158,7 +158,7 @@ private struct PackCard: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 14) {
             VStack(alignment: .leading, spacing: 3) {
-                Text(pack.countLabel.uppercased() + " · EINMALIGER KAUF")
+                Text("\(pack.works.count) WERKE · EINMALIGER KAUF")
                     .font(Theme.Font.sans(10, weight: .semibold))
                     .tracking(1.6)
                     .foregroundStyle(Theme.Palette.muted3)

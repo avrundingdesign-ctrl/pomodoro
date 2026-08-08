@@ -1,0 +1,3318 @@
+{
+  "sourceLanguage": "de",
+  "strings": {
+    "%@ Std Fokus": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ Std Fokus"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ h focused"
+          }
+        }
+      }
+    },
+    "%lld": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld"
+          }
+        }
+      }
+    },
+    "%lld MINUTEN FOKUS": {
+      "localizations": {
+        "de": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld MINUTE FOKUS"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld MINUTEN FOKUS"
+                }
+              }
+            }
+          }
+        },
+        "en": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld MINUTE OF FOCUS"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld MINUTES OF FOCUS"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "%lld Min": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld Min"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld min"
+          }
+        }
+      }
+    },
+    "%lld Min Fokus": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld Min Fokus"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld min focused"
+          }
+        }
+      }
+    },
+    "%lld Min Pause": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld Min Pause"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld min break"
+          }
+        }
+      }
+    },
+    "%lld Minuten": {
+      "localizations": {
+        "de": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld Minute"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld Minuten"
+                }
+              }
+            }
+          }
+        },
+        "en": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld minute"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld minutes"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "%lld Runden": {
+      "localizations": {
+        "de": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld Runde"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld Runden"
+                }
+              }
+            }
+          }
+        },
+        "en": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld round"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld rounds"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "%lld Std": {
+      "localizations": {
+        "de": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld Std"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld Std"
+                }
+              }
+            }
+          }
+        },
+        "en": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld hr"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld hrs"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "%lld Std %lld Min": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld Std %lld Min"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$lld hr %2$lld min"
+          }
+        }
+      }
+    },
+    "%lld VON %lld TEILEN": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld VON %lld TEILEN"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$lld OF %2$lld PIECES"
+          }
+        }
+      }
+    },
+    "%lld WERKE · EINMALIGER KAUF": {
+      "localizations": {
+        "de": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld WERK · EINMALIGER KAUF"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld WERKE · EINMALIGER KAUF"
+                }
+              }
+            }
+          }
+        },
+        "en": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld WORK · ONE-TIME PURCHASE"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld WORKS · ONE-TIME PURCHASE"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "%lld Werke": {
+      "localizations": {
+        "de": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld Werk"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld Werke"
+                }
+              }
+            }
+          }
+        },
+        "en": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld work"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld works"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "%lld von %lld Werken enthüllt": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld von %lld Werken enthüllt"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$lld of %2$lld works revealed"
+          }
+        }
+      }
+    },
+    "Abschluss-Ton": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Abschluss-Ton"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Completion chime"
+          }
+        }
+      }
+    },
+    "Acht Meisterwerke zum Start — von der großen Welle bis zur Sternennacht.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Acht Meisterwerke zum Start — von der großen Welle bis zur Sternennacht."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Eight masterpieces to begin with — from the Great Wave to the Starry Night."
+          }
+        }
+      }
+    },
+    "Alle Werke enthüllt": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Alle Werke enthüllt"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Every work revealed"
+          }
+        }
+      }
+    },
+    "Als Sperrbildschirm setzen": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Als Sperrbildschirm setzen"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Set as lock screen"
+          }
+        }
+      }
+    },
+    "Ansicht von Delft": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ansicht von Delft"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "View of Delft"
+          }
+        }
+      }
+    },
+    "Aus Konzentration wird ein Meisterwerk.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aus Konzentration wird ein Meisterwerk."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Concentration becomes a masterpiece."
+          }
+        }
+      }
+    },
+    "Benachrichtigungen": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Benachrichtigungen"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Notifications"
+          }
+        }
+      }
+    },
+    "Bereit für Runde %lld von %lld? Dein Werk wartet.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bereit für Runde %lld von %lld? Dein Werk wartet."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ready for round %1$lld of %2$lld? Your work is waiting."
+          }
+        }
+      }
+    },
+    "Bildband": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bildband"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Set"
+          }
+        }
+      }
+    },
+    "Bleib im Bild": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bleib im Bild"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stay in the picture"
+          }
+        }
+      }
+    },
+    "Caféterrasse am Abend": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Caféterrasse am Abend"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Café Terrace at Night"
+          }
+        }
+      }
+    },
+    "Camille Monet auf einer Anhöhe, der Stoff im Sommerwind, das Gras voller Licht. Ein Augenblick, festgehalten in wenigen Minuten.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Camille Monet auf einer Anhöhe, der Stoff im Sommerwind, das Gras voller Licht. Ein Augenblick, festgehalten in wenigen Minuten."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Camille Monet on a rise, her dress in the summer wind, the grass full of light. A moment caught in a matter of minutes."
+          }
+        }
+      }
+    },
+    "Darstellung": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Darstellung"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Appearance"
+          }
+        }
+      }
+    },
+    "Das Mädchen mit dem Perlenohrring": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Das Mädchen mit dem Perlenohrring"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Girl with a Pearl Earring"
+          }
+        }
+      }
+    },
+    "Datenschutz": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Datenschutz"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Privacy Policy"
+          }
+        }
+      }
+    },
+    "Dein Werk bleibt verborgen — die Enthüllung geht verloren.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dein Werk bleibt verborgen — die Enthüllung geht verloren."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your work stays hidden — the reveal will be lost."
+          }
+        }
+      }
+    },
+    "Dein Werk ist vollständig enthüllt — komm zurück und betrachte es.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dein Werk ist vollständig enthüllt — komm zurück und betrachte es."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your work is fully revealed — come back and take it in."
+          }
+        }
+      }
+    },
+    "Deine Sets sind wieder Teil der Sammlung.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Deine Sets sind wieder Teil der Sammlung."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your sets are part of the collection again."
+          }
+        }
+      }
+    },
+    "Der Fuji glüht im Licht eines klaren Spätsommermorgens. Aus derselben Serie wie die große Welle — Stille statt Sturm.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Der Fuji glüht im Licht eines klaren Spätsommermorgens. Aus derselben Serie wie die große Welle — Stille statt Sturm."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mount Fuji glowing in the light of a clear late-summer morning. From the same series as the Great Wave — stillness instead of storm."
+          }
+        }
+      }
+    },
+    "Der Hafen von Le Havre im Morgendunst. Das Bild, das der gesamten Bewegung des Impressionismus ihren Namen gab.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Der Hafen von Le Havre im Morgendunst. Das Bild, das der gesamten Bewegung des Impressionismus ihren Namen gab."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The harbour of Le Havre in the morning haze. The painting that gave the whole Impressionist movement its name."
+          }
+        }
+      }
+    },
+    "Der Kauf konnte nicht abgeschlossen werden. Bitte versuch es später erneut.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Der Kauf konnte nicht abgeschlossen werden. Bitte versuch es später erneut."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The purchase couldn't be completed. Please try again later."
+          }
+        }
+      }
+    },
+    "Der Kauf wartet auf eine Bestätigung (z. B. „Bitten, um zu kaufen“). Die Werke erscheinen automatisch, sobald er genehmigt ist.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Der Kauf wartet auf eine Bestätigung (z. B. „Bitten, um zu kaufen“). Die Werke erscheinen automatisch, sobald er genehmigt ist."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The purchase is waiting for approval (for example “Ask to Buy”). The works will appear automatically once it goes through."
+          }
+        }
+      }
+    },
+    "Der Kuss": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Der Kuss"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The Kiss"
+          }
+        }
+      }
+    },
+    "Der Wanderer": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Der Wanderer"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wanderer above the Sea of Fog"
+          }
+        }
+      }
+    },
+    "Die Eröffnungssammlung": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Die Eröffnungssammlung"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The opening collection"
+          }
+        }
+      }
+    },
+    "Die Kornernte": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Die Kornernte"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The Harvesters"
+          }
+        }
+      }
+    },
+    "Die Pause ist vorbei — weiter geht's.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Die Pause ist vorbei — weiter geht's."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Break's over — back to it."
+          }
+        }
+      }
+    },
+    "Die große Welle": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Die große Welle"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The Great Wave"
+          }
+        }
+      }
+    },
+    "Dienstmagd mit Milchkrug": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dienstmagd mit Milchkrug"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The Milkmaid"
+          }
+        }
+      }
+    },
+    "Drei Gestalten auf einem Felsen, Segel in der Dämmerung, der Mond hinter Wolken. Sehnsucht, in Farbe gefasst.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Drei Gestalten auf einem Felsen, Segel in der Dämmerung, der Mond hinter Wolken. Sehnsucht, in Farbe gefasst."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Three figures on a rock, sails in the dusk, the moon behind cloud. Longing, set down in colour."
+          }
+        }
+      }
+    },
+    "Drei ruhige Schritte": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Drei ruhige Schritte"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Three quiet steps"
+          }
+        }
+      }
+    },
+    "Dunkel": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dunkel"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dark"
+          }
+        }
+      }
+    },
+    "ENTHÜLLT": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ENTHÜLLT"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "REVEALED"
+          }
+        }
+      }
+    },
+    "ERSTE SESSION": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ERSTE SESSION"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "FIRST SESSION"
+          }
+        }
+      }
+    },
+    "Edo-Periode": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Edo-Periode"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Edo period"
+          }
+        }
+      }
+    },
+    "Ein Blick über die Schulter, ein Lichtpunkt auf der Perle — das „Mona Lisa des Nordens“ genannte Porträt lebt ganz vom Moment.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ein Blick über die Schulter, ein Lichtpunkt auf der Perle — das „Mona Lisa des Nordens“ genannte Porträt lebt ganz vom Moment."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A glance over the shoulder, a point of light on the pearl — the portrait known as the “Mona Lisa of the North” lives entirely in the moment."
+          }
+        }
+      }
+    },
+    "Ein Sonntagnachmittag auf dem Montmartre: Tanz, Gelächter und Sonnenflecken, die durch die Bäume fallen. Renoirs Hymne an das Pariser Leben.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ein Sonntagnachmittag auf dem Montmartre: Tanz, Gelächter und Sonnenflecken, die durch die Bäume fallen. Renoirs Hymne an das Pariser Leben."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A Sunday afternoon on Montmartre: dancing, laughter, and sunlight falling in patches through the trees. Renoir's hymn to Parisian life."
+          }
+        }
+      }
+    },
+    "Ein blühender Mandelzweig vor leuchtendem Blau — gemalt als Geschenk zur Geburt von van Goghs Neffen. Ein Bild der Hoffnung und des Neubeginns.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ein blühender Mandelzweig vor leuchtendem Blau — gemalt als Geschenk zur Geburt von van Goghs Neffen. Ein Bild der Hoffnung und des Neubeginns."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A flowering almond branch against luminous blue — painted as a gift for the birth of van Gogh's nephew. An image of hope and beginning again."
+          }
+        }
+      }
+    },
+    "Ein goldenes Erntefeld an einem schweren Sommertag. Eine der frühesten Landschaften, in der der Mensch Teil der Natur wird.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ein goldenes Erntefeld an einem schweren Sommertag. Eine der frühesten Landschaften, in der der Mensch Teil der Natur wird."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A golden field of wheat on a heavy summer day. One of the earliest landscapes in which people become part of nature."
+          }
+        }
+      }
+    },
+    "Eine Gestalt blickt über ein Meer aus Nebel — Sinnbild der Selbstbetrachtung und der Erhabenheit der Natur.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Eine Gestalt blickt über ein Meer aus Nebel — Sinnbild der Selbstbetrachtung und der Erhabenheit der Natur."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A figure looks out over a sea of fog — an emblem of self-reflection and the sublimity of nature."
+          }
+        }
+      }
+    },
+    "Eine gewaltige Welle türmt sich über kleinen Booten auf, während der Fuji in der Ferne ruht. Das wohl berühmteste japanische Kunstwerk der Welt.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Eine gewaltige Welle türmt sich über kleinen Booten auf, während der Fuji in der Ferne ruht. Das wohl berühmteste japanische Kunstwerk der Welt."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A towering wave rears over small boats while Mount Fuji rests in the distance. Probably the most famous Japanese artwork in the world."
+          }
+        }
+      }
+    },
+    "Einmalige Käufe — kein Abonnement. Die Abrechnung erfolgt über deine Apple-ID; Käufe lassen sich jederzeit auf Geräten mit derselben Apple-ID wiederherstellen. Bereits enthüllte Werke bleiben erhalten.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Einmalige Käufe — kein Abonnement. Die Abrechnung erfolgt über deine Apple-ID; Käufe lassen sich jederzeit auf Geräten mit derselben Apple-ID wiederherstellen. Bereits enthüllte Werke bleiben erhalten."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "One-time purchases — no subscription. Billing goes through your Apple ID; purchases can be restored at any time on devices using the same Apple ID. Works you have already revealed stay yours."
+          }
+        }
+      }
+    },
+    "Einstellungen": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Einstellungen"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Settings"
+          }
+        }
+      }
+    },
+    "Entstanden": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Entstanden"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Created"
+          }
+        }
+      }
+    },
+    "Epoche": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Epoche"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Period"
+          }
+        }
+      }
+    },
+    "Erneut laden": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Erneut laden"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reload"
+          }
+        }
+      }
+    },
+    "FAST GESCHAFFT": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "FAST GESCHAFFT"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ALMOST THERE"
+          }
+        }
+      }
+    },
+    "FOCUSPIECE": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "FOCUSPIECE"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "FOCUSPIECE"
+          }
+        }
+      }
+    },
+    "FOKUS": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "FOKUS"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "FOCUS"
+          }
+        }
+      }
+    },
+    "FOKUS LÄUFT": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "FOKUS LÄUFT"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "FOCUSING"
+          }
+        }
+      }
+    },
+    "Fokus": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fokus"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Focus"
+          }
+        }
+      }
+    },
+    "Fokus beginnen": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fokus beginnen"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Begin focus"
+          }
+        }
+      }
+    },
+    "Fokus-Session": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fokus-Session"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Focus session"
+          }
+        }
+      }
+    },
+    "Fokusdauer": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fokusdauer"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Focus length"
+          }
+        }
+      }
+    },
+    "Fokussiere, um\nfreizuschalten": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fokussiere, um\nfreizuschalten"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Focus to\nunlock"
+          }
+        }
+      }
+    },
+    "Fortsetzen": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fortsetzen"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Resume"
+          }
+        }
+      }
+    },
+    "Frau mit Sonnenschirm": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Frau mit Sonnenschirm"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Woman with a Parasol"
+          }
+        }
+      }
+    },
+    "Frei": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Frei"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Free"
+          }
+        }
+      }
+    },
+    "Freie Session": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Freie Session"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Free session"
+          }
+        }
+      }
+    },
+    "Freigeschaltet": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Freigeschaltet"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unlocked"
+          }
+        }
+      }
+    },
+    "Freischalten · %@": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Freischalten · %@"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unlock · %@"
+          }
+        }
+      }
+    },
+    "Funken eines Feuerwerks fallen durch die Nacht über dem Themse-Ufer — Malerei an der Schwelle zur Abstraktion.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Funken eines Feuerwerks fallen durch die Nacht über dem Themse-Ufer — Malerei an der Schwelle zur Abstraktion."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sparks from a firework fall through the night above the Thames — painting on the threshold of abstraction."
+          }
+        }
+      }
+    },
+    "Galerie": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Galerie"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gallery"
+          }
+        }
+      }
+    },
+    "Gaslaternen spiegeln sich im Fluss, darüber der Große Wagen. Van Goghs erste große Sternennacht — ruhiger als ihre berühmte Schwester.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gaslaternen spiegeln sich im Fluss, darüber der Große Wagen. Van Goghs erste große Sternennacht — ruhiger als ihre berühmte Schwester."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gas lamps reflected in the river, the Plough overhead. Van Gogh's first great starry night — quieter than its famous sister."
+          }
+        }
+      }
+    },
+    "Gaslicht strahlt gelb in die blaue Nacht von Arles. Ein Nachthimmel voller Sterne — gemalt ganz ohne Schwarz.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gaslicht strahlt gelb in die blaue Nacht von Arles. Ein Nachthimmel voller Sterne — gemalt ganz ohne Schwarz."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gaslight glows yellow into the blue night of Arles. A sky full of stars — painted without using any black at all."
+          }
+        }
+      }
+    },
+    "Goldenes Zeitalter": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Goldenes Zeitalter"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dutch Golden Age"
+          }
+        }
+      }
+    },
+    "Gut erholt — dein Werk hängt bereits in der Galerie.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gut erholt — dein Werk hängt bereits in der Galerie."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Well rested — your work is already hanging in the gallery."
+          }
+        }
+      }
+    },
+    "Gönn dir %lld Minuten Pause — dein Werk nimmt Gestalt an.": {
+      "localizations": {
+        "de": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Gönn dir %lld Minute Pause — dein Werk nimmt Gestalt an."
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Gönn dir %lld Minuten Pause — dein Werk nimmt Gestalt an."
+                }
+              }
+            }
+          }
+        },
+        "en": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Take %lld minute to breathe — your work is taking shape."
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Take %lld minutes to breathe — your work is taking shape."
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "Gönn dir %lld Minuten Pause — dein Werk wächst.": {
+      "localizations": {
+        "de": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Gönn dir %lld Minute Pause — dein Werk wächst."
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Gönn dir %lld Minuten Pause — dein Werk wächst."
+                }
+              }
+            }
+          }
+        },
+        "en": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Take %lld minute to breathe — your work is growing."
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Take %lld minutes to breathe — your work is growing."
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "Haptisches Feedback": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Haptisches Feedback"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Haptic feedback"
+          }
+        }
+      }
+    },
+    "Hell": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hell"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Light"
+          }
+        }
+      }
+    },
+    "Ich habe gerade „%@“ von %@ in FocusPiece enthüllt — nach %lld Minuten Fokus.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ich habe gerade „%@“ von %@ in FocusPiece enthüllt — nach %lld Minuten Fokus."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "I just revealed “%1$@” by %2$@ in FocusPiece — after %3$lld minutes of focus."
+          }
+        }
+      }
+    },
+    "Impressionen": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Impressionen"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Impressions"
+          }
+        }
+      }
+    },
+    "Impressionismus": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Impressionismus"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Impressionism"
+          }
+        }
+      }
+    },
+    "In Galerie speichern": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "In Galerie speichern"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Save to gallery"
+          }
+        }
+      }
+    },
+    "In deiner Sammlung": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "In deiner Sammlung"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "In your collection"
+          }
+        }
+      }
+    },
+    "Jede vollendete Session schaltet ein Werk frei.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Jede vollendete Session schaltet ein Werk frei."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Every completed session unlocks a work."
+          }
+        }
+      }
+    },
+    "KURZE PAUSE": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "KURZE PAUSE"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "SHORT BREAK"
+          }
+        }
+      }
+    },
+    "Kauf ausstehend": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kauf ausstehend"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Purchase pending"
+          }
+        }
+      }
+    },
+    "Kauf fehlgeschlagen": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kauf fehlgeschlagen"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Purchase failed"
+          }
+        }
+      }
+    },
+    "Keine Käufe gefunden": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Keine Käufe gefunden"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No purchases found"
+          }
+        }
+      }
+    },
+    "Klang & Haptik": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Klang & Haptik"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sound & haptics"
+          }
+        }
+      }
+    },
+    "Klassiker": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Klassiker"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The Classics"
+          }
+        }
+      }
+    },
+    "Kuratierte Sets aus gemeinfreien Meisterwerken. Einmal kaufen, dann wie gewohnt Werk für Werk durch Fokus enthüllen.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kuratierte Sets aus gemeinfreien Meisterwerken. Einmal kaufen, dann wie gewohnt Werk für Werk durch Fokus enthüllen."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Curated sets of public-domain masterpieces. Buy once, then reveal them work by work through focus, just as before."
+          }
+        }
+      }
+    },
+    "Kurze Pause": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kurze Pause"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Short break"
+          }
+        }
+      }
+    },
+    "Käufe wiederhergestellt": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Käufe wiederhergestellt"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Purchases restored"
+          }
+        }
+      }
+    },
+    "Käufe wiederherstellen": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Käufe wiederherstellen"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Restore purchases"
+          }
+        }
+      }
+    },
+    "Künstler": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Künstler"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Artist"
+          }
+        }
+      }
+    },
+    "LANGE PAUSE": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "LANGE PAUSE"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "LONG BREAK"
+          }
+        }
+      }
+    },
+    "Lange Pause": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lange Pause"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Long break"
+          }
+        }
+      }
+    },
+    "Licht, Luft und flüchtige Momente": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Licht, Luft und flüchtige Momente"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Light, air and fleeting moments"
+          }
+        }
+      }
+    },
+    "MINUTEN": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "MINUTEN"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "MINUTES"
+          }
+        }
+      }
+    },
+    "Mandelblüte": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mandelblüte"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Almond Blossom"
+          }
+        }
+      }
+    },
+    "Milch fließt, Brot liegt bereit, das Fensterlicht fällt still herein. Vermeer erhebt eine Alltagsgeste zur Andacht.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Milch fließt, Brot liegt bereit, das Fensterlicht fällt still herein. Vermeer erhebt eine Alltagsgeste zur Andacht."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Milk pours, bread waits, and the light from the window falls quietly in. Vermeer raises an everyday gesture into devotion."
+          }
+        }
+      }
+    },
+    "Minuten Fokus": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Minuten Fokus"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "minutes of focus"
+          }
+        }
+      }
+    },
+    "Minuten Fokus · %lld Runden": {
+      "localizations": {
+        "de": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Minuten Fokus · %lld Runde"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Minuten Fokus · %lld Runden"
+                }
+              }
+            }
+          }
+        },
+        "en": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "minutes of focus · %lld round"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "minutes of focus · %lld rounds"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "Minuten ungestörter Fokus": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Minuten ungestörter Fokus"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "minutes of undisturbed focus"
+          }
+        }
+      }
+    },
+    "Minuten · %lld Runden": {
+      "localizations": {
+        "de": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Minuten · %lld Runde"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Minuten · %lld Runden"
+                }
+              }
+            }
+          }
+        },
+        "en": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "minutes · %lld round"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "minutes · %lld rounds"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "Mit dieser Apple-ID wurden noch keine Sets gekauft.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mit dieser Apple-ID wurden noch keine Sets gekauft."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No sets have been bought with this Apple ID yet."
+          }
+        }
+      }
+    },
+    "Mondaufgang am Meer": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mondaufgang am Meer"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Moonrise over the Sea"
+          }
+        }
+      }
+    },
+    "NEUE WERKE": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "NEUE WERKE"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "NEW WORKS"
+          }
+        }
+      }
+    },
+    "Nachtstücke": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nachtstücke"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nocturnes"
+          }
+        }
+      }
+    },
+    "Neue Session": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Neue Session"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "New session"
+          }
+        }
+      }
+    },
+    "Neue Werke entdecken": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Neue Werke entdecken"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Discover new works"
+          }
+        }
+      }
+    },
+    "Niederländische Renaissance": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Niederländische Renaissance"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dutch Renaissance"
+          }
+        }
+      }
+    },
+    "Nocturne in Schwarz und Gold": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nocturne in Schwarz und Gold"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nocturne in Black and Gold"
+          }
+        }
+      }
+    },
+    "Nutzungsbedingungen": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nutzungsbedingungen"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Terms of Use"
+          }
+        }
+      }
+    },
+    "Okay": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Okay"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "OK"
+          }
+        }
+      }
+    },
+    "PAUSIERT": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "PAUSIERT"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "PAUSED"
+          }
+        }
+      }
+    },
+    "Pause": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pause"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Break"
+          }
+        }
+      }
+    },
+    "Pause beendet": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pause beendet"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Break finished"
+          }
+        }
+      }
+    },
+    "Pause starten · %lld Min": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pause starten · %lld Min"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Start break · %lld min"
+          }
+        }
+      }
+    },
+    "Pause vorbei": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pause vorbei"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Break over"
+          }
+        }
+      }
+    },
+    "Pause überspringen": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pause überspringen"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Skip break"
+          }
+        }
+      }
+    },
+    "Pausieren": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pausieren"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pause"
+          }
+        }
+      }
+    },
+    "Pieter Bruegel d. Ä.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pieter Bruegel d. Ä."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pieter Bruegel the Elder"
+          }
+        }
+      }
+    },
+    "Post-Impressionismus": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Post-Impressionismus"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Post-Impressionism"
+          }
+        }
+      }
+    },
+    "Preis wird geladen…": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Preis wird geladen…"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Loading price…"
+          }
+        }
+      }
+    },
+    "Preise konnten nicht geladen werden. Prüfe deine Verbindung — die Sets bleiben natürlich erhältlich.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Preise konnten nicht geladen werden. Prüfe deine Verbindung — die Sets bleiben natürlich erhältlich."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Prices couldn't be loaded. Check your connection — the sets are still available, of course."
+          }
+        }
+      }
+    },
+    "Public Domain · Wikimedia Commons": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Public Domain · Wikimedia Commons"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Public domain · Wikimedia Commons"
+          }
+        }
+      }
+    },
+    "Quelle": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Quelle"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Source"
+          }
+        }
+      }
+    },
+    "Rechtliches": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rechtliches"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Legal"
+          }
+        }
+      }
+    },
+    "Regenglänzendes Pflaster, Schirme und das neue Paris der Boulevards — mit fast fotografischer Ruhe komponiert.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Regenglänzendes Pflaster, Schirme und das neue Paris der Boulevards — mit fast fotografischer Ruhe komponiert."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rain-slick cobblestones, umbrellas and the new Paris of the boulevards — composed with an almost photographic calm."
+          }
+        }
+      }
+    },
+    "Rembrandt betrachtet sich selbst ohne Schmeichelei: müde Augen, warmes Licht, große Ehrlichkeit. Eines von rund achtzig Selbstporträts.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rembrandt betrachtet sich selbst ohne Schmeichelei: müde Augen, warmes Licht, große Ehrlichkeit. Eines von rund achtzig Selbstporträts."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rembrandt looks at himself without flattery: tired eyes, warm light, great honesty. One of some eighty self-portraits."
+          }
+        }
+      }
+    },
+    "Romantik": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Romantik"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Romanticism"
+          }
+        }
+      }
+    },
+    "Roter Fuji": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Roter Fuji"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Red Fuji"
+          }
+        }
+      }
+    },
+    "Runde %lld beginnen": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Runde %lld beginnen"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Begin round %lld"
+          }
+        }
+      }
+    },
+    "Runde %lld geschafft": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Runde %lld geschafft"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Round %lld done"
+          }
+        }
+      }
+    },
+    "Runde %lld von %lld": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Runde %lld von %lld"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Round %1$lld of %2$lld"
+          }
+        }
+      }
+    },
+    "Runden": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Runden"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rounds"
+          }
+        }
+      }
+    },
+    "SO FUNKTIONIERT ES": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "SO FUNKTIONIERT ES"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "HOW IT WORKS"
+          }
+        }
+      }
+    },
+    "Sammle Meisterwerke": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sammle Meisterwerke"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Collect masterpieces"
+          }
+        }
+      }
+    },
+    "Sammlung": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sammlung"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Collection"
+          }
+        }
+      }
+    },
+    "Sammlung erweitern": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sammlung erweitern"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Expand your collection"
+          }
+        }
+      }
+    },
+    "Sanfter Start": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sanfter Start"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gentle start"
+          }
+        }
+      }
+    },
+    "Seerosen": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Seerosen"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Water Lilies"
+          }
+        }
+      }
+    },
+    "Selbstbildnis": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Selbstbildnis"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Self-Portrait"
+          }
+        }
+      }
+    },
+    "Session": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Session"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Session"
+          }
+        }
+      }
+    },
+    "Session beenden": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Session beenden"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "End session"
+          }
+        }
+      }
+    },
+    "Session beenden?": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Session beenden?"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "End session?"
+          }
+        }
+      }
+    },
+    "Session beginnen": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Session beginnen"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Begin session"
+          }
+        }
+      }
+    },
+    "Session vollendet": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Session vollendet"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Session complete"
+          }
+        }
+      }
+    },
+    "Set entdecken": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Set entdecken"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Explore set"
+          }
+        }
+      }
+    },
+    "Setze deine Zeit": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Setze deine Zeit"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Set your time"
+          }
+        }
+      }
+    },
+    "Sonnenaufgang": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sonnenaufgang"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Impression, Sunrise"
+          }
+        }
+      }
+    },
+    "Stell den Timer, bleib präsent — mit jeder fokussierten Minute tritt ein verborgenes Kunstwerk klarer hervor.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stell den Timer, bleib präsent — mit jeder fokussierten Minute tritt ein verborgenes Kunstwerk klarer hervor."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Set the timer, stay present — with every focused minute a hidden work of art comes into view."
+          }
+        }
+      }
+    },
+    "Sternennacht": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sternennacht"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The Starry Night"
+          }
+        }
+      }
+    },
+    "Sternennacht über der Rhône": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sternennacht über der Rhône"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Starry Night over the Rhône"
+          }
+        }
+      }
+    },
+    "Stille Meister der Niederlande": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stille Meister der Niederlande"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Quiet masters of the Netherlands"
+          }
+        }
+      }
+    },
+    "Straße in Paris an einem Regentag": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Straße in Paris an einem Regentag"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Paris Street; Rainy Day"
+          }
+        }
+      }
+    },
+    "System": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "System"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "System"
+          }
+        }
+      }
+    },
+    "Tanz im Moulin de la Galette": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tanz im Moulin de la Galette"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dance at the Moulin de la Galette"
+          }
+        }
+      }
+    },
+    "Teilen": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Teilen"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Share"
+          }
+        }
+      }
+    },
+    "Thema": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Thema"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Theme"
+          }
+        }
+      }
+    },
+    "Tonalismus": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tonalismus"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tonalism"
+          }
+        }
+      }
+    },
+    "Verborgenes Werk": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Verborgenes Werk"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hidden work"
+          }
+        }
+      }
+    },
+    "Verlässt du die App, hält die Enthüllung sanft inne.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Verlässt du die App, hält die Enthüllung sanft inne."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Leave the app and the reveal gently pauses."
+          }
+        }
+      }
+    },
+    "Vermeer und Rembrandt: vier Werke über Licht, Alltag und den Blick, der einen nicht mehr loslässt.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vermeer und Rembrandt: vier Werke über Licht, Alltag und den Blick, der einen nicht mehr loslässt."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vermeer and Rembrandt: four works about light, everyday life, and a gaze that won't let go."
+          }
+        }
+      }
+    },
+    "Vermeers Heimatstadt nach einem Regenschauer: Wolken, Wasser, aufblitzende Dächer. Für Proust „das schönste Bild der Welt“.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vermeers Heimatstadt nach einem Regenschauer: Wolken, Wasser, aufblitzende Dächer. Für Proust „das schönste Bild der Welt“."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vermeer's home town after a shower: clouds, water, roofs catching the light. To Proust, “the most beautiful painting in the world”."
+          }
+        }
+      }
+    },
+    "Vier Hauptwerke des Impressionismus: Gärten in Giverny, ein Sonntag auf dem Montmartre, Regen über Paris und ein Sommertag im Wind.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vier Hauptwerke des Impressionismus: Gärten in Giverny, ein Sonntag auf dem Montmartre, Regen über Paris und ein Sommertag im Wind."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Four key works of Impressionism: the gardens at Giverny, a Sunday on Montmartre, rain over Paris and a summer day in the wind."
+          }
+        }
+      }
+    },
+    "Vier Nächte der Kunstgeschichte: eine Caféterrasse unter Sternen, Mondlicht am Meer, Feuerwerk über dem Fluss und die Rhône im Sternenglanz.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vier Nächte der Kunstgeschichte: eine Caféterrasse unter Sternen, Mondlicht am Meer, Feuerwerk über dem Fluss und die Rhône im Sternenglanz."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Four nights in the history of art: a café terrace under the stars, moonlight on the sea, fireworks over the river, and the Rhône beneath a glitter of stars."
+          }
+        }
+      }
+    },
+    "Vom Abendlicht bis zum Sternenhimmel": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vom Abendlicht bis zum Sternenhimmel"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "From evening light to starry skies"
+          }
+        }
+      }
+    },
+    "WERKINFO": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "WERKINFO"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "WORK INFO"
+          }
+        }
+      }
+    },
+    "Wasser, Licht und Blüten verschmelzen zu einer stillen Fläche ohne Horizont. Monets Garten in Giverny wurde sein größtes Motiv — und sein Lebenswerk.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wasser, Licht und Blüten verschmelzen zu einer stillen Fläche ohne Horizont. Monets Garten in Giverny wurde sein größtes Motiv — und sein Lebenswerk."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Water, light and blossom dissolve into a quiet surface without a horizon. Monet's garden at Giverny became his greatest subject — and his life's work."
+          }
+        }
+      }
+    },
+    "Weiter": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Weiter"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Continue"
+          }
+        }
+      }
+    },
+    "Weiter fokussieren": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Weiter fokussieren"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Keep focusing"
+          }
+        }
+      }
+    },
+    "Werk gesammelt": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Werk gesammelt"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "work collected"
+          }
+        }
+      }
+    },
+    "Werkinfo": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Werkinfo"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Work info"
+          }
+        }
+      }
+    },
+    "Wie lange möchtest du dich versenken?": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wie lange möchtest du dich versenken?"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "How long would you like to immerse yourself?"
+          }
+        }
+      }
+    },
+    "Wiener Secession": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wiener Secession"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vienna Secession"
+          }
+        }
+      }
+    },
+    "Wirbelnde Sterne über einem ruhigen Dorf, gemalt aus der Erinnerung im Morgengrauen. Bewegung und Stille in einem einzigen Himmel.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wirbelnde Sterne über einem ruhigen Dorf, gemalt aus der Erinnerung im Morgengrauen. Bewegung und Stille in einem einzigen Himmel."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Swirling stars above a sleeping village, painted from memory at daybreak. Motion and stillness in a single sky."
+          }
+        }
+      }
+    },
+    "Wird beim Fokussieren enthüllt": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wird beim Fokussieren enthüllt"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Revealed as you focus"
+          }
+        }
+      }
+    },
+    "Wird wiederhergestellt…": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wird wiederhergestellt…"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Restoring…"
+          }
+        }
+      }
+    },
+    "Wähle 15 bis 60 Minuten ungestörter Konzentration.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wähle 15 bis 60 Minuten ungestörter Konzentration."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Choose 15 to 60 minutes of undisturbed concentration."
+          }
+        }
+      }
+    },
+    "Zurück zur Galerie": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zurück zur Galerie"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Back to the gallery"
+          }
+        }
+      }
+    },
+    "Zwei Liebende, in Gold gehüllt, verschmelzen zu einer einzigen ornamentalen Form. Höhepunkt von Klimts „goldener Phase“.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zwei Liebende, in Gold gehüllt, verschmelzen zu einer einzigen ornamentalen Form. Höhepunkt von Klimts „goldener Phase“."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Two lovers wrapped in gold, merging into a single ornamental form. The summit of Klimt's “golden phase”."
+          }
+        }
+      }
+    },
+    "Überspringen & weiter fokussieren": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Überspringen & weiter fokussieren"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Skip and keep focusing"
+          }
+        }
+      }
+    },
+    "„%@“ gehört jetzt zu deiner Sammlung. Fokussiere, um die Werke zu enthüllen.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "„%@“ gehört jetzt zu deiner Sammlung. Fokussiere, um die Werke zu enthüllen."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "“%@” is now part of your collection. Focus to reveal the works."
+          }
+        }
+      }
+    }
+  },
+  "version": "1.0"
+}

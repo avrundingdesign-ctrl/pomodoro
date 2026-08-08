@@ -45,7 +45,7 @@ struct ArtworkInfoSheet: View {
                     row("Entstanden", artwork.year)
                     row("Epoche", artwork.collectionTag)
                     row("Bildband", packTitle)
-                    row("Quelle", "Public Domain · Wikimedia Commons", last: true)
+                    row("Quelle", String(localized: "Public Domain · Wikimedia Commons"), last: true)
                 }
                 .padding(.horizontal, 16)
                 .background(Theme.Palette.surface)
@@ -64,7 +64,7 @@ struct ArtworkInfoSheet: View {
         .presentationDragIndicator(.visible)
     }
 
-    private func row(_ label: String, _ value: String, last: Bool = false) -> some View {
+    private func row(_ label: LocalizedStringKey, _ value: String, last: Bool = false) -> some View {
         HStack(alignment: .firstTextBaseline) {
             Text(label)
                 .font(Theme.Font.sans(14))

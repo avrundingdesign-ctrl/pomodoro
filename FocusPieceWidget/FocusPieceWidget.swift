@@ -113,7 +113,7 @@ private struct EyebrowText: View {
 
 /// Terracotta start pill — the widget's PrimaryButton.
 private struct StartPill: View {
-    let title: String
+    let title: LocalizedStringKey
 
     var body: some View {
         Text(title)

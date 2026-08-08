@@ -19,7 +19,6 @@ struct SettingsView: View {
     private let shortBreaks = [3, 5, 10]
     private let longBreaks = [10, 15, 20, 30]
     private let roundCounts = [1, 2, 3, 4, 5, 6]
-    private let themes = ["Hell", "Dunkel", "System"]
 
     var body: some View {
         VStack(spacing: 0) {
@@ -38,28 +37,20 @@ struct SettingsView: View {
                 VStack(alignment: .leading, spacing: 22) {
                     SettingsGroup(title: "Session") {
                         PickerRow(label: "Fokusdauer",
-                                  value: "\(app.settings.selectedDuration) Min",
-                                  options: durations.map { "\($0) Min" }) { picked in
-                            if let m = leadingNumber(in: picked) { app.settings.selectedDuration = m }
-                        }
+                                  selection: $app.settings.selectedDuration,
+                                  options: durations, display: Self.minutesLabel)
                         Divider().overlay(Theme.Palette.hairline3)
                         PickerRow(label: "Runden",
-                                  value: roundsLabel(app.settings.roundsPerCycle),
-                                  options: roundCounts.map(roundsLabel)) { picked in
-                            if let n = leadingNumber(in: picked) { app.settings.roundsPerCycle = n }
-                        }
+                                  selection: $app.settings.roundsPerCycle,
+                                  options: roundCounts, display: Self.roundsLabel)
                         Divider().overlay(Theme.Palette.hairline3)
                         PickerRow(label: "Kurze Pause",
-                                  value: "\(app.settings.shortBreakMinutes) Min",
-                                  options: shortBreaks.map { "\($0) Min" }) { picked in
-                            if let m = leadingNumber(in: picked) { app.settings.shortBreakMinutes = m }
-                        }
+                                  selection: $app.settings.shortBreakMinutes,
+                                  options: shortBreaks, display: Self.minutesLabel)
                         Divider().overlay(Theme.Palette.hairline3)
                         PickerRow(label: "Lange Pause",
-                                  value: "\(app.settings.longBreakMinutes) Min",
-                                  options: longBreaks.map { "\($0) Min" }) { picked in
-                            if let m = leadingNumber(in: picked) { app.settings.longBreakMinutes = m }
-                        }
+                                  selection: $app.settings.longBreakMinutes,
+                                  options: longBreaks, display: Self.minutesLabel)
                         Divider().overlay(Theme.Palette.hairline3)
                         ToggleRow(label: "Sanfter Start", isOn: $app.settings.gentleStart)
                     }
@@ -72,8 +63,8 @@ struct SettingsView: View {
 
                     SettingsGroup(title: "Darstellung") {
                         PickerRow(label: "Thema",
-                                  value: app.settings.theme,
-                                  options: themes) { app.settings.theme = $0 }
+                                  selection: $app.settings.theme,
+                                  options: AppTheme.allCases, display: { $0.label })
                         Divider().overlay(Theme.Palette.hairline3)
                         ToggleRow(label: "Benachrichtigungen", isOn: $app.settings.notifications)
                             .onChange(of: app.settings.notifications) { _, isOn in
@@ -106,7 +97,7 @@ struct SettingsView: View {
                         LinkRow(label: "Nutzungsbedingungen", url: LegalLinks.terms)
                     }
 
-                    Text("FocusPiece · Version 1.0")
+                    Text(verbatim: "FocusPiece · Version 1.0")
                         .font(Theme.Font.sans(13))
                         .foregroundStyle(Theme.Palette.muted3Soft)
                         .frame(maxWidth: .infinity)
@@ -123,15 +114,15 @@ struct SettingsView: View {
         }
     }
 
-    /// "4 Runden" / "1 Runde" — the picker option labels.
-    private func roundsLabel(_ n: Int) -> String { n == 1 ? "1 Runde" : "\(n) Runden" }
-    /// Parse the leading integer out of a picked option like "15 Min".
-    private func leadingNumber(in text: String) -> Int? { Int(text.prefix(while: \.isNumber)) }
+    /// "4 Runden" / "1 Runde" — the picker option labels (plural per language).
+    private static func roundsLabel(_ n: Int) -> String { String(localized: "\(n) Runden") }
+    /// "25 Min"
+    private static func minutesLabel(_ m: Int) -> String { String(localized: "\(m) Min") }
 }
 
 // MARK: - Building blocks
 private struct SettingsGroup<Content: View>: View {
-    let title: String
+    let title: LocalizedStringKey
     @ViewBuilder var content: Content
 
     var body: some View {
@@ -155,7 +146,7 @@ private struct SettingsGroup<Content: View>: View {
 }
 
 private struct ToggleRow: View {
-    let label: String
+    let label: LocalizedStringKey
     @Binding var isOn: Bool
 
     var body: some View {
@@ -172,7 +163,7 @@ private struct ToggleRow: View {
 
 /// Tappable row with a trailing SF-symbol affordance (shop, restore).
 private struct ActionRow: View {
-    let label: String
+    let label: LocalizedStringKey
     let icon: String
     var identifier: String? = nil
     let action: () -> Void
@@ -198,7 +189,7 @@ private struct ActionRow: View {
 
 /// External link row (legal pages) — opens in the browser.
 private struct LinkRow: View {
-    let label: String
+    let label: LocalizedStringKey
     let url: URL
 
     var body: some View {
@@ -219,16 +210,18 @@ private struct LinkRow: View {
     }
 }
 
-private struct PickerRow: View {
-    let label: String
-    let value: String
-    let options: [String]
-    let onSelect: (String) -> Void
+/// Menu row bound to a typed value. The options carry their real value, so the
+/// selection never has to be parsed back out of a translated label.
+private struct PickerRow<Value: Hashable>: View {
+    let label: LocalizedStringKey
+    @Binding var selection: Value
+    let options: [Value]
+    let display: (Value) -> String
 
     var body: some View {
         Menu {
             ForEach(options, id: \.self) { opt in
-                Button(opt) { onSelect(opt) }
+                Button(display(opt)) { selection = opt }
             }
         } label: {
             HStack {
@@ -236,7 +229,7 @@ private struct PickerRow: View {
                     .font(Theme.Font.sans(15))
                     .foregroundStyle(Theme.Palette.ink)
                 Spacer()
-                Text(value)
+                Text(display(selection))
                     .font(Theme.Font.sans(15))
                     .foregroundStyle(Theme.Palette.muted2)
                 Image(systemName: "chevron.right")

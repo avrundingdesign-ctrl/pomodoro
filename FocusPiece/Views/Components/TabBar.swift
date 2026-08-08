@@ -26,7 +26,7 @@ struct TabBar: View {
         }
     }
 
-    private func item(_ tab: Tab, icon: String, label: String) -> some View {
+    private func item(_ tab: Tab, icon: String, label: LocalizedStringKey) -> some View {
         let active = selection == tab
         return Button {
             selection = tab

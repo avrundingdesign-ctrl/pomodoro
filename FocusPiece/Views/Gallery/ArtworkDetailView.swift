@@ -6,12 +6,8 @@ struct ArtworkDetailView: View {
     let artwork: Artwork
     @State private var showInfo = false
 
-    private static let dateFormatter: DateFormatter = {
-        let f = DateFormatter()
-        f.locale = Locale(identifier: "de_DE")
-        f.dateFormat = "d. MMMM yyyy"
-        return f
-    }()
+    /// "7. August 2026" / "August 7, 2026" — the locale picks the order.
+    private static let dateStyle = Date.FormatStyle(date: .long, time: .omitted)
 
     var body: some View {
         ScrollView {
@@ -102,14 +98,14 @@ struct ArtworkDetailView: View {
 
     private var unlockedDateText: String {
         guard let d = artwork.unlockedDate else { return "—" }
-        return Self.dateFormatter.string(from: d)
+        return d.formatted(Self.dateStyle)
     }
     private var sessionText: String {
         guard let m = artwork.sessionMinutes else { return "—" }
-        return "\(m) Minuten"
+        return String(localized: "\(m) Minuten")
     }
 
-    private func metaRow(_ label: String, _ value: String) -> some View {
+    private func metaRow(_ label: LocalizedStringKey, _ value: String) -> some View {
         HStack {
             Text(label)
                 .font(Theme.Font.sans(15))

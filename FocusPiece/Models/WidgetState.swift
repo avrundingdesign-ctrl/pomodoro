@@ -31,18 +31,21 @@ struct WidgetSnapshot: Codable, Equatable {
     }
 
     /// Total focus time in app vocabulary — "45 Min", "2 Std", "1 Std 15 Min".
+    /// This type is compiled into the app *and* the widget extension, so both
+    /// bundles carry these keys in their own string catalog.
     var focusTimeString: String {
         let h = totalFocusMinutes / 60, m = totalFocusMinutes % 60
-        if h == 0 { return "\(m) Min" }
-        return m == 0 ? "\(h) Std" : "\(h) Std \(m) Min"
+        if h == 0 { return String(localized: "\(m) Min") }
+        return m == 0 ? String(localized: "\(h) Std")
+                      : String(localized: "\(h) Std \(m) Min")
     }
 
     /// Uppercase state label, mirroring the in-app status line.
     var eyebrowText: String {
         switch phase {
-        case .ready:   return "FOKUS"
-        case .running: return "FOKUS LÄUFT"
-        case .paused:  return "PAUSIERT"
+        case .ready:   return String(localized: "FOKUS")
+        case .running: return String(localized: "FOKUS LÄUFT")
+        case .paused:  return String(localized: "PAUSIERT")
         }
     }
 }

@@ -2,7 +2,7 @@ import SwiftUI
 
 /// Primary accent button — 56–60h, radius 18–20, terracotta with soft shadow.
 struct PrimaryButton: View {
-    let title: String
+    let title: LocalizedStringKey
     var height: CGFloat = 56
     let action: () -> Void
 
@@ -23,7 +23,7 @@ struct PrimaryButton: View {
 
 /// Secondary / ghost button — bordered, paper background.
 struct GhostButton: View {
-    let title: String
+    let title: LocalizedStringKey
     var icon: String? = nil
     var height: CGFloat = 54
     let action: () -> Void

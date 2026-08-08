@@ -1,0 +1,222 @@
+{
+  "sourceLanguage": "de",
+  "strings": {
+    "%lld Min": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld Min"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld min"
+          }
+        }
+      }
+    },
+    "%lld Std": {
+      "localizations": {
+        "de": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld Std"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld Std"
+                }
+              }
+            }
+          }
+        },
+        "en": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld hr"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld hrs"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "%lld Std %lld Min": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld Std %lld Min"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$lld hr %2$lld min"
+          }
+        }
+      }
+    },
+    "%lld enthüllt · %@": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld enthüllt · %@"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$lld revealed · %2$@"
+          }
+        }
+      }
+    },
+    "%lld · %@": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld · %@"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$lld · %2$@"
+          }
+        }
+      }
+    },
+    "FOKUS": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "FOKUS"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "FOCUS"
+          }
+        }
+      }
+    },
+    "FOKUS LÄUFT": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "FOKUS LÄUFT"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "FOCUSING"
+          }
+        }
+      }
+    },
+    "Fokus": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fokus"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Focus"
+          }
+        }
+      }
+    },
+    "Nächste Session, Sammlung und Fokuszeit im Blick.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nächste Session, Sammlung und Fokuszeit im Blick."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your next session, collection and focus time at a glance."
+          }
+        }
+      }
+    },
+    "PAUSIERT": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "PAUSIERT"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "PAUSED"
+          }
+        }
+      }
+    },
+    "Start": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Start"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Start"
+          }
+        }
+      }
+    },
+    "Weiter": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Weiter"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Resume"
+          }
+        }
+      }
+    }
+  },
+  "version": "1.0"
+}

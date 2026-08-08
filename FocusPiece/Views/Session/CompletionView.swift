@@ -15,6 +15,17 @@ struct CompletionView: View {
     /// Free session over an already collected work (everything unlocked).
     private var isFreeSession: Bool { session.isFreeSession }
 
+    /// "7." in German, "7th" in English — the locale decides.
+    private static let ordinalFormatter: NumberFormatter = {
+        let f = NumberFormatter()
+        f.numberStyle = .ordinal
+        return f
+    }()
+    private var ordinalText: String {
+        Self.ordinalFormatter.string(from: NSNumber(value: collectedOrdinal))
+            ?? "\(collectedOrdinal)"
+    }
+
     var body: some View {
         VStack(spacing: 0) {
             // Sharp full painting with a wash to paper at the bottom.
@@ -66,12 +77,14 @@ struct CompletionView: View {
                 HStack(spacing: 0) {
                     stat(value: "\(session.cycleFocusMinutes)",
                          caption: session.totalRounds > 1
-                            ? "Minuten · \(session.totalRounds) Runden"
-                            : "Minuten Fokus")
+                            ? String(localized: "Minuten · \(session.totalRounds) Runden")
+                            : String(localized: "Minuten Fokus"))
                     if isFreeSession {
-                        stat(value: "Frei", caption: "Alle Werke enthüllt", leadingDivider: true)
+                        stat(value: String(localized: "Frei"),
+                             caption: String(localized: "Alle Werke enthüllt"), leadingDivider: true)
                     } else {
-                        stat(value: "\(collectedOrdinal).", caption: "Werk gesammelt", leadingDivider: true)
+                        stat(value: ordinalText,
+                             caption: String(localized: "Werk gesammelt"), leadingDivider: true)
                     }
                 }
                 .overlay(Rectangle().fill(Theme.Palette.hairline).frame(height: 1), alignment: .top)
@@ -120,7 +133,7 @@ struct CompletionView: View {
     private var shareLabel: some View { secondaryLabel("Teilen") }
 
     /// Bordered secondary button label (share / long break).
-    private func secondaryLabel(_ title: String) -> some View {
+    private func secondaryLabel(_ title: LocalizedStringKey) -> some View {
         Text(title)
             .font(Theme.Font.sans(15, weight: .semibold))
             .foregroundStyle(Theme.Palette.bodySoft)
@@ -135,7 +148,7 @@ struct CompletionView: View {
     }
 
     private var shareText: String {
-        "Ich habe gerade „\(session.artwork.title)“ von \(session.artwork.attribution) in FocusPiece enthüllt — nach \(session.cycleFocusMinutes) Minuten Fokus."
+        String(localized: "Ich habe gerade „\(session.artwork.title)“ von \(session.artwork.attribution) in FocusPiece enthüllt — nach \(session.cycleFocusMinutes) Minuten Fokus.")
     }
 
     private func renderShareCard() {

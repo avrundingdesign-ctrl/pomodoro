@@ -1,6 +1,40 @@
 import SwiftUI
 import Combine
 
+/// "Thema" — the appearance setting. Stored as a stable raw value so the
+/// persisted state never depends on the display language.
+enum AppTheme: String, Codable, CaseIterable {
+    case light, dark, system
+
+    /// Translated name for the settings picker.
+    var label: String {
+        switch self {
+        case .light:  return String(localized: "Hell")
+        case .dark:   return String(localized: "Dunkel")
+        case .system: return String(localized: "System")
+        }
+    }
+
+    /// Explicit color scheme, or nil to follow the system.
+    var colorScheme: ColorScheme? {
+        switch self {
+        case .light:  return .light
+        case .dark:   return .dark
+        case .system: return nil
+        }
+    }
+
+    /// Before the app was localized the theme was persisted as its German
+    /// display string; those values still have to resolve.
+    init(stored: String) {
+        switch stored {
+        case "light", "Hell":   self = .light
+        case "dark", "Dunkel":  self = .dark
+        default:                self = .system
+        }
+    }
+}
+
 /// Persisted app settings (Klang & Haptik, Darstellung, Session).
 /// Decoding is field-tolerant: adding a setting later never resets the others.
 struct Settings: Codable, Equatable {
@@ -11,7 +45,7 @@ struct Settings: Codable, Equatable {
     var gentleStart: Bool = true       // "Sanfter Start"
     var completionTone: Bool = true    // "Abschluss-Ton"
     var haptics: Bool = true           // "Haptisches Feedback"
-    var theme: String = "System"       // "Thema" — Hell / Dunkel / System
+    var theme: AppTheme = .system      // "Thema" — Hell / Dunkel / System
     var notifications: Bool = true     // "Benachrichtigungen" (Phasenende-Notification)
 
     init() {}
@@ -26,18 +60,12 @@ struct Settings: Codable, Equatable {
         gentleStart       = (try? c.decode(Bool.self, forKey: .gentleStart)) ?? d.gentleStart
         completionTone    = (try? c.decode(Bool.self, forKey: .completionTone)) ?? d.completionTone
         haptics           = (try? c.decode(Bool.self, forKey: .haptics)) ?? d.haptics
-        theme             = (try? c.decode(String.self, forKey: .theme)) ?? d.theme
+        theme             = AppTheme(stored: (try? c.decode(String.self, forKey: .theme)) ?? "")
         notifications     = (try? c.decode(Bool.self, forKey: .notifications)) ?? d.notifications
     }
 
     /// Explicit color scheme, or nil to follow the system.
-    var colorScheme: ColorScheme? {
-        switch theme {
-        case "Hell":   return .light
-        case "Dunkel": return .dark
-        default:       return nil
-        }
-    }
+    var colorScheme: ColorScheme? { theme.colorScheme }
 }
 
 /// One completed focus round — the basis for statistics and streaks.
@@ -61,8 +89,10 @@ final class AppModel: ObservableObject {
     @Published var settings: Settings {
         didSet { persist(settings, key: Keys.settings); publishWidgetSnapshot() }
     }
+    /// The works the user owns, rebuilt from the catalogue on every launch so
+    /// the texts always match the current language. Only `progress` is stored.
     @Published var collection: [Artwork] {
-        didSet { persist(collection, key: Keys.collection); publishWidgetSnapshot() }
+        didSet { persist(collection.map(\.progress), key: Keys.collection); publishWidgetSnapshot() }
     }
     @Published var history: [FocusSessionRecord] {
         didSet { persist(history, key: Keys.history) }
@@ -90,30 +120,26 @@ final class AppModel: ObservableObject {
         onboardingComplete = d.bool(forKey: Keys.onboarding)
         settings = Self.load(Settings.self, key: Keys.settings, from: d) ?? Settings()
 
-        // Merge: stored progress wins, but newly shipped works are appended so
-        // the collection can grow with app updates.
-        var stored = Self.load([Artwork].self, key: Keys.collection, from: d) ?? []
-        let knownIDs = Set(stored.map(\.id))
-        stored.append(contentsOf: Artwork.seedCollection.filter { !knownIDs.contains($0.id) })
-        collection = stored
+        // Free pack always; paid packs from the cached StoreKit entitlements.
+        let owned = Set(d.stringArray(forKey: Keys.ownedPacks) ?? [])
+            .union([ArtworkCatalog.freePackID])
+        ownedPackIDs = owned
+
+        // Rebuild the collection from the catalogue and lay the stored progress
+        // over it. Works shipped by a newer app version join automatically.
+        let progress = Self.load([ArtworkProgress].self, key: Keys.collection, from: d) ?? []
+        collection = Self.buildCollection(progress: progress, ownedPackIDs: owned)
 
         var storedHistory = Self.load([FocusSessionRecord].self, key: Keys.history, from: d) ?? []
         // One-time migration: synthesize records from works unlocked before
         // history existed, so stats don't start at zero.
         if storedHistory.isEmpty {
-            storedHistory = stored.compactMap { art in
-                guard art.unlocked, let date = art.unlockedDate, let m = art.sessionMinutes else { return nil }
-                return FocusSessionRecord(date: date, minutes: m, artworkID: art.id)
+            storedHistory = progress.compactMap { p in
+                guard p.unlocked, let date = p.unlockedDate, let m = p.sessionMinutes else { return nil }
+                return FocusSessionRecord(date: date, minutes: m, artworkID: p.id)
             }
         }
         history = storedHistory
-
-        // Free pack always; paid packs from the cached StoreKit entitlements.
-        ownedPackIDs = Set(d.stringArray(forKey: Keys.ownedPacks) ?? [])
-            .union([ArtworkCatalog.freePackID])
-
-        // Older stored collections may miss works of packs owned meanwhile.
-        syncCollectionWithOwnedPacks()
 
         // Sessions don't survive a relaunch, so the widget starts out "bereit".
         publishWidgetSnapshot()
@@ -127,15 +153,15 @@ final class AppModel: ObservableObject {
     /// Total focused minutes across all completed sessions.
     var totalFocusMinutes: Int { history.map(\.minutes).reduce(0, +) }
 
-    /// "45 Min Fokus" under an hour, then "1,5 Std Fokus".
+    /// "45 Min Fokus" under an hour, then "1,5 Std Fokus" — the decimal
+    /// separator follows the locale ("1.5 hrs focused" in English).
     var focusTimeLabel: String {
         let minutes = totalFocusMinutes
-        if minutes < 60 { return "\(minutes) Min Fokus" }
+        if minutes < 60 { return String(localized: "\(minutes) Min Fokus") }
         let hours = Double(minutes) / 60.0
-        let text = hours.truncatingRemainder(dividingBy: 1) == 0
-            ? String(Int(hours))
-            : String(format: "%.1f", hours).replacingOccurrences(of: ".", with: ",")
-        return "\(text) Std Fokus"
+        let digits = hours.truncatingRemainder(dividingBy: 1) == 0 ? 0 : 1
+        let text = hours.formatted(.number.precision(.fractionLength(digits)))
+        return String(localized: "\(text) Std Fokus")
     }
 
     /// Consecutive days (ending today or yesterday) with at least one session.
@@ -196,20 +222,20 @@ final class AppModel: ObservableObject {
             .union([ArtworkCatalog.freePackID])
         guard owned != ownedPackIDs else { return }
         ownedPackIDs = owned
-        syncCollectionWithOwnedPacks()
+        let rebuilt = Self.buildCollection(progress: collection.map(\.progress), ownedPackIDs: owned)
+        if rebuilt != collection { collection = rebuilt }
     }
 
-    /// Make the collection mirror the owned packs: append missing works of
-    /// owned packs (locked — sessions reveal them), drop still-locked works of
-    /// packs no longer owned (refunds). Works already revealed stay forever.
-    private func syncCollectionWithOwnedPacks() {
-        var result = collection.filter { $0.unlocked || ownedPackIDs.contains($0.packID) }
-        for pack in ArtworkCatalog.packs where ownedPackIDs.contains(pack.id) {
-            for work in pack.works where !result.contains(where: { $0.id == work.id }) {
-                result.append(work)
-            }
-        }
-        if result != collection { collection = result }
+    /// The collection in catalogue order: every work of an owned pack, plus any
+    /// work that was already revealed — those stay forever, even after a refund.
+    /// Stored progress is laid over the (localized) catalogue entries.
+    private static func buildCollection(progress: [ArtworkProgress],
+                                        ownedPackIDs: Set<String>) -> [Artwork] {
+        let byID = Dictionary(progress.map { ($0.id, $0) }, uniquingKeysWith: { _, last in last })
+        return ArtworkCatalog.packs
+            .flatMap(\.works)
+            .filter { ownedPackIDs.contains($0.packID) || byID[$0.id]?.unlocked == true }
+            .map { $0.applying(byID[$0.id]) }
     }
 
     // MARK: Widget
