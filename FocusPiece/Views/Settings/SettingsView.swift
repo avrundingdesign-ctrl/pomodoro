@@ -97,7 +97,7 @@ struct SettingsView: View {
                         LinkRow(label: "Nutzungsbedingungen", url: LegalLinks.terms)
                     }
 
-                    Text(verbatim: "FocusPiece · Version 1.0")
+                    Text(verbatim: Self.versionLine)
                         .font(Theme.Font.sans(13))
                         .foregroundStyle(Theme.Palette.muted3Soft)
                         .frame(maxWidth: .infinity)
@@ -112,6 +112,14 @@ struct SettingsView: View {
         .sheet(isPresented: $showPaywall) {
             PaywallView()
         }
+    }
+
+    /// "FocusPiece · Version 1.1" — read from the bundle so a version bump in
+    /// the project settings never leaves a stale number on screen.
+    private static var versionLine: String {
+        let info = Bundle.main.infoDictionary
+        let version = info?["CFBundleShortVersionString"] as? String ?? "—"
+        return "FocusPiece · Version \(version)"
     }
 
     /// "4 Runden" / "1 Runde" — the picker option labels (plural per language).

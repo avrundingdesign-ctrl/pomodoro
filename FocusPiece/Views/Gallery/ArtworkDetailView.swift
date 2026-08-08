@@ -1,10 +1,16 @@
 import SwiftUI
+import Photos
 
 /// Screen 9 — full-bleed work detail with metadata.
 struct ArtworkDetailView: View {
     @Environment(\.dismiss) private var dismiss
     let artwork: Artwork
     @State private var showInfo = false
+    @State private var saveState: SaveState = .idle
+
+    /// iOS gives apps no way to set the wallpaper themselves, so the button
+    /// puts the painting in the photo library and points the way from there.
+    private enum SaveState: Equatable { case idle, saving, saved, denied, failed }
 
     /// "7. August 2026" / "August 7, 2026" — the locale picks the order.
     private static let dateStyle = Date.FormatStyle(date: .long, time: .omitted)
@@ -82,7 +88,7 @@ struct ArtworkDetailView: View {
                     }
                     .overlay(Rectangle().fill(Theme.Palette.hairline).frame(height: 1), alignment: .top)
 
-                    GhostButton(title: "Als Sperrbildschirm setzen") { }
+                    saveSection
                         .padding(.top, 22).padding(.bottom, 30)
                 }
                 .padding(.horizontal, 34)
@@ -103,6 +109,71 @@ struct ArtworkDetailView: View {
     private var sessionText: String {
         guard let m = artwork.sessionMinutes else { return "—" }
         return String(localized: "\(m) Minuten")
+    }
+
+    /// Save button plus its result line. Kept out of `body` so the type
+    /// checker doesn't have to solve it together with the header chain.
+    @ViewBuilder private var saveSection: some View {
+        let title: LocalizedStringKey = saveState == .saving
+            ? "Wird gesichert…"
+            : "Als Sperrbildschirm sichern"
+
+        VStack(spacing: 10) {
+            GhostButton(title: title) {
+                Task { await saveToPhotos() }
+            }
+            .disabled(saveState == .saving)
+            .accessibilityIdentifier("detail.saveWallpaper")
+
+            if let note = saveNote {
+                Text(note)
+                    .font(Theme.Font.sans(13))
+                    .foregroundStyle(noteColor)
+                    .multilineTextAlignment(.center)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+        }
+    }
+
+    private var noteColor: Color {
+        saveState == .saved ? Theme.Palette.muted2 : Theme.Palette.accent
+    }
+
+    /// Feedback under the button — nil while nothing has been attempted.
+    private var saveNote: LocalizedStringKey? {
+        switch saveState {
+        case .idle, .saving: return nil
+        case .saved:         return "In Fotos gesichert — dort als Sperrbildschirm festlegen."
+        case .denied:        return "FocusPiece darf keine Fotos sichern. In den Einstellungen erlauben."
+        case .failed:        return "Das Bild konnte nicht gesichert werden."
+        }
+    }
+
+    /// Add-only access is enough — the app never reads the user's library.
+    private func saveToPhotos() async {
+        guard let image = ArtworkImage.load(artwork.assetName) else {
+            saveState = .failed
+            return
+        }
+        saveState = .saving
+
+        var status = PHPhotoLibrary.authorizationStatus(for: .addOnly)
+        if status == .notDetermined {
+            status = await PHPhotoLibrary.requestAuthorization(for: .addOnly)
+        }
+        guard status == .authorized || status == .limited else {
+            saveState = .denied
+            return
+        }
+
+        do {
+            try await PHPhotoLibrary.shared().performChanges {
+                PHAssetChangeRequest.creationRequestForAsset(from: image)
+            }
+            saveState = .saved
+        } catch {
+            saveState = .failed
+        }
     }
 
     private func metaRow(_ label: LocalizedStringKey, _ value: String) -> some View {

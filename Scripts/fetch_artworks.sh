@@ -46,7 +46,10 @@ FILES=(
   "Starry_Night_Over_the_Rhone.jpg"
 )
 
-UA="FocusPiece/1.0 (educational; contact: you@example.com)"
+# Wikimedia's User-Agent policy rejects placeholder contacts: the previous
+# "you@example.com" got every download a 403 once they tightened enforcement.
+# A reachable contact is required — keep this real.
+UA="FocusPiece/1.0 (https://trin.studio; avrunding.design@gmail.com)"
 
 ok=0; failed=()
 for name in "${FILES[@]}"; do

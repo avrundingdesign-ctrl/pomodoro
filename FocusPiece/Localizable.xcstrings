@@ -417,18 +417,18 @@
         }
       }
     },
-    "Als Sperrbildschirm setzen": {
+    "Als Sperrbildschirm sichern": {
       "localizations": {
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Als Sperrbildschirm setzen"
+            "value": "Als Sperrbildschirm sichern"
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Set as lock screen"
+            "value": "Save as lock screen"
           }
         }
       }
@@ -573,6 +573,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Appearance"
+          }
+        }
+      }
+    },
+    "Das Bild konnte nicht gesichert werden.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Das Bild konnte nicht gesichert werden."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The image couldn't be saved."
           }
         }
       }
@@ -1169,6 +1185,22 @@
         }
       }
     },
+    "FocusPiece darf keine Fotos sichern. In den Einstellungen erlauben.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "FocusPiece darf keine Fotos sichern. In den Einstellungen erlauben."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "FocusPiece isn't allowed to save photos. You can grant access in Settings."
+          }
+        }
+      }
+    },
     "Fokus": {
       "localizations": {
         "de": {
@@ -1597,6 +1629,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Impressionism"
+          }
+        }
+      }
+    },
+    "In Fotos gesichert — dort als Sperrbildschirm festlegen.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "In Fotos gesichert — dort als Sperrbildschirm festlegen."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Saved to Photos — set it as your lock screen from there."
           }
         }
       }
@@ -3213,6 +3261,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Revealed as you focus"
+          }
+        }
+      }
+    },
+    "Wird gesichert…": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wird gesichert…"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Saving…"
           }
         }
       }

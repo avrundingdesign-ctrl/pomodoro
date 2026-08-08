@@ -6,6 +6,14 @@
 	<string>de</string>
 	<key>CFBundleDisplayName</key>
 	<string>FocusPiece</string>
+	<!-- Add-only: the app writes a revealed painting to the library, never reads it.
+	     Translated in FocusPiece/InfoPlist.xcstrings. -->
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>Um dein enthülltes Werk in deiner Fotomediathek zu sichern.</string>
+	<!-- Only HTTPS via the system frameworks — exempt, so App Store Connect
+	     stops asking about export compliance on every upload. -->
+	<key>ITSAppUsesNonExemptEncryption</key>
+	<false/>
 	<key>UILaunchScreen</key>
 	<dict>
 		<key>UIColorName</key>
