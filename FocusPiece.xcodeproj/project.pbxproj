@@ -44,6 +44,7 @@
 		FC0000000000000000000031 /* Exceptions for "FocusPiece" folder in "FocusPieceWidgetExtension" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
+				Models/FocusActivityAttributes.swift,
 				Models/WidgetState.swift,
 				"Resources/Fonts/HankenGrotesk-Bold.ttf",
 				"Resources/Fonts/HankenGrotesk-Medium.ttf",

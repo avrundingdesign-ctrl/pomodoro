@@ -15,6 +15,9 @@ struct FocusPieceApp: App {
                 .preferredColorScheme(app.settings.colorScheme)
                 .onOpenURL { app.handleDeepLink($0) }
                 .task {
+                    // A crash mid-session leaves its Live Activity on screen;
+                    // sessions never survive a relaunch, so clear it first.
+                    LiveActivityController.endStaleActivities()
                     await store.start()
                     app.applyPurchasedProducts(store.purchasedProductIDs)
                 }

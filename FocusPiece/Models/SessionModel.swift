@@ -44,8 +44,10 @@ final class SessionModel: ObservableObject {
     private let notifyOnCompletion: Bool
 
     private var timer: AnyCancellable?
-    /// Wall-clock moment the current phase ends; set while running.
-    private var endDate: Date?
+    /// Wall-clock moment the current phase ends; set while running. Read by the
+    /// widget snapshot and the Live Activity so both count down against the
+    /// same instant instead of re-deriving one that drifts.
+    private(set) var endDate: Date?
     /// Gentle-start grace: extra settle seconds before the clock visibly moves.
     private let gentleSettleSeconds: Int
     private var didSettleThisRound = false
