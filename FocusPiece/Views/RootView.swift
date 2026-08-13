@@ -3,6 +3,8 @@ import SwiftUI
 /// Root container — onboarding gate, then the three tabs with a custom tab bar.
 struct RootView: View {
     @EnvironmentObject var app: AppModel
+    @EnvironmentObject var updateChecker: UpdateChecker
+    @Environment(\.openURL) private var openURL
 
     var body: some View {
         Group {
@@ -15,6 +17,21 @@ struct RootView: View {
             }
         }
         .animation(.easeInOut(duration: 0.35), value: app.onboardingComplete)
+        .alert(item: Binding(
+            get: { updateChecker.available },
+            set: { newValue in
+                if newValue == nil, let current = updateChecker.available {
+                    updateChecker.dismiss(current)
+                }
+            }
+        )) { update in
+            Alert(
+                title: Text("Update verfügbar"),
+                message: Text("FocusPiece \(update.version) ist jetzt im App Store erhältlich."),
+                primaryButton: .default(Text("Aktualisieren")) { openURL(update.storeURL) },
+                secondaryButton: .cancel(Text("Später"))
+            )
+        }
     }
 }
 

@@ -401,6 +401,22 @@
         }
       }
     },
+    "Aktualisieren": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aktualisieren"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Update"
+          }
+        }
+      }
+    },
     "Alle Werke enthüllt": {
       "localizations": {
         "de": {
@@ -1181,6 +1197,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "FOCUSING"
+          }
+        }
+      }
+    },
+    "FocusPiece %@ ist jetzt im App Store erhältlich.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "FocusPiece %@ ist jetzt im App Store erhältlich."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "FocusPiece %@ is now available on the App Store."
           }
         }
       }
@@ -2833,6 +2865,22 @@
         }
       }
     },
+    "Später": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Später"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Later"
+          }
+        }
+      }
+    },
     "Stell den Timer, bleib präsent — mit jeder fokussierten Minute tritt ein verborgenes Kunstwerk klarer hervor.": {
       "localizations": {
         "de": {
@@ -2989,6 +3037,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Tonalism"
+          }
+        }
+      }
+    },
+    "Update verfügbar": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Update verfügbar"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Update available"
           }
         }
       }
