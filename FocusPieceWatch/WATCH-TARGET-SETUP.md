@@ -141,6 +141,9 @@ phone, resume it — the context must arrive late and still be correct).
   schedule and pass `notifyOnCompletion: false` on the phone.
 - **Device builds hang from the CLI** on this Mac (signing waits on something
   only Xcode's UI shows). Use the Run button for anything on hardware.
-- **The Smart Stack layout** (`FocusLiveActivitySmartStack`) is written but not
-  in the widget bundle; it needs an iOS 18 deployment target. See the note in
-  `FocusPieceWidgetBundle.swift`.
+
+The Smart Stack layout is live: the app now targets iOS 18, so
+`FocusLiveActivity` declares the `small` family directly and a paired watch on
+watchOS 11 gets `WatchBanner` in its Smart Stack whether or not this watch app
+is installed. Worth looking at on a real wrist alongside the app itself, since
+the two are separate surfaces that will be seen side by side.

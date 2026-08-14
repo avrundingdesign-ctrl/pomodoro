@@ -2,16 +2,22 @@ import ActivityKit
 import WidgetKit
 import SwiftUI
 
-/// Live Activity for a running cycle: the lock-screen banner and the three
-/// Dynamic Island presentations.
+/// Live Activity for a running cycle: the lock-screen banner, the three Dynamic
+/// Island presentations, and the Apple Watch Smart Stack.
 ///
 /// Like the home screen widget, the countdown is `Text(timerInterval:)` against
 /// the phase's wall-clock end — the system ticks it without waking the
 /// extension, so a running session costs no updates at all.
+///
+/// watchOS 11 mirrors iPhone Live Activities onto the wrist by itself, but in a
+/// generic layout that was never designed for 44 mm. Declaring the `small`
+/// family replaces it with `WatchBanner`. The modifier is iOS-side only
+/// (`@available(watchOS, unavailable)`) — the watch is the renderer, not the
+/// declarer.
 struct FocusLiveActivity: Widget {
     var body: some WidgetConfiguration {
         ActivityConfiguration(for: FocusActivityAttributes.self) { context in
-            ActivityRoot(state: context.state)
+            FamilyAwareBanner(state: context.state)
                 .activityBackgroundTint(Theme.Palette.paper)
                 .activitySystemActionForegroundColor(Theme.Palette.ink)
         } dynamicIsland: { context in
@@ -43,53 +49,14 @@ struct FocusLiveActivity: Widget {
             .widgetURL(WidgetStore.startURL)
             .keylineTint(Theme.Palette.accent)
         }
-    }
-}
-
-/// The same activity, additionally declaring the `small` family that watchOS
-/// renders in its Smart Stack.
-///
-/// watchOS 11 mirrors iPhone Live Activities onto the wrist on its own; without
-/// this declaration it does so in a generic layout that was never designed for
-/// 44 mm. Declaring the family hands it `WatchBanner` instead. The modifier is
-/// iOS-side only (`@available(watchOS, unavailable)`) — the watch is the
-/// renderer, not the declarer — and the configuration is not duplicated here
-/// but taken straight from `FocusLiveActivity`.
-///
-/// **Not currently in the bundle.** `supplementalActivityFamilies` needs iOS 18
-/// and this extension still ships to iOS 17, which cannot be bridged: a
-/// `WidgetBundle` has no `buildEither`, so `if #available` takes no `else`, and
-/// listing both types would leave two ActivityConfigurations competing for the
-/// same attributes. Activating it means raising the extension's deployment
-/// target to iOS 18 and swapping this type in for `FocusLiveActivity`.
-@available(iOS 18.0, *)
-struct FocusLiveActivitySmartStack: Widget {
-    var body: some WidgetConfiguration {
-        FocusLiveActivity().body
-            .supplementalActivityFamilies([.small])
+        .supplementalActivityFamilies([.small])
     }
 }
 
 // MARK: - Building blocks
 
-/// Picks the presentation for the surface the activity is being drawn on.
-///
-/// Without a declared `small` family the environment only ever reports
-/// `.medium`, so today this always resolves to `LockScreenBanner`; it is the
-/// branch that starts mattering the moment the family is declared.
-private struct ActivityRoot: View {
-    let state: FocusActivityAttributes.ContentState
-
-    var body: some View {
-        if #available(iOS 18.0, *) {
-            FamilyAwareBanner(state: state)
-        } else {
-            LockScreenBanner(state: state)
-        }
-    }
-}
-
-@available(iOS 18.0, *)
+/// Picks the presentation for the surface the activity is being drawn on: the
+/// watch's `small` family gets `WatchBanner`, everything else the lock screen's.
 private struct FamilyAwareBanner: View {
     @Environment(\.activityFamily) private var family
     let state: FocusActivityAttributes.ContentState
