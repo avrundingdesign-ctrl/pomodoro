@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<!-- Single-target watch app (watchOS 7 and later), paired to the iPhone app. -->
+	<key>WKApplication</key>
+	<true/>
+	<key>WKCompanionAppBundleIdentifier</key>
+	<string>com.focuspiece.app</string>
+
+	<!-- Only the faces the watch UI actually asks for. The italic and bold cuts
+	     the phone bundles are unused here, and a watch bundle is not the place
+	     to carry them. If a face is missing SwiftUI falls back to the system
+	     one silently, so this list is worth checking against Theme.Font. -->
+	<key>UIAppFonts</key>
+	<array>
+		<string>Newsreader-Light.ttf</string>
+		<string>Newsreader-Regular.ttf</string>
+		<string>Newsreader-Medium.ttf</string>
+		<string>HankenGrotesk-Regular.ttf</string>
+		<string>HankenGrotesk-Medium.ttf</string>
+		<string>HankenGrotesk-SemiBold.ttf</string>
+	</array>
+</dict>
+</plist>
