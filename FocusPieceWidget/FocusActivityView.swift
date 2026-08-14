@@ -11,7 +11,7 @@ import SwiftUI
 struct FocusLiveActivity: Widget {
     var body: some WidgetConfiguration {
         ActivityConfiguration(for: FocusActivityAttributes.self) { context in
-            LockScreenBanner(state: context.state)
+            ActivityRoot(state: context.state)
                 .activityBackgroundTint(Theme.Palette.paper)
                 .activitySystemActionForegroundColor(Theme.Palette.ink)
         } dynamicIsland: { context in
@@ -46,7 +46,61 @@ struct FocusLiveActivity: Widget {
     }
 }
 
+/// The same activity, additionally declaring the `small` family that watchOS
+/// renders in its Smart Stack.
+///
+/// watchOS 11 mirrors iPhone Live Activities onto the wrist on its own; without
+/// this declaration it does so in a generic layout that was never designed for
+/// 44 mm. Declaring the family hands it `WatchBanner` instead. The modifier is
+/// iOS-side only (`@available(watchOS, unavailable)`) — the watch is the
+/// renderer, not the declarer — and the configuration is not duplicated here
+/// but taken straight from `FocusLiveActivity`.
+///
+/// **Not currently in the bundle.** `supplementalActivityFamilies` needs iOS 18
+/// and this extension still ships to iOS 17, which cannot be bridged: a
+/// `WidgetBundle` has no `buildEither`, so `if #available` takes no `else`, and
+/// listing both types would leave two ActivityConfigurations competing for the
+/// same attributes. Activating it means raising the extension's deployment
+/// target to iOS 18 and swapping this type in for `FocusLiveActivity`.
+@available(iOS 18.0, *)
+struct FocusLiveActivitySmartStack: Widget {
+    var body: some WidgetConfiguration {
+        FocusLiveActivity().body
+            .supplementalActivityFamilies([.small])
+    }
+}
+
 // MARK: - Building blocks
+
+/// Picks the presentation for the surface the activity is being drawn on.
+///
+/// Without a declared `small` family the environment only ever reports
+/// `.medium`, so today this always resolves to `LockScreenBanner`; it is the
+/// branch that starts mattering the moment the family is declared.
+private struct ActivityRoot: View {
+    let state: FocusActivityAttributes.ContentState
+
+    var body: some View {
+        if #available(iOS 18.0, *) {
+            FamilyAwareBanner(state: state)
+        } else {
+            LockScreenBanner(state: state)
+        }
+    }
+}
+
+@available(iOS 18.0, *)
+private struct FamilyAwareBanner: View {
+    @Environment(\.activityFamily) private var family
+    let state: FocusActivityAttributes.ContentState
+
+    var body: some View {
+        switch family {
+        case .small: WatchBanner(state: state)
+        default:     LockScreenBanner(state: state)
+        }
+    }
+}
 
 /// mm:ss — live while running, frozen while paused.
 private struct ActivityTimer: View {
@@ -120,6 +174,56 @@ private struct RevealBar: View {
                 .foregroundStyle(Theme.Palette.muted2)
                 .lineLimit(1)
         }
+    }
+}
+
+/// The Apple Watch Smart Stack presentation.
+///
+/// Tighter than the lock screen in every dimension: the round label sits beside
+/// the eyebrow instead of opposite it, the timer drops to 30pt, and the reveal
+/// is a bar with a bare "9/20" — at this size the spelled-out
+/// "9 von 20 Teilen enthüllt" is the first thing that stops being legible.
+private struct WatchBanner: View {
+    let state: FocusActivityAttributes.ContentState
+
+    private var fraction: Double {
+        guard state.totalTiles > 0 else { return 0 }
+        return min(1, Double(state.revealedTiles) / Double(state.totalTiles))
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 4) {
+            HStack(spacing: 6) {
+                ActivityEyebrow(state: state)
+                if state.totalRounds > 1 {
+                    Text(verbatim: "· \(state.round)/\(state.totalRounds)")
+                        .font(Theme.Font.sans(11, weight: .medium))
+                        .foregroundStyle(Theme.Palette.muted2)
+                }
+                Spacer(minLength: 0)
+            }
+
+            HStack(alignment: .firstTextBaseline, spacing: 8) {
+                ActivityTimer(state: state, size: 30)
+                    .foregroundStyle(Theme.Palette.ink)
+                Spacer(minLength: 0)
+                Text(verbatim: "\(state.revealedTiles)/\(state.totalTiles)")
+                    .font(Theme.Font.sans(12, weight: .medium))
+                    .foregroundStyle(Theme.Palette.muted2)
+            }
+
+            GeometryReader { geo in
+                ZStack(alignment: .leading) {
+                    Capsule().fill(Theme.Palette.progressTrack)
+                    Capsule().fill(Theme.Palette.accent)
+                        .frame(width: max(0, geo.size.width * fraction))
+                }
+            }
+            .frame(height: 3)
+        }
+        .padding(.horizontal, 10)
+        .padding(.vertical, 8)
+        .frame(maxWidth: .infinity, alignment: .leading)
     }
 }
 
