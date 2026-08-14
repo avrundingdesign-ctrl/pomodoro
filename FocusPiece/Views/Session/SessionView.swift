@@ -5,24 +5,11 @@ import SwiftUI
 struct SessionFlowView: View {
     @EnvironmentObject var app: AppModel
     @Environment(\.scenePhase) private var scenePhase
-    @StateObject private var session: SessionModel
+    /// Owned by `AppModel`, not by this view: a watch command arrives whether
+    /// or not the Fokus tab is on screen, and leaving the tab used to tear the
+    /// session down while its Live Activity kept running.
+    @ObservedObject var session: SessionModel
     @State private var confirmAbort = false
-
-    init(app: AppModel) {
-        let s = app.settings
-        // All works unlocked → free session over a random collected work.
-        let artwork = app.nextLockedArtwork()
-            ?? app.collection.randomElement()
-            ?? Artwork.seedCollection[0]
-        _session = StateObject(wrappedValue: SessionModel(
-            focusMinutes: s.selectedDuration,
-            shortBreakMinutes: s.shortBreakMinutes,
-            longBreakMinutes: s.longBreakMinutes,
-            rounds: s.roundsPerCycle,
-            artwork: artwork,
-            gentleStart: s.gentleStart,
-            notifyOnCompletion: s.notifications))
-    }
 
     var body: some View {
         ZStack {
@@ -39,21 +26,12 @@ struct SessionFlowView: View {
         .onChange(of: scenePhase) { _, phase in
             if phase == .active { session.sync() }
         }
-        // Every finished focus round counts toward history & streak, even if
-        // the cycle is later abandoned before the artwork is revealed.
-        .onChange(of: session.completedRounds) { _, rounds in
-            guard rounds > 0 else { return }
-            app.recordFocusRound(minutes: session.focusMinutes, artworkID: session.artwork.id)
-            if session.state != .complete {
-                Feedback.roundCompleted(haptics: app.settings.haptics)
-            }
-        }
-        .onChange(of: session.state) { _, state in handleStateChange(state) }
-        // A new phase changes what the activity shows without changing `state`.
-        // `round` always moves together with it (see `beginFocusRound`), so one
-        // observer covers both.
-        .onChange(of: session.phase) { _, _ in
-            LiveActivityController.update(session)
+        // Crediting rounds, securing the artwork, feedback, the widget snapshot,
+        // the Live Activity and the watch all hang off `SessionModel.changes` in
+        // AppModel now — they have to happen with or without this view. What is
+        // left here is the one genuinely navigational consequence.
+        .onChange(of: session.state) { _, state in
+            if state == .finished { leave() }   // the long break ran out
         }
         .confirmationDialog("Session beenden?", isPresented: $confirmAbort, titleVisibility: .visible) {
             Button("Session beenden", role: .destructive) { abandon() }
@@ -65,44 +43,6 @@ struct SessionFlowView: View {
         .onAppear(perform: consumeAutoStart)
         .onChange(of: app.pendingAutoStart) { _, pending in
             if pending { consumeAutoStart() }
-        }
-    }
-
-    /// Everything that reacts to a new session state: securing the artwork,
-    /// feedback, the widget snapshot and the Live Activity. Kept out of `body`
-    /// — folded into the view expression it costs minutes of type checking.
-    private func handleStateChange(_ state: SessionState) {
-        switch state {
-        case .running:
-            app.publishWidgetSnapshot(phase: .running,
-                                      remainingSeconds: session.remainingSeconds,
-                                      endDate: session.endDate)
-            LiveActivityController.start(session)
-
-        case .paused:
-            app.publishWidgetSnapshot(phase: .paused,
-                                      remainingSeconds: session.remainingSeconds)
-            LiveActivityController.update(session)
-
-        case .complete:
-            // Secure the artwork right away — leaving from the completion
-            // screen (or a killed app) can't lose it anymore.
-            app.unlock(session.artwork, minutes: session.cycleFocusMinutes)
-            Feedback.sessionCompleted(tone: app.settings.completionTone,
-                                      haptics: app.settings.haptics)
-            app.publishWidgetSnapshot()
-            LiveActivityController.end(session, completed: true)
-
-        case .finished:   // the long break ran out
-            Feedback.tap(app.settings.haptics)
-            app.publishWidgetSnapshot()
-            LiveActivityController.end(session, completed: true)
-            leave()
-
-        case .ready:
-            // Between phases: the cycle goes on, so the activity stays and
-            // just picks up the new round / break.
-            LiveActivityController.update(session)
         }
     }
 
@@ -123,17 +63,15 @@ struct SessionFlowView: View {
         }
     }
 
-    /// Give up the cycle: stop the timer, take the Live Activity down at once
-    /// (nothing is running anymore), and return to the gallery.
-    private func abandon() {
-        session.cancel()
-        LiveActivityController.end(session, completed: false)
-        leave()
-    }
+    private func abandon() { leave() }
 
-    /// Close the session and return to the gallery. Re-entering the Fokus tab
-    /// builds a fresh ready session with a new hidden work.
-    private func leave() { app.selectedTab = .gallery }
+    /// Close the cycle and return to the gallery. `endSession` stops the timer,
+    /// takes the Live Activity down and tells the watch; re-entering the Fokus
+    /// tab then builds a fresh ready session with a new hidden work.
+    private func leave() {
+        app.endSession()
+        app.selectedTab = .gallery
+    }
 }
 
 // MARK: - Ready / Running / Paused / Break

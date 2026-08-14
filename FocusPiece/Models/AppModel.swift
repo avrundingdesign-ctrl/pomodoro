@@ -87,7 +87,13 @@ final class AppModel: ObservableObject {
         didSet { defaults.set(onboardingComplete, forKey: Keys.onboarding) }
     }
     @Published var settings: Settings {
-        didSet { persist(settings, key: Keys.settings); publishWidgetSnapshot() }
+        didSet {
+            persist(settings, key: Keys.settings)
+            publishWidgetSnapshot()
+            // The wrist shows the configured duration on its idle screen and
+            // honours the same haptics preference, so it needs these too.
+            WatchSyncController.shared.publish(from: self)
+        }
     }
     /// The works the user owns, rebuilt from the catalogue on every launch so
     /// the texts always match the current language. Only `progress` is stored.
@@ -100,6 +106,20 @@ final class AppModel: ObservableObject {
     @Published var selectedTab: Tab = .focus
     /// Set by the widget deep link; the Fokus tab consumes it and starts the session.
     @Published var pendingAutoStart = false
+
+    /// The cycle currently under way, or nil when none is.
+    ///
+    /// Owned here rather than by `SessionFlowView` for two reasons: a command
+    /// from the Apple Watch can arrive with no view on screen, and leaving the
+    /// Fokus tab mid-session used to tear the session down while its Live
+    /// Activity kept running.
+    @Published private(set) var session: SessionModel?
+
+    private var sessionObservers = Set<AnyCancellable>()
+    /// Focus rounds already written to `history` for the current cycle.
+    private var recordedRounds = 0
+    /// The completion finale plays once, even though `unlock` is idempotent.
+    private var celebratedCompletion = false
     /// Packs whose works belong to the collection. Always contains the free
     /// pack; paid packs join via StoreKit entitlements (cached for offline).
     @Published private(set) var ownedPackIDs: Set<String> {
@@ -238,6 +258,124 @@ final class AppModel: ObservableObject {
             .map { $0.applying(byID[$0.id]) }
     }
 
+    // MARK: The running cycle
+    /// Begin a cycle behind the next still-locked work.
+    ///
+    /// Idempotent — an existing cycle is handed back untouched, so entering the
+    /// Fokus tab twice, or a command arriving from the watch while the tab is
+    /// already open, can never discard progress.
+    @discardableResult
+    func beginSession() -> SessionModel {
+        if let session { return session }
+
+        let s = settings
+        // All works unlocked → free session over a random collected work.
+        let artwork = nextLockedArtwork()
+            ?? collection.randomElement()
+            ?? Artwork.seedCollection[0]
+        let model = SessionModel(
+            focusMinutes: s.selectedDuration,
+            shortBreakMinutes: s.shortBreakMinutes,
+            longBreakMinutes: s.longBreakMinutes,
+            rounds: s.roundsPerCycle,
+            artwork: artwork,
+            gentleStart: s.gentleStart,
+            notifyOnCompletion: s.notifications)
+
+        recordedRounds = 0
+        celebratedCompletion = false
+        observe(model)
+        session = model
+        WatchSyncController.shared.publish(from: self)
+        return model
+    }
+
+    /// Give up the cycle — the user closed it, or it ran all the way out.
+    func endSession() {
+        guard let session else { return }
+        session.cancel()
+        LiveActivityController.end(session, completed: session.state == .complete
+                                                    || session.state == .finished)
+        sessionObservers.removeAll()
+        self.session = nil
+        publishWidgetSnapshot()
+        WatchSyncController.shared.publish(from: self)
+    }
+
+    /// Subscribe to the session's settled-mutation signal.
+    ///
+    /// `changes` rather than `$state`, because `@Published` fires in `willSet`
+    /// and would hand us a session whose `endDate` is not written yet — see the
+    /// note on `SessionModel.changes`.
+    private func observe(_ model: SessionModel) {
+        sessionObservers.removeAll()
+        model.changes
+            .sink { [weak self, weak model] in
+                guard let self, let model else { return }
+                self.handleSessionChange(model)
+            }
+            .store(in: &sessionObservers)
+    }
+
+    /// Everything that reacts to the cycle moving: crediting rounds, securing
+    /// the artwork, feedback, the widget snapshot, the Live Activity and the
+    /// watch. This used to live in `SessionFlowView`, which meant none of it
+    /// happened unless the Fokus tab was on screen — and a command from the
+    /// wrist arrives whenever it likes.
+    private func handleSessionChange(_ s: SessionModel) {
+        // Credit each finished focus round exactly once. Rounds count toward
+        // stats and the streak even when the cycle is abandoned later. The
+        // signal fires on every mutation, so the increment has to be detected
+        // rather than assumed.
+        if s.completedRounds > recordedRounds {
+            for _ in recordedRounds..<s.completedRounds {
+                recordFocusRound(minutes: s.focusMinutes, artworkID: s.artwork.id)
+            }
+            recordedRounds = s.completedRounds
+            if s.state != .complete {
+                Feedback.roundCompleted(haptics: settings.haptics)
+            }
+        }
+
+        switch s.state {
+        case .running:
+            publishWidgetSnapshot(phase: .running,
+                                  remainingSeconds: s.remainingSeconds,
+                                  endDate: s.endDate)
+            LiveActivityController.start(s)
+
+        case .paused:
+            publishWidgetSnapshot(phase: .paused,
+                                  remainingSeconds: s.remainingSeconds)
+            LiveActivityController.update(s)
+
+        case .complete:
+            // Secure the artwork right away — leaving from the completion
+            // screen (or a killed app) can't lose it anymore.
+            unlock(s.artwork, minutes: s.cycleFocusMinutes)
+            // `unlock` is idempotent, the finale is not: only celebrate once.
+            if !celebratedCompletion {
+                celebratedCompletion = true
+                Feedback.sessionCompleted(tone: settings.completionTone,
+                                          haptics: settings.haptics)
+            }
+            publishWidgetSnapshot()
+            LiveActivityController.end(s, completed: true)
+
+        case .finished:   // the long break ran out
+            Feedback.tap(settings.haptics)
+            publishWidgetSnapshot()
+            LiveActivityController.end(s, completed: true)
+
+        case .ready:
+            // Between phases: the cycle goes on, so the activity stays and
+            // just picks up the new round / break.
+            LiveActivityController.update(s)
+        }
+
+        WatchSyncController.shared.publish(from: self)
+    }
+
     // MARK: Widget
     /// Push the current state into the shared app-group container so the
     /// home/lock screen widget can mirror it.
@@ -252,6 +390,76 @@ final class AppModel: ObservableObject {
             worksUnlocked: unlockedCount,
             worksTotal: totalCount,
             totalFocusMinutes: totalFocusMinutes))
+    }
+
+    // MARK: Watch
+    /// The current state as a wire snapshot for the Apple Watch.
+    ///
+    /// Assembled here rather than in `SessionModel` because the session knows
+    /// nothing about the collection, the settings, or the artwork's display
+    /// text — and the watch needs all three.
+    func sessionSnapshot() -> SessionSnapshot {
+        var snap = SessionSnapshot()
+
+        // Settings describe the *next* cycle; they are what the idle watch
+        // shows and what it would start.
+        snap.focusMinutes = settings.selectedDuration
+        snap.shortBreakMinutes = settings.shortBreakMinutes
+        snap.longBreakMinutes = settings.longBreakMinutes
+        snap.totalRounds = settings.roundsPerCycle
+        snap.gentleStart = settings.gentleStart
+        snap.haptics = settings.haptics
+        snap.completionTone = settings.completionTone
+        snap.notifications = settings.notifications
+
+        snap.worksUnlocked = unlockedCount
+        snap.worksTotal = totalCount
+        snap.totalFocusMinutes = totalFocusMinutes
+
+        if let s = session {
+            // A live cycle's shape was fixed when it began, so it wins over the
+            // settings — changing "Fokusdauer" mid-session must not make the
+            // wrist show a different clock than the phone.
+            snap.focusMinutes = s.focusMinutes
+            snap.shortBreakMinutes = s.shortBreakMinutes
+            snap.longBreakMinutes = s.longBreakMinutes
+            snap.totalRounds = s.totalRounds
+
+            snap.state = s.syncState
+            snap.phase = s.syncPhase
+            snap.round = s.round
+            snap.completedRounds = s.completedRounds
+            snap.remainingSeconds = s.remainingSeconds
+            snap.endDate = s.endDate
+
+            snap.artworkID = s.artwork.id
+            snap.artworkTitle = s.artwork.title
+            snap.artworkArtist = s.artwork.artist
+            snap.artworkAsset = s.artwork.assetName
+        }
+        return snap
+    }
+
+    /// Apply a command that arrived from the wrist. Creating the session when
+    /// none exists is what makes "start from the watch" work with the phone
+    /// still in a pocket and the Fokus tab never opened.
+    func apply(_ command: SessionCommand) {
+        switch command {
+        case .requestState:
+            break                       // the caller answers with a snapshot
+        case .start:
+            beginSession().start()
+        case .pause:
+            session?.pause()
+        case .toggle:
+            beginSession().toggle()
+        case .skipBreak:
+            session?.skipBreak()
+        case .startLongBreak:
+            session?.startLongBreak()
+        case .cancel:
+            endSession()
+        }
     }
 
     /// Handle `focuspiece://start` from the widget's Start button: switch to the

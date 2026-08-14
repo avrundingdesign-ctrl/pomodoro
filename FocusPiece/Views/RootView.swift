@@ -45,8 +45,7 @@ private struct MainTabs: View {
             switch app.selectedTab {
             case .focus:
                 // Immersive session flow — full screen, its own header, no tab bar.
-                // Rebuilt with a fresh ready session each time the tab is entered.
-                SessionFlowView(app: app)
+                FocusTab()
             case .gallery:
                 tabbed { GalleryView() }
             case .settings:
@@ -62,5 +61,27 @@ private struct MainTabs: View {
                 .padding(.bottom, 90) // room for the tab bar
             TabBar(selection: $app.selectedTab)
         }
+    }
+}
+
+/// Hands the Fokus tab the cycle that `AppModel` owns, creating one on first
+/// entry.
+///
+/// The session is created from `.task` rather than inline in `body`, because
+/// `beginSession()` publishes — doing it during the view update would draw
+/// SwiftUI's "Publishing changes from within view updates" complaint. A watch
+/// command can also have created the session already, in which case this just
+/// picks it up.
+private struct FocusTab: View {
+    @EnvironmentObject var app: AppModel
+
+    var body: some View {
+        ZStack {
+            Theme.Palette.paper.ignoresSafeArea()
+            if let session = app.session {
+                SessionFlowView(session: session)
+            }
+        }
+        .task { app.beginSession() }
     }
 }

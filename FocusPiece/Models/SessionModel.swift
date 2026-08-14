@@ -43,6 +43,23 @@ final class SessionModel: ObservableObject {
     /// Whether a phase-end notification should be scheduled while running.
     private let notifyOnCompletion: Bool
 
+    /// Fires once a mutation has *fully* settled — the hook everything outside
+    /// the session listens on (widget snapshot, Live Activity, watch sync).
+    ///
+    /// It exists because `@Published` publishes in `willSet`: a Combine
+    /// subscriber on `$state` runs before the rest of the method's assignments
+    /// land, and `start()` sets `state = .running` before it computes
+    /// `endDate` — so such a subscriber would read `nil` and push a countdown
+    /// with no end. SwiftUI's `onChange` happens to dodge this by delivering
+    /// after the update pass; nothing on Combine does. Announcing explicitly
+    /// at the end of each mutation makes the ordering a guarantee instead of a
+    /// coincidence.
+    ///
+    /// Deliberately *not* fired from `sync()`: the half-second display beat
+    /// changes nothing structural, and both devices derive the countdown from
+    /// `endDate` themselves. Only shape changes travel.
+    let changes = PassthroughSubject<Void, Never>()
+
     private var timer: AnyCancellable?
     /// Wall-clock moment the current phase ends; set while running. Read by the
     /// widget snapshot and the Live Activity so both count down against the
@@ -107,9 +124,8 @@ final class SessionModel: ObservableObject {
 
         scheduleEndNotification(after: remainingSeconds + settle)
 
-        timer = Timer.publish(every: 0.5, on: .main, in: .common)
-            .autoconnect()
-            .sink { [weak self] _ in self?.sync() }
+        startDisplayTimer()
+        announce()
     }
 
     func pause() {
@@ -122,6 +138,7 @@ final class SessionModel: ObservableObject {
         endDate = nil
         timer?.cancel(); timer = nil
         NotificationManager.shared.cancelSessionEnd()
+        announce()
     }
 
     func toggle() { state == .running ? pause() : start() }
@@ -148,6 +165,7 @@ final class SessionModel: ObservableObject {
     func cancel() {
         stopTimer()
         NotificationManager.shared.cancelSessionEnd()
+        announce()
     }
 
     /// Re-derive the remaining time from the end date — called on every timer
@@ -187,6 +205,7 @@ final class SessionModel: ObservableObject {
             remainingSeconds = 0
             state = .finished
         }
+        announce()
     }
 
     private func beginFocusRound(_ next: Int, autoStart: Bool) {
@@ -195,12 +214,71 @@ final class SessionModel: ObservableObject {
         remainingSeconds = focusSecondsPerRound
         didSettleThisRound = false
         state = .ready
-        if autoStart { start() }
+        // `start()` announces for us; otherwise say so here.
+        if autoStart { start() } else { announce() }
+    }
+
+    private func startDisplayTimer() {
+        timer = Timer.publish(every: 0.5, on: .main, in: .common)
+            .autoconnect()
+            .sink { [weak self] _ in self?.sync() }
     }
 
     private func stopTimer() {
         timer?.cancel(); timer = nil
         endDate = nil
+    }
+
+    private func announce() { changes.send() }
+
+    // MARK: Mirroring another device
+    /// This cycle expressed as a wire snapshot. The caller fills in the fields
+    /// the session cannot know about — the collection summary and the artwork's
+    /// display text.
+    var syncState: SessionSnapshot.State {
+        switch state {
+        case .ready:    return .ready
+        case .running:  return .running
+        case .paused:   return .paused
+        case .complete: return .complete
+        case .finished: return .finished
+        }
+    }
+
+    var syncPhase: SessionSnapshot.Phase {
+        switch phase {
+        case .focus:      return .focus
+        case .shortBreak: return .shortBreak
+        case .longBreak:  return .longBreak
+        }
+    }
+
+    /// Take over a cycle another device owns — the watch mirroring the phone,
+    /// or the phone catching up on a cycle that was started from the wrist.
+    ///
+    /// Only *where* the cycle is gets adopted; its shape (durations, rounds) is
+    /// fixed at init, so the caller rebuilds the model when that changes rather
+    /// than mutating it here.
+    ///
+    /// Deliberately silent: it neither announces (an inbound change must not
+    /// echo straight back to the sender) nor schedules a notification — exactly
+    /// one device owns the phase-end alert, and it is not the mirroring one.
+    func adopt(_ snapshot: SessionSnapshot) {
+        phase = snapshot.phase.asSessionPhase
+        round = snapshot.round
+        completedRounds = snapshot.completedRounds
+        remainingSeconds = snapshot.remainingSeconds
+        endDate = snapshot.endDate
+        state = snapshot.state.asSessionState ?? .ready
+        // A mirrored round is already under way, so the gentle settle beat
+        // must not replay when this device later resumes it.
+        didSettleThisRound = true
+
+        timer?.cancel(); timer = nil
+        if state == .running, let end = endDate {
+            remainingSeconds = max(0, Int(end.timeIntervalSinceNow.rounded(.up)))
+            startDisplayTimer()
+        }
     }
 
     // MARK: Notifications
@@ -224,5 +302,33 @@ final class SessionModel: ObservableObject {
             body = String(localized: "Gut erholt — dein Werk hängt bereits in der Galerie.")
         }
         NotificationManager.shared.scheduleSessionEnd(after: seconds, title: title, body: body)
+    }
+}
+
+// MARK: - Wire enum bridging
+// The snapshot's enums are `String`-backed so the payload never depends on
+// declaration order, which the session's own plain enums would.
+extension SessionSnapshot.Phase {
+    var asSessionPhase: SessionPhase {
+        switch self {
+        case .focus:      return .focus
+        case .shortBreak: return .shortBreak
+        case .longBreak:  return .longBreak
+        }
+    }
+}
+
+extension SessionSnapshot.State {
+    /// `nil` for `.idle` — there is no session state that means "no session",
+    /// which is exactly why the snapshot carries the extra case.
+    var asSessionState: SessionState? {
+        switch self {
+        case .idle:     return nil
+        case .ready:    return .ready
+        case .running:  return .running
+        case .paused:   return .paused
+        case .complete: return .complete
+        case .finished: return .finished
+        }
     }
 }
