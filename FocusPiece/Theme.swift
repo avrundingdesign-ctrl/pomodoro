@@ -1,4 +1,7 @@
 import SwiftUI
+#if canImport(UIKit)
+import UIKit
+#endif
 
 // MARK: - Design Tokens
 // All values are taken verbatim from the FocusPiece hi-fi design handoff.
@@ -110,7 +113,14 @@ extension Color {
     }
 
     /// Dynamic color that resolves per light/dark trait.
+    ///
+    /// watchOS has no `UIColor(dynamicProvider:)` — and no light mode either:
+    /// the watch face is always dark, so the dark value is the only one that
+    /// can ever apply. That lets the whole palette above carry over unchanged.
     init(light: UInt, dark: UInt) {
+        #if os(watchOS)
+        self.init(hex: dark)
+        #else
         self.init(uiColor: UIColor { trait in
             let hex = trait.userInterfaceStyle == .dark ? dark : light
             return UIColor(
@@ -119,6 +129,7 @@ extension Color {
                 blue:  CGFloat(hex & 0xFF) / 255.0,
                 alpha: 1)
         })
+        #endif
     }
 }
 
