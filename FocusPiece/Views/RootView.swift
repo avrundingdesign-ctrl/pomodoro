@@ -54,13 +54,21 @@ private struct MainTabs: View {
         }
     }
 
+    /// Hangs the tab bar off the bottom safe area instead of stacking it over
+    /// the content with a hardcoded `.padding(.bottom, 90)`.
+    ///
+    /// The padding version reserved a fixed strip and left the scroll views
+    /// ending exactly at the bar's top edge, so the last row of gallery tiles
+    /// was sliced mid-word and could not be scrolled clear. `safeAreaInset`
+    /// instead grows the content's safe area by the bar's *measured* height, so
+    /// scroll views turn it into a content inset and everything scrolls out
+    /// from under the bar.
     private func tabbed<Content: View>(@ViewBuilder _ content: () -> Content) -> some View {
-        ZStack(alignment: .bottom) {
-            content()
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-                .padding(.bottom, 90) // room for the tab bar
-            TabBar(selection: $app.selectedTab)
-        }
+        content()
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .safeAreaInset(edge: .bottom, spacing: 0) {
+                TabBar(selection: $app.selectedTab)
+            }
     }
 }
 
