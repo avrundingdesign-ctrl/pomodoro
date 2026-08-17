@@ -91,16 +91,16 @@
 				Models/Artwork.swift,
 				Models/SessionModel.swift,
 				Models/SessionSnapshot.swift,
-				Services/Feedback.swift,
-				Services/NotificationManager.swift,
-				Theme.swift,
-				Views/Components/ArtworkImage.swift,
 				"Resources/Fonts/HankenGrotesk-Medium.ttf",
 				"Resources/Fonts/HankenGrotesk-Regular.ttf",
 				"Resources/Fonts/HankenGrotesk-SemiBold.ttf",
 				"Resources/Fonts/Newsreader-Light.ttf",
 				"Resources/Fonts/Newsreader-Medium.ttf",
 				"Resources/Fonts/Newsreader-Regular.ttf",
+				Services/Feedback.swift,
+				Services/NotificationManager.swift,
+				Theme.swift,
+				Views/Components/ArtworkImage.swift,
 			);
 			target = FC00000000000000000000A1 /* FocusPieceWatch */;
 		};

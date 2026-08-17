@@ -21,3 +21,7 @@ xcuserdata/
 FocusPiece/Resources/Artworks/*.jpg
 FocusPiece/Resources/Artworks/*.jpeg
 FocusPiece/Resources/Artworks/*.png
+
+# Watch thumbnails derived from the paintings above (make with
+# Scripts/make_watch_thumbs.sh)
+FocusPieceWatch/Resources/Thumbs/

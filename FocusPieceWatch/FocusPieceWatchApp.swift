@@ -12,9 +12,16 @@ struct FocusPieceWatchApp: App {
 
     var body: some Scene {
         WindowGroup {
-            WatchRootView()
-                .environmentObject(model)
-                .task { model.activate() }
+            // The screens all set `.containerBackground(for: .navigation)`, and
+            // that modifier is silently ignored outside a navigation container
+            // — which is why every screen rendered on plain system black
+            // instead of on paper. One stack, no destinations: it exists purely
+            // so the backgrounds have something to attach to.
+            NavigationStack {
+                WatchRootView()
+                    .environmentObject(model)
+                    .task { model.activate() }
+            }
         }
     }
 }

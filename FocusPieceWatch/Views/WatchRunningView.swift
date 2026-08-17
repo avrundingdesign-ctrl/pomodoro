@@ -39,7 +39,10 @@ struct WatchRunningView: View {
 
             controls
         }
-        .containerBackground(Theme.Palette.paper, for: .navigation)
+        .containerBackground(for: .navigation) {
+            WatchArtworkBackdrop(assetName: snapshot.artworkAsset,
+                                 progress: session.progress)
+        }
     }
 
     /// Live while the clock runs, frozen otherwise. `Text(timerInterval:)` lets
