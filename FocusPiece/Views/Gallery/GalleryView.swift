@@ -10,15 +10,20 @@ struct GalleryView: View {
     @Environment(\.horizontalSizeClass) private var hSize
     @State private var activeSheet: ActiveSheet?
 
+    /// Asked before a running cycle is replaced by a task picked here.
+    @State private var pendingTask: Artwork?
+
     private enum ActiveSheet: Identifiable {
         case detail(Artwork)
         case info(Artwork)
+        case task(Artwork)
         case paywall
 
         var id: String {
             switch self {
             case .detail(let a): return "detail.\(a.id)"
             case .info(let a):   return "info.\(a.id)"
+            case .task(let a):   return "task.\(a.id)"
             case .paywall:       return "paywall"
             }
         }
@@ -63,9 +68,39 @@ struct GalleryView: View {
             switch sheet {
             case .detail(let art):  ArtworkDetailView(artwork: art)
             case .info(let art):    ArtworkInfoSheet(artwork: art)
+            case .task(let art):    ArtworkTaskSheet(artwork: art) { start(art) }
             case .paywall:          PaywallView()
             }
         }
+        // Same wording as closing a cycle from the Fokus tab: picking a task
+        // here abandons whatever is running, and the reveal goes with it.
+        .confirmationDialog("Laufende Session beenden?",
+                            isPresented: Binding(get: { pendingTask != nil },
+                                                 set: { if !$0 { pendingTask = nil } }),
+                            titleVisibility: .visible) {
+            Button("Session beenden", role: .destructive) {
+                if let art = pendingTask { pendingTask = nil; forceStart(art) }
+            }
+            Button("Weiter fokussieren", role: .cancel) { pendingTask = nil }
+        } message: {
+            Text("Dein Werk bleibt verborgen — die Enthüllung geht verloren.")
+        }
+    }
+
+    /// Take on a work's task. A cycle that is merely waiting gets replaced
+    /// silently; one with rounds behind it asks first.
+    private func start(_ art: Artwork) {
+        if app.beginSession(for: art) != nil {
+            app.selectedTab = .focus
+        } else {
+            pendingTask = art
+        }
+    }
+
+    private func forceStart(_ art: Artwork) {
+        app.endSession()
+        app.beginSession(for: art)
+        app.selectedTab = .focus
     }
 
     @ViewBuilder private func tile(for art: Artwork) -> some View {
@@ -74,7 +109,10 @@ struct GalleryView: View {
                 .buttonStyle(.plain)
                 .accessibilityIdentifier("gallery.tile.unlocked.\(art.id)")
         } else {
-            GalleryTile(artwork: art)
+            // Locked tiles are tappable too now: the tile is the task, and the
+            // painting behind it stays the surprise.
+            Button { activeSheet = .task(art) } label: { GalleryTile(artwork: art) }
+                .buttonStyle(.plain)
                 .accessibilityIdentifier("gallery.tile.locked.\(art.id)")
         }
     }
@@ -269,19 +307,26 @@ private struct GalleryTile: View {
                                    startPoint: .top, endPoint: .bottom)
                 )
             } else {
-                // Locked — blurred veil + lock.
+                // Locked — blurred veil, lock, and the task that lifts it. The
+                // work itself stays hidden: what the tile advertises is the
+                // cycle it costs, not the painting behind it.
                 ZStack {
                     Rectangle().fill(.ultraThinMaterial)
                     Theme.Palette.paper.opacity(0.4)
-                    VStack(spacing: 10) {
+                    VStack(spacing: 8) {
                         Image(systemName: "lock")
                             .font(.system(size: 21, weight: .regular))
                             .foregroundStyle(Theme.Palette.artistInk)
-                        Text("Fokussiere, um\nfreizuschalten")
-                            .multilineTextAlignment(.center)
-                            .font(Theme.Font.sans(12, weight: .medium))
-                            .foregroundStyle(Theme.Palette.muted)
+                        Text(artwork.requirement.shortLabel)
+                            .font(Theme.Font.sans(13, weight: .semibold))
+                            .foregroundStyle(Theme.Palette.ink)
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.8)
+                        Text("Fokus")
+                            .font(Theme.Font.sans(11))
+                            .foregroundStyle(Theme.Palette.muted2)
                     }
+                    .multilineTextAlignment(.center)
                     .padding(16)
                 }
             }

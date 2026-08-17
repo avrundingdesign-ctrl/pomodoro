@@ -18,7 +18,10 @@ struct SessionFlowView: View {
             case .complete:
                 CompletionView(session: session, onDone: leave)
             default:
-                ActiveSessionView(session: session, haptics: app.settings.haptics, onClose: requestClose)
+                ActiveSessionView(session: session,
+                                  haptics: app.settings.haptics,
+                                  showsTaskNote: shapedByWork,
+                                  onClose: requestClose)
             }
         }
         // The countdown is wall-clock based and keeps running while the app is
@@ -46,6 +49,14 @@ struct SessionFlowView: View {
         }
     }
 
+    /// Whether this cycle's shape came from the work rather than from the
+    /// settings — a task picked in the gallery, or the fallback `AppModel`
+    /// takes when nothing left is reachable with the current preferences.
+    private var shapedByWork: Bool {
+        session.focusMinutes != app.settings.selectedDuration
+            || session.totalRounds != app.settings.roundsPerCycle
+    }
+
     private func consumeAutoStart() {
         guard app.pendingAutoStart else { return }
         app.pendingAutoStart = false
@@ -55,8 +66,7 @@ struct SessionFlowView: View {
     /// Close only asks when reveal progress is at stake: an untouched session
     /// and the long break (work already secured) leave directly.
     private func requestClose() {
-        let untouched = session.state == .ready && session.phase == .focus && session.completedRounds == 0
-        if untouched || session.phase == .longBreak {
+        if !session.hasProgress || session.phase == .longBreak {
             abandon()
         } else {
             confirmAbort = true
@@ -79,6 +89,8 @@ private struct ActiveSessionView: View {
     @ObservedObject var session: SessionModel
     @Environment(\.horizontalSizeClass) private var hSize
     let haptics: Bool
+    /// The cycle's shape comes from the work, not the settings — say so.
+    var showsTaskNote = false
     let onClose: () -> Void
 
     /// The four screens this view hosts.
@@ -244,6 +256,11 @@ private struct ActiveSessionView: View {
         .frame(maxWidth: .infinity)
     }
 
+    private var taskLabel: String {
+        ArtworkRequirement(rounds: session.totalRounds,
+                           minutesPerRound: session.focusMinutes).shortLabel
+    }
+
     private var initialCaption: String {
         session.totalRounds > 1
             ? String(localized: "Minuten Fokus · \(session.totalRounds) Runden")
@@ -261,6 +278,18 @@ private struct ActiveSessionView: View {
             Text(caption)
                 .font(Theme.Font.sans(14))
                 .foregroundStyle(Theme.Palette.muted2)
+            // The cycle can be shaped by the work rather than by the settings —
+            // either because a task was picked in the gallery, or because
+            // nothing left was reachable with the current preferences. Saying
+            // so is the difference between "the app ignored me" and "this is
+            // what this work costs".
+            if showsTaskNote {
+                Text("Aufgabe dieses Werks · \(taskLabel)")
+                    .font(Theme.Font.sans(12, weight: .medium))
+                    .foregroundStyle(Theme.Palette.accent)
+                    .padding(.top, 2)
+                    .accessibilityIdentifier("session.tasknote")
+            }
             if session.totalRounds > 1 {
                 RoundDots(session: session).padding(.top, 10)
             }

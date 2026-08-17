@@ -206,9 +206,20 @@ final class AppModel: ObservableObject {
         return streak
     }
 
-    /// A random still-locked artwork to hide behind the next session.
+    /// Every work still waiting to be revealed, easiest task first.
+    var lockedArtworks: [Artwork] {
+        collection.filter { !$0.unlocked }
+            .sorted { $0.requirement.difficulty < $1.requirement.difficulty }
+    }
+
+    /// A random still-locked artwork whose task the *current settings* already
+    /// satisfy — the surprise the Fokus tab has always offered, now narrowed to
+    /// works this cycle can actually earn.
     func nextLockedArtwork() -> Artwork? {
-        collection.filter { !$0.unlocked }.randomElement()
+        collection.filter {
+            !$0.unlocked && $0.requirement.satisfied(byRounds: settings.roundsPerCycle,
+                                                     minutesPerRound: settings.selectedDuration)
+        }.randomElement()
     }
 
     /// Record one completed focus round. Rounds count toward stats and the
@@ -268,16 +279,53 @@ final class AppModel: ObservableObject {
     func beginSession() -> SessionModel {
         if let session { return session }
 
+        // Preferred: a work the current settings can already earn. Failing
+        // that, the easiest task still outstanding — and then the cycle takes
+        // *its* shape rather than the settings', because a session that cannot
+        // reveal anything is a dead end the user has no way to see coming.
+        // `SessionFlowView` says so on the ready screen.
+        if let reachable = nextLockedArtwork() {
+            return startCycle(for: reachable,
+                              rounds: settings.roundsPerCycle,
+                              focusMinutes: settings.selectedDuration)
+        }
+        if let hardest = lockedArtworks.first {
+            return startCycle(for: hardest,
+                              rounds: hardest.requirement.rounds,
+                              focusMinutes: hardest.requirement.minutesPerRound)
+        }
+        // Everything collected → free focus over a work already owned.
+        let free = collection.randomElement() ?? Artwork.seedCollection[0]
+        return startCycle(for: free,
+                          rounds: settings.roundsPerCycle,
+                          focusMinutes: settings.selectedDuration)
+    }
+
+    /// Begin the cycle a specific work asks for, picked from the gallery.
+    ///
+    /// The task dictates rounds and minutes; breaks, gentle start and
+    /// notifications stay the user's preferences. Returns `nil` when a cycle is
+    /// already under way — the caller asks before throwing that away, since
+    /// `endSession` would lose the reveal.
+    @discardableResult
+    func beginSession(for artwork: Artwork) -> SessionModel? {
+        if let existing = session, existing.hasProgress { return nil }
+        if session != nil { endSession() }
+        return startCycle(for: artwork,
+                          rounds: artwork.requirement.rounds,
+                          focusMinutes: artwork.requirement.minutesPerRound)
+    }
+
+    /// The one place a `SessionModel` is built, so both entry points agree on
+    /// everything except where the shape comes from.
+    private func startCycle(for artwork: Artwork,
+                            rounds: Int, focusMinutes: Int) -> SessionModel {
         let s = settings
-        // All works unlocked → free session over a random collected work.
-        let artwork = nextLockedArtwork()
-            ?? collection.randomElement()
-            ?? Artwork.seedCollection[0]
         let model = SessionModel(
-            focusMinutes: s.selectedDuration,
+            focusMinutes: focusMinutes,
             shortBreakMinutes: s.shortBreakMinutes,
             longBreakMinutes: s.longBreakMinutes,
-            rounds: s.roundsPerCycle,
+            rounds: rounds,
             artwork: artwork,
             gentleStart: s.gentleStart,
             notifyOnCompletion: s.notifications)

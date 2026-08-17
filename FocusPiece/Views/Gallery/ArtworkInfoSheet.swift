@@ -2,7 +2,11 @@ import SwiftUI
 
 /// The ⓘ sheet: curator's notes for any work in the gallery — artist, year,
 /// movement, the set ("Bildband") it belongs to, and the story of the piece.
-/// Available for locked works too; only the image itself stays a secret.
+///
+/// A locked work keeps its identity to itself: no title, artist, year or blurb,
+/// only its epoch, its set and the task that lifts it. The point of a veiled
+/// tile is that you take on a cycle without knowing what you are uncovering,
+/// and a sheet that names the painting would hand that away on one tap.
 struct ArtworkInfoSheet: View {
     @Environment(\.dismiss) private var dismiss
     let artwork: Artwork
@@ -22,27 +26,47 @@ struct ArtworkInfoSheet: View {
                 }
                 .padding(.bottom, 14)
 
-                Text(artwork.title)
-                    .font(Theme.Font.serif(28))
-                    .tracking(-0.3)
-                    .foregroundStyle(Theme.Palette.ink)
-                    .padding(.bottom, 4)
-                    .accessibilityIdentifier("info.title")
-                Text(artwork.attribution)
-                    .font(Theme.Font.serifItalic(15))
-                    .foregroundStyle(Theme.Palette.artistInk)
-                    .padding(.bottom, 16)
+                if artwork.unlocked {
+                    Text(artwork.title)
+                        .font(Theme.Font.serif(28))
+                        .tracking(-0.3)
+                        .foregroundStyle(Theme.Palette.ink)
+                        .padding(.bottom, 4)
+                        .accessibilityIdentifier("info.title")
+                    Text(artwork.attribution)
+                        .font(Theme.Font.serifItalic(15))
+                        .foregroundStyle(Theme.Palette.artistInk)
+                        .padding(.bottom, 16)
 
-                Text(artwork.blurb)
-                    .font(Theme.Font.sans(15))
-                    .lineSpacing(6)
-                    .foregroundStyle(Theme.Palette.bodySoft)
-                    .fixedSize(horizontal: false, vertical: true)
-                    .padding(.bottom, 22)
+                    Text(artwork.blurb)
+                        .font(Theme.Font.sans(15))
+                        .lineSpacing(6)
+                        .foregroundStyle(Theme.Palette.bodySoft)
+                        .fixedSize(horizontal: false, vertical: true)
+                        .padding(.bottom, 22)
+                } else {
+                    Text("Verborgenes Werk")
+                        .font(Theme.Font.serif(28))
+                        .tracking(-0.3)
+                        .foregroundStyle(Theme.Palette.ink)
+                        .padding(.bottom, 4)
+                        .accessibilityIdentifier("info.title")
+
+                    Text("Künstler, Titel und die Geschichte dieses Werks erscheinen, sobald du es freigeschaltet hast.")
+                        .font(Theme.Font.sans(15))
+                        .lineSpacing(6)
+                        .foregroundStyle(Theme.Palette.bodySoft)
+                        .fixedSize(horizontal: false, vertical: true)
+                        .padding(.bottom, 22)
+                }
 
                 VStack(spacing: 0) {
-                    row("Künstler", artwork.artist)
-                    row("Entstanden", artwork.year)
+                    if artwork.unlocked {
+                        row("Künstler", artwork.artist)
+                        row("Entstanden", artwork.year)
+                    } else {
+                        row("Aufgabe", artwork.requirement.shortLabel)
+                    }
                     row("Epoche", artwork.collectionTag)
                     row("Bildband", packTitle)
                     row("Quelle", String(localized: "Public Domain · Wikimedia Commons"), last: true)

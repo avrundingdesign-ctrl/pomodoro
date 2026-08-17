@@ -369,6 +369,38 @@
         }
       }
     },
+    "%lld × %lld Min": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld × %lld Min"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld × %lld min"
+          }
+        }
+      }
+    },
+    "AUFGABE": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "AUFGABE"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "TASK"
+          }
+        }
+      }
+    },
     "Abschluss-Ton": {
       "localizations": {
         "de": {
@@ -461,6 +493,54 @@
           "stringUnit": {
             "state": "translated",
             "value": "View of Delft"
+          }
+        }
+      }
+    },
+    "Aufgabe": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aufgabe"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Task"
+          }
+        }
+      }
+    },
+    "Aufgabe dieses Werks · %@": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aufgabe dieses Werks · %@"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This work’s task · %@"
+          }
+        }
+      }
+    },
+    "Aufgabe starten": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aufgabe starten"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Start task"
           }
         }
       }
@@ -1905,6 +1985,22 @@
         }
       }
     },
+    "Künstler, Titel und die Geschichte dieses Werks erscheinen, sobald du es freigeschaltet hast.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Künstler, Titel und die Geschichte dieses Werks erscheinen, sobald du es freigeschaltet hast."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The artist, title and story of this work appear once you have unlocked it."
+          }
+        }
+      }
+    },
     "LANGE PAUSE": {
       "localizations": {
         "de": {
@@ -1933,6 +2029,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Long break"
+          }
+        }
+      }
+    },
+    "Laufende Session beenden?": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Laufende Session beenden?"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "End the running session?"
           }
         }
       }
@@ -2449,6 +2561,22 @@
         }
       }
     },
+    "Pro Runde": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pro Runde"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Per round"
+          }
+        }
+      }
+    },
     "Public Domain · Wikimedia Commons": {
       "localizations": {
         "de": {
@@ -2701,6 +2829,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Gentle start"
+          }
+        }
+      }
+    },
+    "Schließe diesen Zyklus ab, um zu sehen, was dahinter liegt.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Schließe diesen Zyklus ab, um zu sehen, was dahinter liegt."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Complete this cycle to see what lies behind it."
           }
         }
       }

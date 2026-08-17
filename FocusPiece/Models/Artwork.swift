@@ -1,5 +1,29 @@
 import Foundation
 
+/// What a cycle has to be for a work to fall.
+///
+/// Deliberately only the *shape* of a session — rounds and minutes per round.
+/// Streaks and cumulative totals were considered and dropped: a requirement the
+/// user can read off a tile and act on the same afternoon is the one that makes
+/// a locked work feel like a task rather than a wait.
+struct ArtworkRequirement: Equatable {
+    var rounds: Int
+    var minutesPerRound: Int
+
+    var totalMinutes: Int { rounds * minutesPerRound }
+
+    /// "At least as hard", not equal: someone who sat through 4×45 has cleared
+    /// 4×25 several times over. Demanding an exact match would punish the
+    /// longer session and be impossible to explain on a tile.
+    func satisfied(byRounds r: Int, minutesPerRound m: Int) -> Bool {
+        r >= rounds && m >= minutesPerRound
+    }
+
+    /// Cheap total order for "which locked work is the easiest left" — minutes
+    /// first, then rounds, so 1×45 sorts above 3×15 at equal total.
+    var difficulty: Int { totalMinutes * 100 + minutesPerRound }
+}
+
 /// A single public-domain artwork in the collection.
 /// Images are bundled JPGs (see Scripts/fetch_artworks.sh); `assetName` is the
 /// bundle resource base name. When the file is missing the UI shows a graceful
@@ -22,6 +46,11 @@ struct Artwork: Identifiable, Equatable {
     /// The set this work belongs to (see ArtworkCatalog); the original eight
     /// works form the free "klassiker" pack.
     var packID: String = "klassiker"
+    /// The cycle that reveals this work. Not `Codable` and never persisted, for
+    /// the same reason the texts are not: it belongs to the catalogue, so
+    /// retuning the ladder in a later version reaches every existing
+    /// collection without a migration.
+    var requirement = ArtworkRequirement(rounds: 1, minutesPerRound: 25)
 
     // Mutable progress state
     var unlocked: Bool = false

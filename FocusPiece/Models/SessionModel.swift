@@ -106,6 +106,13 @@ final class SessionModel: ObservableObject {
     /// "Runde 2 von 4"
     var roundLabel: String { String(localized: "Runde \(round) von \(totalRounds)") }
 
+    /// Whether abandoning this cycle would throw anything away. A ready cycle
+    /// nobody has started yet is worth nothing, which is why closing it — or
+    /// replacing it with a task picked from the gallery — does not need to ask.
+    var hasProgress: Bool {
+        !(state == .ready && phase == .focus && completedRounds == 0)
+    }
+
     var timeString: String {
         let m = remainingSeconds / 60, s = remainingSeconds % 60
         return String(format: "%02d:%02d", m, s)
